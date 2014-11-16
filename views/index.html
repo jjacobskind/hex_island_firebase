@@ -24,7 +24,7 @@
 				map.style.width = '100%';
 				document.body.appendChild( map );
 
-				renderer = new THREE.WebGLRenderer();
+				renderer = new THREE.WebGLRenderer({antialias:true});
 				renderer.setClearColor( 0xA1CEED );
 				renderer.setSize( window.innerWidth, window.innerHeight );
 				document.body.appendChild( renderer.domElement );
@@ -37,6 +37,7 @@
 				controls = new THREE.OrbitControls( camera );
 				controls.addEventListener( 'change', render );
 				// controls.autoRotate=true;
+				controls.noPan = true;
 				controls.maxPolarAngle = Math.PI/2.5;
 
 				scene.add( new THREE.AmbientLight( 0x222222 ) );
@@ -103,34 +104,114 @@
 					bevelSegments   : 1,
 				};
 
+				var circlePts = [];
+				var numCirclePts = 32
+
+				for(i=0;i<numCirclePts*2;i++){
+					var a = i/numCirclePts * Math.PI;
+					circlePts.push(new THREE.Vector2(Math.cos(a)*l/4, Math.sin(a)*l/4));
+				}
+
+				chip_geometry = new THREE.ExtrudeGeometry(new THREE.Shape(circlePts), {amount:1,
+																				bevelEnabled:false
+																				});
+
 				geometry = new THREE.ExtrudeGeometry( shape, extrudeSettings );
 				var outer_middle_distance = Math.sqrt(Math.pow(l*4,2) - Math.pow(0.5*l*4, 2));
-				var spaces = [new THREE.Mesh( geometry, new THREE.MeshFaceMaterial( materials ) )];
-				spaces[0].position.set(0, 0, 0);
-				spaces[0].rotation.set(Math.PI/2, 0, 0);
-				scene.add( spaces[0] );
+				var obj=drawTile(0,0);
+				var spaces=[obj.tile];
+				var num_chips=[obj.num_chip];
 				for ( i = 0; i < numPts*2; i++ ) {
 					if(i%2===0){
 						for(var j=4;j>=2;j-=2) {
-							spaces.push(new THREE.Mesh( geometry, new THREE.MeshFaceMaterial( materials ) ));
-							var last=spaces.length-1;
-							a = i / numPts * Math.PI;
-							spaces[last].position.set( Math.sin(a)*l*j, 0, Math.cos(a)*l*j );
-							spaces[last].rotation.set(Math.PI/2, 0, 0);
-							scene.add( spaces[last] );
+							obj = drawTile(i, l*j);
+							spaces.push(obj.tile);
+							num_chips.push(obj.num_chip);
 						}
 					} else {
-						spaces.push(new THREE.Mesh( geometry, new THREE.MeshFaceMaterial( materials ) ));
-						var last=spaces.length-1;
-						a = i / numPts * Math.PI;
-						spaces[last].position.set( Math.sin(a)*outer_middle_distance, 0, Math.cos(a)*outer_middle_distance );
-						spaces[last].rotation.set(Math.PI/2, 0, 0);
-						scene.add( spaces[last] );
+						obj = drawTile(i, outer_middle_distance);
+						spaces.push(obj.tile);
+						num_chips.push(obj.num_chip);
 					}
 
 				}
 
-			}
+				function drawTile(i, dist) {
+					var tile = new THREE.Mesh( geometry, new THREE.MeshFaceMaterial( materials ) );
+					var a = i / numPts * Math.PI;
+					tile.position.set( Math.sin(a)*dist, 0, Math.cos(a)*dist );
+					tile.rotation.set(Math.PI/2, 0, 0);
+					scene.add( tile );
+
+					var num_chip = new THREE.Mesh(chip_geometry, new THREE.MeshFaceMaterial(materials));
+					num_chip.rotation.set(Math.PI/2, 0, 0);
+					num_chip.position.set( Math.sin(a)*dist, 2, Math.cos(a)*dist );
+					scene.add(num_chip);
+					return {tile: tile, num_chip:num_chip};
+				};
+
+				function drawSettlement(x, z, color) {
+					var pts = [];
+					pts.push(new THREE.Vector2(-5, 0));
+					pts.push(new THREE.Vector2(5, 0));
+					pts.push(new THREE.Vector2(5, 7));
+					pts.push(new THREE.Vector2(8, 7));
+					pts.push(new THREE.Vector2(0, 13));
+					pts.push(new THREE.Vector2(-8, 7));
+					pts.push(new THREE.Vector2(-5, 7));
+					pts.push(new THREE.Vector2(-5, 0));
+
+					settlement_geometry = new THREE.ExtrudeGeometry(new THREE.Shape(pts), {amount:15,
+																				bevelEnabled:false
+																				});
+
+					var material = new THREE.MeshLambertMaterial( { color: colorConversion(color), wireframe: false } );
+
+					var settlement = new THREE.Mesh(settlement_geometry, material);
+					settlement.position.set( x, 0, z );
+					return settlement;
+				};
+
+				function drawCity(x,z, color){
+					var pts = [];
+					pts.push(new THREE.Vector2(-10, 0));
+					pts.push(new THREE.Vector2(7, 0));
+					pts.push(new THREE.Vector2(7, 9));
+					pts.push(new THREE.Vector2(0, 9));
+					pts.push(new THREE.Vector2(0, 15));
+					pts.push(new THREE.Vector2(-5, 20));
+					pts.push(new THREE.Vector2(-10, 15));
+					pts.push(new THREE.Vector2(-10, 0));
+
+					settlement_geometry = new THREE.ExtrudeGeometry(new THREE.Shape(pts), {amount:15,
+																				bevelEnabled:false
+																				});
+
+					var material = new THREE.MeshLambertMaterial( { color: colorConversion(color), wireframe: false } );
+
+					var settlement = new THREE.Mesh(settlement_geometry, material);
+					settlement.position.set( x, 0, z );
+					return settlement;
+				};
+
+				scene.add(drawSettlement(30, 0, "blue"));
+				scene.add(drawCity(-30,0, "red"));
+			};
+
+
+			function colorConversion(color_string){
+				switch(color_string){
+					case "red":
+						return 0xff0000;
+					case "blue":
+						return 0x0000ff;
+					case "white":
+						return 0xffffff;
+					case "orange":
+						return 0xf28100;
+				}
+			};
+
 
 			function animate() {
 
