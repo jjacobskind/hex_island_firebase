@@ -7,6 +7,7 @@
 		<script src='javascripts/OrbitControls.js'></script>
 		<script src='javascripts/Mirror.js'></script>
 		<script src='javascripts/WaterShader.js'></script>
+		<script src='javascripts/settlers.js'></script>
 		<script type='text/javascript'>
 
 	
@@ -17,7 +18,6 @@
 
 			function init() {
 
-				var tile_depth = 5;
 
 				var map = document.createElement( 'div' );
 				map.style.position = 'absolute';
@@ -64,7 +64,6 @@
 				light.position.copy( camera.position );
 				scene.add( light );
 
-				var material = new THREE.MeshLambertMaterial( { color: 0xffffff, wireframe: false } );
 
 
 				//Begin Water Rendering
@@ -92,113 +91,15 @@
 				scene.add( mirrorMesh );
 
 
-				// Begin Board Rendering
-
-				var pts = [], numPts = 6;
-				var l = 30;
-
-				for ( var i = 0; i < numPts * 2; i+=2 ) {
-
-					var a = i / numPts * Math.PI;
-
-					pts.push( new THREE.Vector2 ( Math.cos( a ) * l, Math.sin( a ) * l ) );
-
-				}
-
-				var shape = new THREE.Shape( pts );
-
-				var material2 = new THREE.MeshLambertMaterial( { color: 0xff8000, wireframe: false } );
-
-				var materials = [ material, material2 ];
-
-				var extrudeSettings = {
-					amount			: tile_depth,
-					steps			: 1,
-					material		: 1,
-					extrudeMaterial : 0,
-					bevelEnabled	: true,
-					bevelThickness  : 1,
-					bevelSize       : 4,
-					bevelSegments   : 1,
-				};
-
-				var circlePts = [];
-				var numCirclePts = 32
-
-				for(i=0;i<numCirclePts*2;i++){
-					var a = i/numCirclePts * Math.PI;
-					circlePts.push(new THREE.Vector2(Math.cos(a)*l/4, Math.sin(a)*l/4));
-				}
-
-				chip_geometry = new THREE.ExtrudeGeometry(new THREE.Shape(circlePts), {amount:1,
-																				bevelEnabled:false
-																				});
-
-			   var resources = [0xFFB13D, 0xFFB13D, 0xFFB13D, 0xFFB13D, 0x996600, 0x996600, 0x996600, 0x996600, 0xE0E0E0, 0xE0E0E0, 0xE0E0E0, 0xE0E0E0, 0x3D3D3D, 0x3D3D3D, 0x3D3D3D, 0xFF0000, 0xFF0000, 0xFF0000, 0xFFFFCC];
-
-			   var shuffleFunction = function(array) {
-			       for (var i = array.length - 1; i > 0; i--) {
-			           var j = Math.floor(Math.random() * (i + 1));
-			           var temp = array[i];
-			           array[i] = array[j];
-			           array[j] = temp;
-			       }
-			       return array;
-			   };
-			   resources = shuffleFunction(resources);
-
-				geometry = new THREE.ExtrudeGeometry( shape, extrudeSettings );
-				var outer_middle_distance = Math.sqrt(Math.pow(l*4,2) - Math.pow(0.5*l*4, 2));
-				var obj=drawTile(0,0, 0);
-				var spaces=[obj.tile];
-				var num_chips=[obj.num_chip];
-				var count =0;
-				for ( i = 0; i < numPts*2; i++ ) {
-					if(i%2===0){
-						for(var j=4;j>=2;j-=2) {
-							count++;
-							obj = drawTile(count, i, l*j);
-							spaces.push(obj.tile);
-							num_chips.push(obj.num_chip);
-						}
-					} else {
-						count++;
-						obj = drawTile(count, i, outer_middle_distance);
-						spaces.push(obj.tile);
-						num_chips.push(obj.num_chip);
-					}
-
-				}
-
-				// var Board = function() {
-				// 	this.spaces = [];
-				// 	for(var i=0;i<18;i++) {
-				// 		this.spaces.push(new Tile);
-				// 	}
-				// };
-
-				// var Tile = function() {
-				// 	this.tile = this.drawTile.tile;
-				// };
 
 
-				function drawTile(count, i, dist) {
-					var colored_material = new THREE.MeshLambertMaterial( { color: resources.pop(), wireframe: false } );
-					var materialshere = [material, colored_material];
-
-					var tile = new THREE.Mesh( geometry, new THREE.MeshFaceMaterial( materialshere ) );
-					var a = i / numPts * Math.PI;
-					tile.position.set( Math.sin(a)*dist, 0, Math.cos(a)*dist );
-					tile.rotation.set(Math.PI/2, 0, 0);
-					scene.add( tile );
 
 
-					var num_chip = new THREE.Mesh(chip_geometry, new THREE.MeshFaceMaterial(materials));
-					num_chip.rotation.set(Math.PI/2, 0, 0);
-					num_chip.position.set( Math.sin(a)*dist, 2, Math.cos(a)*dist );
-					scene.add(num_chip);
-					return {tile: tile, num_chip:num_chip};
-				};
+			   
+
+				
+
+				var a = new Game();
 
 				function drawSettlement(x, z, color) {
 					var pts = [];
