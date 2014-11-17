@@ -28,6 +28,24 @@
 				renderer.setClearColor( 0xA1CEED );
 				renderer.setSize( window.innerWidth, window.innerHeight );
 				document.body.appendChild( renderer.domElement );
+				renderer.domElement.addEventListener('click', function(event){
+
+					var vector = new THREE.Vector3();
+
+					vector.set(
+					    ( event.clientX / window.innerWidth ) * 2 - 1,
+					    - ( event.clientY / window.innerHeight ) * 2 + 1,
+					    0.5 );
+
+					vector.unproject( camera );
+
+					var dir = vector.sub( camera.position ).normalize();
+
+					var distance = - camera.position.y / dir.y;
+
+					var pos = camera.position.clone().add( dir.multiplyScalar( distance ) );
+					scene.add(drawCity(pos.x, pos.z, "red"));
+				});
 
 				scene = new THREE.Scene();
 
@@ -116,32 +134,64 @@
 																				bevelEnabled:false
 																				});
 
+			   var resources = [0xFFB13D, 0xFFB13D, 0xFFB13D, 0xFFB13D, 0x996600, 0x996600, 0x996600, 0x996600, 0xE0E0E0, 0xE0E0E0, 0xE0E0E0, 0xE0E0E0, 0x3D3D3D, 0x3D3D3D, 0x3D3D3D, 0xFF0000, 0xFF0000, 0xFF0000, 0xFFFFCC];
+
+			   var shuffleFunction = function(array) {
+			       for (var i = array.length - 1; i > 0; i--) {
+			           var j = Math.floor(Math.random() * (i + 1));
+			           var temp = array[i];
+			           array[i] = array[j];
+			           array[j] = temp;
+			       }
+			       return array;
+			   };
+			   resources = shuffleFunction(resources);
+
 				geometry = new THREE.ExtrudeGeometry( shape, extrudeSettings );
 				var outer_middle_distance = Math.sqrt(Math.pow(l*4,2) - Math.pow(0.5*l*4, 2));
-				var obj=drawTile(0,0);
+				var obj=drawTile(0,0, 0);
 				var spaces=[obj.tile];
 				var num_chips=[obj.num_chip];
+				var count =0;
 				for ( i = 0; i < numPts*2; i++ ) {
 					if(i%2===0){
 						for(var j=4;j>=2;j-=2) {
-							obj = drawTile(i, l*j);
+							count++;
+							obj = drawTile(count, i, l*j);
 							spaces.push(obj.tile);
 							num_chips.push(obj.num_chip);
 						}
 					} else {
-						obj = drawTile(i, outer_middle_distance);
+						count++;
+						obj = drawTile(count, i, outer_middle_distance);
 						spaces.push(obj.tile);
 						num_chips.push(obj.num_chip);
 					}
 
 				}
 
-				function drawTile(i, dist) {
-					var tile = new THREE.Mesh( geometry, new THREE.MeshFaceMaterial( materials ) );
+				// var Board = function() {
+				// 	this.spaces = [];
+				// 	for(var i=0;i<18;i++) {
+				// 		this.spaces.push(new Tile);
+				// 	}
+				// };
+
+				// var Tile = function() {
+				// 	this.tile = this.drawTile.tile;
+				// };
+
+
+				function drawTile(count, i, dist) {
+					var colored_material = new THREE.MeshLambertMaterial( { color: resources.pop(), wireframe: false } );
+					var materialshere = [material, colored_material];
+
+					var tile = new THREE.Mesh( geometry, new THREE.MeshFaceMaterial( materialshere ) );
 					var a = i / numPts * Math.PI;
 					tile.position.set( Math.sin(a)*dist, 0, Math.cos(a)*dist );
 					tile.rotation.set(Math.PI/2, 0, 0);
 					scene.add( tile );
+
 
 					var num_chip = new THREE.Mesh(chip_geometry, new THREE.MeshFaceMaterial(materials));
 					num_chip.rotation.set(Math.PI/2, 0, 0);
@@ -194,6 +244,34 @@
 					return settlement;
 				};
 
+				(function drawRobber(){
+					var points = [];
+					var neck_width;
+					for ( var i = 0; i < 30; i++ ) {
+						if(i<3){
+							points.push(new THREE.Vector3( l/5, 0, i ) );
+						}
+						else if (i>=3 && i<=4){
+							points.push(new THREE.Vector3( l/5 - (i-2), 0, i ) );
+						}
+						else if (i>=5 && i<=20){
+							points.push(new THREE.Vector3( l/5 + Math.sin((i-5)/10*Math.PI), 0, i*1.2 ) );
+							neck_width = l/5 + Math.sin((i-5)/10*Math.PI);
+						}
+						else if (i>=21 && i<30){
+							points.push(new THREE.Vector3( l/5 + Math.cos((i-21)/10*Math.PI), 0, i*1.2 ) );
+						}
+					}
+
+					// for(i=0)
+					var geometry = new THREE.LatheGeometry( points);
+					var material = new THREE.MeshLambertMaterial( { color: 0x111111 } );
+					var lathe = new THREE.Mesh( geometry, material );
+					lathe.rotation.set(Math.PI,Math.PI/2,0);
+					lathe.position.set(0,20,0);
+					scene.add( lathe );
+				})();
+
 				scene.add(drawSettlement(30, 0, "blue"));
 				scene.add(drawCity(-30,0, "red"));
 			};
@@ -230,6 +308,11 @@
 
 				renderer.render( scene, camera );
 			}
+
+			(function allotResources(){
+
+			})();
+
 
 		</script>
 	</body>
