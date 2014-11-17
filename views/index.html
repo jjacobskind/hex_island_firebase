@@ -19,33 +19,13 @@
 			function init() {
 
 
+				// Create DOM element to hold canvas
 				var map = document.createElement( 'div' );
 				map.style.position = 'absolute';
 				map.style.width = '100%';
 				document.body.appendChild( map );
 
-				renderer = new THREE.WebGLRenderer({antialias:true});
-				renderer.setClearColor( 0xA1CEED );
-				renderer.setSize( window.innerWidth, window.innerHeight );
-				document.body.appendChild( renderer.domElement );
-				renderer.domElement.addEventListener('click', function(event){
-
-					var vector = new THREE.Vector3();
-
-					vector.set(
-					    ( event.clientX / window.innerWidth ) * 2 - 1,
-					    - ( event.clientY / window.innerHeight ) * 2 + 1,
-					    0.5 );
-
-					vector.unproject( camera );
-
-					var dir = vector.sub( camera.position ).normalize();
-
-					var distance = - camera.position.y / dir.y;
-
-					var pos = camera.position.clone().add( dir.multiplyScalar( distance ) );
-					scene.add(drawCity(pos.x, pos.z, "red"));
-				});
+				renderer = createRenderer();
 
 				scene = new THREE.Scene();
 
@@ -64,155 +44,84 @@
 				light.position.copy( camera.position );
 				scene.add( light );
 
+				scene.add( renderWater() );
+
+				var game = new Game(scene);
 
 
-				//Begin Water Rendering
+		}
 
-				var waterNormals = new THREE.ImageUtils.loadTexture( 'images/waternormals.jpg' );
-				waterNormals.wrapS = waterNormals.wrapT = THREE.RepeatWrapping; 
+		function animate() {
 
-				water = new THREE.Water( renderer, camera, scene, {
-					waterNormals: waterNormals,
-					alpha: 	0.8,
-					sunDirection: light.position.clone().normalize(),
-					sunColor: 0xffffff,
-					waterColor: 0x3D50E0,
-					distortionScale: 50.0,
-				} );
+			requestAnimationFrame( animate );
 
-				var mirrorMesh = new THREE.Mesh(
-					new THREE.PlaneBufferGeometry( 10000, 10000 ),
-					water.material
-				);
-
-				mirrorMesh.position.set(0, tile_depth*-1, 0);
-
-				mirrorMesh.rotation.x = - Math.PI * 0.5;
-				scene.add( mirrorMesh );
+			controls.update();
 
 
+		}
 
+		function render(){
+			light.position.copy(camera.position);
 
+			water.material.uniforms.time.value += 1.0 / 60.0;
+			water.render();
 
+			renderer.render( scene, camera );
+		}
 
-			   
+		function createRenderer(){
+			var renderer = new THREE.WebGLRenderer({antialias:true});
+			renderer.setClearColor( 0xA1CEED );
+			renderer.setSize( window.innerWidth, window.innerHeight );
+			document.body.appendChild( renderer.domElement );
 
-				
+			// Click event handler calculates the  x & z coordinates on the y=0 plane that correspond to where user clicked on canvas
+			renderer.domElement.addEventListener('click', function(event){
 
-				var a = new Game();
+				var vector = new THREE.Vector3();
 
-				function drawSettlement(x, z, color) {
-					var pts = [];
-					pts.push(new THREE.Vector2(-5, 0));
-					pts.push(new THREE.Vector2(5, 0));
-					pts.push(new THREE.Vector2(5, 7));
-					pts.push(new THREE.Vector2(8, 7));
-					pts.push(new THREE.Vector2(0, 13));
-					pts.push(new THREE.Vector2(-8, 7));
-					pts.push(new THREE.Vector2(-5, 7));
-					pts.push(new THREE.Vector2(-5, 0));
+				vector.set(
+				    ( event.clientX / window.innerWidth ) * 2 - 1,
+				    - ( event.clientY / window.innerHeight ) * 2 + 1,
+				    0.5 );
 
-					settlement_geometry = new THREE.ExtrudeGeometry(new THREE.Shape(pts), {amount:15,
-																				bevelEnabled:false
-																				});
+				vector.unproject( camera );
 
-					var material = new THREE.MeshLambertMaterial( { color: colorConversion(color), wireframe: false } );
+				var dir = vector.sub( camera.position ).normalize();
 
-					var settlement = new THREE.Mesh(settlement_geometry, material);
-					settlement.position.set( x, 0, z );
-					return settlement;
-				};
+				var distance = - camera.position.y / dir.y;
 
-				function drawCity(x,z, color){
-					var pts = [];
-					pts.push(new THREE.Vector2(-10, 0));
-					pts.push(new THREE.Vector2(7, 0));
-					pts.push(new THREE.Vector2(7, 9));
-					pts.push(new THREE.Vector2(0, 9));
-					pts.push(new THREE.Vector2(0, 15));
-					pts.push(new THREE.Vector2(-5, 20));
-					pts.push(new THREE.Vector2(-10, 15));
-					pts.push(new THREE.Vector2(-10, 0));
+				var pos = camera.position.clone().add( dir.multiplyScalar( distance ) );
+				console.log( [pos.x, pos.z]);
+			});
+			return renderer;
+		};
 
-					settlement_geometry = new THREE.ExtrudeGeometry(new THREE.Shape(pts), {amount:15,
-																				bevelEnabled:false
-																				});
+		function renderWater(){
 
-					var material = new THREE.MeshLambertMaterial( { color: colorConversion(color), wireframe: false } );
+			var waterNormals = new THREE.ImageUtils.loadTexture( 'images/waternormals.jpg' );
+			waterNormals.wrapS = waterNormals.wrapT = THREE.RepeatWrapping; 
 
-					var settlement = new THREE.Mesh(settlement_geometry, material);
-					settlement.position.set( x, 0, z );
-					return settlement;
-				};
+			water = new THREE.Water( renderer, camera, scene, {
+				waterNormals: waterNormals,
+				alpha: 	0.8,
+				sunDirection: light.position.clone().normalize(),
+				sunColor: 0xffffff,
+				waterColor: 0x3D50E0,
+				distortionScale: 50.0,
+			} );
 
-				(function drawRobber(){
-					var points = [];
-					var neck_width;
-					for ( var i = 0; i < 30; i++ ) {
-						if(i<3){
-							points.push(new THREE.Vector3( l/5, 0, i ) );
-						}
-						else if (i>=3 && i<=4){
-							points.push(new THREE.Vector3( l/5 - (i-2), 0, i ) );
-						}
-						else if (i>=5 && i<=20){
-							points.push(new THREE.Vector3( l/5 + Math.sin((i-5)/10*Math.PI), 0, i*1.2 ) );
-							neck_width = l/5 + Math.sin((i-5)/10*Math.PI);
-						}
-						else if (i>=21 && i<30){
-							points.push(new THREE.Vector3( l/5 + Math.cos((i-21)/10*Math.PI), 0, i*1.2 ) );
-						}
-					}
+			var mirrorMesh = new THREE.Mesh(
+				new THREE.PlaneBufferGeometry( 10000, 10000 ),
+				water.material
+			);
 
-					// for(i=0)
-					var geometry = new THREE.LatheGeometry( points);
-					var material = new THREE.MeshLambertMaterial( { color: 0x111111 } );
-					var lathe = new THREE.Mesh( geometry, material );
-					lathe.rotation.set(Math.PI,Math.PI/2,0);
-					lathe.position.set(0,20,0);
-					scene.add( lathe );
-				})();
+			mirrorMesh.position.set(0, tile_depth*-1, 0);
 
-				scene.add(drawSettlement(30, 0, "blue"));
-				scene.add(drawCity(-30,0, "red"));
-			};
+			mirrorMesh.rotation.x = - Math.PI * 0.5;
+			return mirrorMesh;
+		}
 
-
-			function colorConversion(color_string){
-				switch(color_string){
-					case "red":
-						return 0xff0000;
-					case "blue":
-						return 0x0000ff;
-					case "white":
-						return 0xffffff;
-					case "orange":
-						return 0xf28100;
-				}
-			};
-
-
-			function animate() {
-
-				requestAnimationFrame( animate );
-
-				controls.update();
-
-
-			}
-
-			function render(){
-				light.position.copy(camera.position);
-
-				water.material.uniforms.time.value += 1.0 / 60.0;
-				water.render();
-
-				renderer.render( scene, camera );
-			}
-
-			(function allotResources(){
-
-			})();
 
 
 		</script>
