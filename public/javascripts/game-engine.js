@@ -66,34 +66,71 @@ function Player(id) {
         publicPoints: 0,
         privatePoints: 0
     };
-    this.ownedProperties = [];
+    this.ownedProperties = {
+        settlements: [],
+        cities: [],
+        roads: [],
+    };
     this.rulesValidatedBuildableTiles = [];
     this.hasLongestRoad = false;
     this.hasLargestArmy = false;
 };
 
-Player.prototype.validateTiles = function() {
+Player.prototype.validateNewTiles = function(endpointLocation) {
     //function goes here, the player will be able to check the tiles they can build on
-    //this will be done by doing some sort of function = math, haven't figured it out yet 
+    var endpointX = endpointLocation[0];
+    var endpointY = endpointLocation[1];
+    var tiles = function(){return game.gameBoard.validBuildableTiles()}();
+    if (endpointX % 2 === 0) {
+        //if x is an EVEN number, will build laterally to the left and right, one row up
+        this.rulesValidatedBuildableTiles.push([endpointX+1, endpointY]);
+        if (endpointY < tiles[endpointX].length) {
+            //checking there is a 'right' to build to
+         this.rulesValidatedBuildableTiles.push([endpointX+1, endpointY+1]);
+        }
+        if (endpointX !== 0) {
+            //and if X is NOT 0, will build one row higher (ie, lower in x val)
+          this.rulesValidatedBuildableTiles.push([endpointX-1, endpointY]);  
+        }
+    }
+    if (endpointX % 2 !== 0) {
+        if (endpointY > 0){
+            //if y is greater than 0, build laterally to the left, one row down
+            this.rulesValidatedBuildableTiles.push([endpointX-1, endpointY-1]);
+        }
+            //then build laterally to the right, one row down
+        this.rulesValidatedBuildableTiles.push([endpointX-1, endpointY]);  
+        if (endpointX !== 11) {
+            //and if X is NOT 11, one row higher
+          this.rulesValidatedBuildableTiles.push([endpointX+1, endpointY]);  
+        }     
+    }
 };
 
 Player.prototype.placeSettlement = function(locationX,locationY) {
+    var tiles = function(){return game.gameBoard.validBuildableTiles()}();
     if (game.boardIsSetup === false) {
         //board initialization place settlement, get board tiles, and if the location does not have the property hasOwner, allow them to build
-        var tiles = function(){return game.gameBoard.validBuildableTiles()}();
         if (tiles[locationX][locationY].hasOwner !== undefined){
             throw new Error ('This location is owned already!');
         };
         if (tiles[locationX][locationY].hasOwner === undefined){
             tiles[locationX][locationY].hasOwner = true;
-            this.ownedProperties.push(tiles[locationX][locationY]);
+            this.ownedProperties.settlements.push(tiles[locationX][locationY]);
         }
     }
-    //check the player's rulesValidatedBuildableTiles for the location, if it's not there, no build-y
+    //check the player's rulesValidatedBuildableTiles for the location, as well as if the tile is marked 'hasOwner' in the buildableTiles... if it's not in validated or it has an owner, no build-y
 };
 
-Player.prototype.upgradeSettlementToCity = function(ownedSettlement) {
-    // body...
+Player.prototype.upgradeSettlementToCity = function() {
+    var activeSettlements = this.ownedProperties.settlements;
+    var settlementSelection = [];
+    activeSettlements.forEach(function(item, index) {
+        settlementSelection.push("" + index + " : " + item.location, 'Please enter your number here.')
+    })
+    var settlementToUpgrade = prompt("Which settlement would you like to upgrade? Enter your selection in the box below. \n"+settlementSelection.join(""));
+    this.ownedProperties.cities.push(activeSettlements[settlementToUpgrade]);
+    activeSettlements.splice(settlementToUpgrade, 1);
 };
 
 Player.prototype.constructRoad = function(first_argument) {
