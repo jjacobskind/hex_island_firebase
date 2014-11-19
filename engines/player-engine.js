@@ -36,7 +36,7 @@ function Player(id) {
         cities: [],
         roads: [],
     };
-    this.rulesValidatedBuildableTiles = [];
+    this.rulesValidatedBuildableVertices = [];
     this.hasLongestRoad = false;
     this.hasLargestArmy = false;
 };
