@@ -142,6 +142,7 @@ Player.prototype.gatherResources = function() {
 };
 
 Player.prototype.upgradeSettlementToCity = function() {
+    //TO DO: fix this code
     //find active settlements
     //prompt player to choose which settlement to upgrade
     //add one settlement to construction pool
