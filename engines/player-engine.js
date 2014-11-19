@@ -1,44 +1,6 @@
-//game engine setup
-
-function GameEngine() {
-    this.players = [],
-    this.turn = 0,
-	this.gameBoard = new GameBoard(this),
-    //are all players added to the game model, and are we ready to setup the board?
-    this.areAllPlayersAdded = false;
-    //true or false: is the stage where players add their first two settlements, and first two roads complete?
-    this.boardIsSetup = false;
-    //have all players setup their first two settlements and first two roads?
-    this.hasGameStartedYet = false;
-}
-
-GameEngine.prototype.addPlayer = function() {
-    if (this.areAllPlayersAdded === false) {
-    var id = this.players.length;
-    if (id > 3) {
-        throw new Error ("Sorry, no more than 4 players!");
-    }
-    this.players.push(new Player(id));
-    }
-    else if (this.areAllPlayersAdded === true) {
-        throw new Error ("Game is already started!");
-    }
-};
-
-GameEngine.prototype.validatePlayerCount = function() {
-    this.areAllPlayersAdded = true;
-    return "All players have been added!"
-};
-
-GameEngine.prototype.shuffle = function(){
-//fisher-yates goes here
-};
-
-GameEngine.prototype.roll = function() {
-//roll goes here
-};
-
 //the player model is below
+
+var game = require('./game-engine');
 
 function Player(id) {
     this.playerID = id;
@@ -83,7 +45,7 @@ Player.prototype.validateNewTiles = function(endpointLocation) {
     //function goes here, the player will be able to check the tiles they can build on
     var endpointX = endpointLocation[0];
     var endpointY = endpointLocation[1];
-    var tiles = function(){return game.gameBoard.validBuildableTiles()}();
+    var tiles = function(){return this.gameBoard.validBuildableTiles()}();
     if (endpointX % 2 === 0) {
         //if x is an EVEN number, will build laterally to the left and right, one row up
         this.rulesValidatedBuildableTiles.push([endpointX+1, endpointY]);
@@ -111,7 +73,7 @@ Player.prototype.validateNewTiles = function(endpointLocation) {
 };
 
 Player.prototype.placeSettlement = function(locationX,locationY) {
-    var tiles = function(){return game.gameBoard.validBuildableTiles()}();
+    var tiles = this.gameBoard.validBuildableTiles();
     if (game.boardIsSetup === false) {
         //board initialization place settlement, get board tiles, and if the location does not have the property owner, allow them to build
         if (tiles[locationX][locationY].owner !== null){
@@ -164,69 +126,4 @@ Player.prototype.constructRoad = function(first_argument) {
     // body...
 };
 
-//game board model, which is generates as a child of the gameengine model, but is generated as an independent object
-
-var GameBoard = function(game) {
-    this.game = game;
-    this.boardVertices = this.createBoard(3, 6);
-    this.boardTiles = [];
-};
-
-
-GameBoard.prototype.createBoard = function(small_num, large_num, board) {
-    if(!board) {
-        board = [];
-    }
-
-    if(small_num>large_num){
-        return board;
-    }
-    board.push(this.createRow(small_num));
-    board = this.createBoard(small_num+1, large_num, board);
-    board.push(this.createRow(small_num));
-    return board;
-};
-
-GameBoard.prototype.createRow = function(num_elements) {
-    var row = [];
-    for(var i=0; i<num_elements;i++) {
-        row.push({
-            connections: {
-                vertical: null,
-                left: null,
-                right: null
-            },
-            owner: null,
-            land: true,
-
-        });
-    }
-    return row;
-};
-
-// GameBoard.prototype.setConnections = function(){
-//     for(var i=0, row_len=this.boardVertices.length; i<row_len; i++) {
-//         for(var k=0, len2=this.boardVertices[i].length; k < len2; k++){
-
-//             // set vertical reference
-//             if(i===0 || (i+1 >= row_len)){
-//                 connections.vertical = null;
-//             }
-//             else if (i%2===0){
-//                 connections
-//             }
-//         }
-//     }   
-// };
-
-
-
-GameBoard.prototype.validBuildableTiles = function(playerID) {
-        if (game.boardIsSetup === false) {
-            return this.boardVertices;
-        };
-};
-
-//start the initialization phase, where users add players, then they mark the board
-
-var game = new GameEngine();
+module.exports = Player;
