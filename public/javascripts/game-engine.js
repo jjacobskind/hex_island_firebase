@@ -3,7 +3,7 @@
 function GameEngine() {
     this.players = [],
     this.turn = 0,
-	this.gameBoard = new GameBoard(),
+	this.gameBoard = new GameBoard(this),
     //are all players added to the game model, and are we ready to setup the board?
     this.areAllPlayersAdded = false;
     //true or false: is the stage where players add their first two settlements, and first two roads complete?
@@ -12,17 +12,10 @@ function GameEngine() {
     this.hasGameStartedYet = false;
 }
 
-GameEngine.prototype.playerCount = function(){
-    if (this.players.length === undefined) {
-        return 1
-    }
-    return this.players.length + 1;
-}
-
 GameEngine.prototype.addPlayer = function() {
     if (this.areAllPlayersAdded === false) {
-    var id = this.playerCount();
-    if (id > 4) {
+    var id = this.players.length;
+    if (id > 3) {
         throw new Error ("Sorry, no more than 4 players!");
     }
     this.players.push(new Player(id));
@@ -37,6 +30,14 @@ GameEngine.prototype.validatePlayerCount = function() {
     return "All players have been added!"
 };
 
+GameEngine.prototype.shuffle = function(){
+//fisher-yates goes here
+};
+
+GameEngine.prototype.roll = function() {
+//roll goes here
+};
+
 //the player model is below
 
 function Player(id) {
@@ -47,17 +48,19 @@ function Player(id) {
         brick: 0,
         ore: 0,
         lumber: 0,
+    };
+    this.constructionPool = {
         cities: 4,
         settlements: 5,
         roads: 15
-    };
+    }
     this.devCards = {
         knight: 0,
         point: 0,
         monopoly: 0,
         plenty: 0
     };
-    this.qualities = {
+    this.playerQualities = {
         settlements: 0,
         cities: 0,
         roadSegments: 0,
@@ -110,19 +113,42 @@ Player.prototype.validateNewTiles = function(endpointLocation) {
 Player.prototype.placeSettlement = function(locationX,locationY) {
     var tiles = function(){return game.gameBoard.validBuildableTiles()}();
     if (game.boardIsSetup === false) {
-        //board initialization place settlement, get board tiles, and if the location does not have the property hasOwner, allow them to build
-        if (tiles[locationX][locationY].hasOwner !== undefined){
+        //board initialization place settlement, get board tiles, and if the location does not have the property owner, allow them to build
+        if (tiles[locationX][locationY].owner !== null){
             throw new Error ('This location is owned already!');
         };
-        if (tiles[locationX][locationY].hasOwner === undefined){
-            tiles[locationX][locationY].hasOwner = true;
+        if (tiles[locationX][locationY].owner === null){
+            tiles[locationX][locationY].owner = game.players[this.playerID];
+            game.players[this.playerID].constructionPool.settlements--;
+            game.players[this.playerID].playerQualities.settlements++;
+            //add one point to their score
             this.ownedProperties.settlements.push(tiles[locationX][locationY]);
+            //validate new buildable tiles?
         }
     }
-    //check the player's rulesValidatedBuildableTiles for the location, as well as if the tile is marked 'hasOwner' in the buildableTiles... if it's not in validated or it has an owner, no build-y
+    //check the player's rulesValidatedBuildableTiles for the location, as well as if the tile is marked 'owner' in the buildableTiles... if it's not in validated or it has an owner, no build-y
+};
+
+Player.prototype.gatherResources = function() {
+    var numberOfResourceCards = 0;
+
+    for (var resource in this.player.resources) {
+        if (this.player.resources.hasOwnProperty(resource)){
+           numberOfResourceCards += resource;
+        }
+    }
+
+    return numberOfResourceCards;
 };
 
 Player.prototype.upgradeSettlementToCity = function() {
+    //find active settlements
+    //prompt player to choose which settlement to upgrade
+    //add one settlement to construction pool
+    //remove one city from construction pool, if no cities left, return false
+    //move item from this.ownedProperties.settlements to ''.''.cities
+    //build city
+    //change score
     var activeSettlements = this.ownedProperties.settlements;
     var settlementSelection = [];
     activeSettlements.forEach(function(item, index) {
@@ -139,26 +165,64 @@ Player.prototype.constructRoad = function(first_argument) {
 
 //game board model, which is generates as a child of the gameengine model, but is generated as an independent object
 
-function GameBoard () {
-	this.boardTiles = [
-		[{location: [0,0]}, {location: [0,1]}, {location: [0,2]}],
-		[{location: [1,0]}, {location: [1,1]}, {location: [1,2]}, {location: [1,3]}],
-		[{location: [2,0]}, {location: [2,1]}, {location: [2,2]}, {location: [2,3]}],
-		[{location: [3,0]}, {location: [3,1]}, {location: [3,2]}, {location: [3,3]}, {location: [3,4]}],
-		[{location: [4,0]}, {location: [4,1]}, {location: [4,2]}, {location: [4,3]}, {location: [4,4]}],
-		[{location: [5,0]}, {location: [5,1]}, {location: [5,2]}, {location: [5,3]}, {location: [5,4]}, {location: [5,5]}],
-		[{location: [6,0]}, {location: [6,1]}, {location: [6,2]}, {location: [6,3]}, {location: [6,4]}, {location: [6,5]}],
-		[{location: [7,0]}, {location: [7,1]}, {location: [7,2]}, {location: [7,3]}, {location: [7,4]}],
-		[{location: [8,0]}, {location: [8,1]}, {location: [8,2]}, {location: [8,3]}, {location: [8,4]}],
-		[{location: [9,0]}, {location: [9,1]}, {location: [9,2]}, {location: [9,3]}],
-		[{location: [10,0]}, {location: [10,1]}, {location: [10,2]}, {location: [10,3]}],
-		[{location: [11,0]}, {location: [11,1]}, {location: [11,2]}]
-	]
+var GameBoard = function(game) {
+    this.game = game;
+    this.boardVertices = this.createBoard(3, 6);
+    this.boardTiles = [];
 };
+
+
+GameBoard.prototype.createBoard = function(small_num, large_num, board) {
+    if(!board) {
+        board = [];
+    }
+
+    if(small_num>large_num){
+        return board;
+    }
+    board.push(this.createRow(small_num));
+    board = this.createBoard(small_num+1, large_num, board);
+    board.push(this.createRow(small_num));
+    return board;
+};
+
+GameBoard.prototype.createRow = function(num_elements) {
+    var row = [];
+    for(var i=0; i<num_elements;i++) {
+        row.push({
+            connections: {
+                vertical: null,
+                left: null,
+                right: null
+            },
+            owner: null,
+            land: true,
+
+        });
+    }
+    return row;
+};
+
+// GameBoard.prototype.setConnections = function(){
+//     for(var i=0, row_len=this.boardVertices.length; i<row_len; i++) {
+//         for(var k=0, len2=this.boardVertices[i].length; k < len2; k++){
+
+//             // set vertical reference
+//             if(i===0 || (i+1 >= row_len)){
+//                 connections.vertical = null;
+//             }
+//             else if (i%2===0){
+//                 connections
+//             }
+//         }
+//     }   
+// };
+
+
 
 GameBoard.prototype.validBuildableTiles = function(playerID) {
         if (game.boardIsSetup === false) {
-            return this.boardTiles;
+            return this.boardVertices;
         };
 };
 
