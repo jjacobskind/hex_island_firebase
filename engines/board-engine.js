@@ -47,14 +47,15 @@ GameBoard.prototype.createRow = function(num_elements) {
 
 GameBoard.prototype.placeSettlement = function(player, location) {
     //TO DO
-    //check the stage that the player is in, below code is for 'initial build stage', need to add code for 'restricted build stage' where we...
-    //check the player's rulesValidatedBuildableVertices for the location, as well as if the tile is marked 'owner' in the buildableVertices... if it's not in validated or it has an owner, no build-y
+    //test the rules validator
     var vertices = this.boardVertices;
         //board initialization place settlement, get board tiles, and if the location does not have the property owner, allow them to build
         if (vertices[location[0]][location[1]].owner !== null){
             throw new Error ('This location is owned already!');
         };
-        if (vertices[location[0]][location[1]].owner === null){
+        if ((vertices[location[0]][location[1]].owner === null && this.boardIsSetup === false) || 
+            (vertices[location[0]][location[1]].owner === null && player.rulesValidatedBuildableVertices.indexOf(location) !== -1))
+        {   
             vertices[location[0]][location[1]].owner = player;
             player.constructionPool.settlements--;
             player.playerQualities.settlements++;
@@ -69,7 +70,6 @@ GameBoard.prototype.placeSettlement = function(player, location) {
 
 GameBoard.prototype.upgradeSettlementToCity = function(player, location) {
     //TO DO
-    //build city
     //change score
     //resources - but this should be checked on a different module?
     var vertices = this.boardVertices;
