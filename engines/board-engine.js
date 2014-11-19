@@ -125,6 +125,20 @@ GameBoard.prototype.validateNewVertices = function(player, endpointLocation) {
           player.rulesValidatedBuildableVertices.push([endpointX+1, endpointY]);  
         }     
     }
+    player.ownedProperties.settlements.forEach(function(item, index){
+        for (var i = player.rulesValidatedBuildableVertices.length - 1; i >= 0; i--) {
+            if (item.settlementID.toString() === player.rulesValidatedBuildableVertices[i].toString()) {
+                player.rulesValidatedBuildableVertices.splice(i, 1);
+            }
+        };
+    });
+    player.ownedProperties.cities.forEach(function(item, index){
+        for (var i = player.rulesValidatedBuildableVertices.length - 1; i >= 0; i--) {
+            if (item.settlementID.toString() === player.rulesValidatedBuildableVertices[i].toString()) {
+                player.rulesValidatedBuildableVertices.splice(i, 1);
+            }
+        };
+    });
 };
 
 GameBoard.prototype.constructRoad = function(first_argument) {
