@@ -4,8 +4,8 @@ var game = require('./game-engine');
 
 var GameBoard = function(game) {
     this.game = game;
-    this.boardVertices = this.createBoard(3, 6);
     this.boardTiles = [];
+    this.boardVertices = this.createBoard(3, 6);
     this.gameIsInitialized = false;
     this.boardIsSetup = false;
     this.gameIsStarted = false; 
@@ -15,6 +15,7 @@ var GameBoard = function(game) {
 GameBoard.prototype.createBoard = function(small_num, large_num, board) {
     if(!board) {
         board = [];
+        this.createTestResources();
         var first_or_last = true;
     }
 
@@ -33,12 +34,6 @@ GameBoard.prototype.createBoard = function(small_num, large_num, board) {
         board.push(this.createRow(small_num));
     }
     this.gameIsInitialized = true;
-    ///------------------------------
-    ///BELOW CODE ONLY TO BE USED IN TEST ENVIRONMENT
-    ///
-    this.createTestResources();
-    ///
-    ///------------------------------
     return board;
 };
 
