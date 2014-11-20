@@ -15,14 +15,23 @@ var GameBoard = function(game) {
 GameBoard.prototype.createBoard = function(small_num, large_num, board) {
     if(!board) {
         board = [];
+        var first_or_last = true;
     }
 
     if(small_num>large_num){
         return board;
     }
     board.push(this.createRow(small_num));
+
+    if(!first_or_last && (small_num!==large_num)){
+        board.push(this.createRow(small_num));
+    }
+
     board = this.createBoard(small_num+1, large_num, board);
     board.push(this.createRow(small_num));
+    if(!first_or_last  && (small_num!==large_num)){
+        board.push(this.createRow(small_num));
+    }
     this.gameIsInitialized = true;
     return board;
 };
@@ -98,7 +107,7 @@ GameBoard.prototype.upgradeSettlementToCity = function(player, location) {
 };
 
 GameBoard.prototype.validateNewVertices = function(player, endpointLocation) {
-    var endpointX = endpointLocation[0];
+    var endpointX = endpointLocation[0]; //[0,1]
     var endpointY = endpointLocation[1];
     var vertices = this.boardVertices;
     if (endpointX % 2 === 0) {
@@ -143,6 +152,76 @@ GameBoard.prototype.validateNewVertices = function(player, endpointLocation) {
 
 GameBoard.prototype.constructRoad = function(first_argument) {
     // body...
+};
+
+// returns vertex object that a given road goes to
+GameBoard.prototype.getRoadDestination = function(currentLocation, direction) {
+    var num_rows = this.boardVertices.length;
+    
+    //added this so that we can pass in a uniform location to all functions
+    var row = currentLocation[0];
+    var col = currentLocation[1];
+
+    if(direction==="vertical"){
+         if(row===0 || (row+1 >= num_rows)){
+            return null;
+        }
+        else if (row%2===0){
+            return this.boardVertices[row-1][col];
+        }
+        else {
+            return this.boardVertices[row+1][col];
+        }
+    }
+    else if(direction==="left"){
+
+        if(row<num_rows/2){
+            if(row % 2===0) {
+                return this.boardVertices[row+1][col];
+            }
+            else if (col!==0) {
+                return this.boardVertices[row-1][col-1];
+            }
+            else {
+                return null;
+            }
+        } else {
+            if(row % 2===1) {
+                return this.boardVertices[row-1][col];
+            }
+            else if (col!==0) {
+                return this.boardVertices[row+1][col-1];
+            }
+            else {
+                return null;
+            }
+        }        
+    }
+    else if(direction==="right"){
+        var last_col = this.boardVertices[row].length-1;
+
+        if(row<num_rows/2){
+            if(row % 2===0) {
+                return this.boardVertices[row+1][col+1];
+            }
+            else if (col!==last_col) {
+                return this.boardVertices[row-1][col];
+            }
+            else {
+                return null;
+            }
+        } else {
+            if(row % 2===1) {
+                return this.boardVertices[row-1][col+1];
+            }
+            else if (col!==last_col) {
+                return this.boardVertices[row+1][col];
+            }
+            else {
+                return null;
+            }
+        }
+    }
 };
 
 module.exports = GameBoard;
