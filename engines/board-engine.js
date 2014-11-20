@@ -229,26 +229,37 @@ GameBoard.prototype.getRoadDestination = function(currentLocation, direction) {
 
 GameBoard.prototype.createTestResources = function() {
     var numberChits = [5,2,6,3,8,10,9,12,11,4,8,10,9,4,5,6,3,11];
-    var resources = ['grain', 'grain', 'grain', 'grain', 'lumber', 'lumber', 'lumber', 'lumber', 'wool', 'wool', 'wool', 'wool', 'ore', 'ore', 'ore', 'brick', 'brick', 'brick'];
-    var splitter = Math.floor(Math.random() * 19) + 1;
-    numberChits = numberChits.slice(0,splitter).concat(7, numberChits.slice(splitter));
-    this.game.shuffle(resources);
-    for (var i = 19; i > 0; i--) {
-        var chit = numberChits.pop();
-        if (chit === 7) {
-            var resource = 'desert';
+    var resources = ['grain', 'grain', 'grain', 'grain', 'lumber', 'lumber', 
+    'lumber', 'lumber', 'wool', 'wool', 'wool', 'wool', 'ore', 'ore', 'ore', 
+    'brick', 'brick', 'brick'];
+    numberChits = numberChits.reverse();
+    resources = this.game.shuffle(resources);
+    var tempHexArray = [];
+    var desertRandomizer = Math.floor((Math.random() * 19)+1);
+    for (i = desertRandomizer; i <= 19; i++) {
+        if (i === desertRandomizer) {
+            this.boardTiles.push({
+                hex: i,
+                resource: 'desert',
+                chit: 7,
+            })
         }
         else {
-            var resource = resources.pop();
-        }
-        this.boardTiles.push(
-            {
+            this.boardTiles.push({
                 hex: i,
-                chit: chit,
-                resource: resource
-            }
-        );  
-    };
+                resource: resources.pop(),
+                chit: numberChits.pop(),
+            })
+        }
+    }
+    for (i = 1; i < desertRandomizer; i++) {
+        tempHexArray.push({
+            hex: i,
+            resource: resources.pop(),
+            chit:numberChits.pop()
+        })
+    }
+    this.boardTiles = tempHexArray.concat(this.boardTiles);
 };
 
 module.exports = GameBoard;
