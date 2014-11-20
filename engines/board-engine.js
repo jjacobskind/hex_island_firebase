@@ -228,14 +228,15 @@ GameBoard.prototype.getRoadDestination = function(currentLocation, direction) {
 // below function to be used in test environment ONLY
 
 GameBoard.prototype.createTestResources = function() {
-    var numberChits = [2,3,3,4,4,5,5,6,6,7,8,8,9,9,10,10,11,11,12];
+    var numberChits = [5,2,6,3,8,10,9,12,11,4,8,10,9,4,5,6,3,11];
     var resources = ['grain', 'grain', 'grain', 'grain', 'lumber', 'lumber', 'lumber', 'lumber', 'wool', 'wool', 'wool', 'wool', 'ore', 'ore', 'ore', 'brick', 'brick', 'brick'];
-    this.game.shuffle(numberChits);
+    var splitter = Math.floor(Math.random() * 19) + 1;
+    numberChits = numberChits.slice(0,splitter).concat(7, numberChits.slice(splitter));
     this.game.shuffle(resources);
     for (var i = 19; i > 0; i--) {
         var chit = numberChits.pop();
         if (chit === 7) {
-            var resource = 'desert'
+            var resource = 'desert';
         }
         else {
             var resource = resources.pop();
