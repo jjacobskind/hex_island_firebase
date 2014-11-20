@@ -33,6 +33,12 @@ GameBoard.prototype.createBoard = function(small_num, large_num, board) {
         board.push(this.createRow(small_num));
     }
     this.gameIsInitialized = true;
+    ///------------------------------
+    ///BELOW CODE ONLY TO BE USED IN TEST ENVIRONMENT
+    ///
+    this.createTestResources();
+    ///
+    ///------------------------------
     return board;
 };
 
@@ -157,7 +163,7 @@ GameBoard.prototype.constructRoad = function(first_argument) {
 // returns vertex object that a given road goes to
 GameBoard.prototype.getRoadDestination = function(currentLocation, direction) {
     var num_rows = this.boardVertices.length;
-    
+
     //added this so that we can pass in a uniform location to all functions
     var row = currentLocation[0];
     var col = currentLocation[1];
@@ -222,6 +228,31 @@ GameBoard.prototype.getRoadDestination = function(currentLocation, direction) {
             }
         }
     }
+};
+
+// below function to be used in test environment ONLY
+
+GameBoard.prototype.createTestResources = function() {
+    var numberChits = [2,3,3,4,4,5,5,6,6,7,8,8,9,9,10,10,11,11,12];
+    var resources = ['grain', 'grain', 'grain', 'grain', 'lumber', 'lumber', 'lumber', 'lumber', 'wool', 'wool', 'wool', 'wool', 'ore', 'ore', 'ore', 'brick', 'brick', 'brick'];
+    this.game.shuffle(numberChits);
+    this.game.shuffle(resources);
+    for (var i = 19; i > 0; i--) {
+        var chit = numberChits.pop();
+        if (chit === 7) {
+            var resource = 'desert'
+        }
+        else {
+            var resource = resources.pop();
+        }
+        this.boardTiles.push(
+            {
+                hex: i,
+                chit: chit,
+                resource: resource
+            }
+        );  
+    };
 };
 
 module.exports = GameBoard;
