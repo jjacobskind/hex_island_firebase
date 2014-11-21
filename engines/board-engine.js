@@ -4,8 +4,8 @@ var game = require('./game-engine');
 
 var GameBoard = function(game) {
     this.game = game;
-    this.boardVertices = this.createBoard(3, 6);
     this.boardTiles = [];
+    this.boardVertices = this.createBoard(3, 6);
     this.gameIsInitialized = false;
     this.boardIsSetup = false;
     this.gameIsStarted = false; 
@@ -15,6 +15,7 @@ var GameBoard = function(game) {
 GameBoard.prototype.createBoard = function(small_num, large_num, board) {
     if(!board) {
         board = [];
+        this.createTestResources();
         var first_or_last = true;
     }
 
@@ -157,7 +158,7 @@ GameBoard.prototype.constructRoad = function(first_argument) {
 // returns vertex object that a given road goes to
 GameBoard.prototype.getRoadDestination = function(currentLocation, direction) {
     var num_rows = this.boardVertices.length;
-    
+
     //added this so that we can pass in a uniform location to all functions
     var row = currentLocation[0];
     var col = currentLocation[1];
@@ -222,6 +223,43 @@ GameBoard.prototype.getRoadDestination = function(currentLocation, direction) {
             }
         }
     }
+};
+
+// below function to be used in test environment ONLY
+
+GameBoard.prototype.createTestResources = function() {
+    var numberChits = [5,2,6,3,8,10,9,12,11,4,8,10,9,4,5,6,3,11];
+    var resources = ['grain', 'grain', 'grain', 'grain', 'lumber', 'lumber', 
+    'lumber', 'lumber', 'wool', 'wool', 'wool', 'wool', 'ore', 'ore', 'ore', 
+    'brick', 'brick', 'brick'];
+    numberChits = numberChits.reverse();
+    resources = this.game.shuffle(resources);
+    var tempHexArray = [];
+    var desertRandomizer = Math.floor((Math.random() * 19)+1);
+    for (i = desertRandomizer; i <= 19; i++) {
+        if (i === desertRandomizer) {
+            this.boardTiles.push({
+                hex: i,
+                resource: 'desert',
+                chit: 7,
+            })
+        }
+        else {
+            this.boardTiles.push({
+                hex: i,
+                resource: resources.pop(),
+                chit: numberChits.pop(),
+            })
+        }
+    }
+    for (i = 1; i < desertRandomizer; i++) {
+        tempHexArray.push({
+            hex: i,
+            resource: resources.pop(),
+            chit:numberChits.pop()
+        })
+    }
+    this.boardTiles = tempHexArray.concat(this.boardTiles);
 };
 
 module.exports = GameBoard;
