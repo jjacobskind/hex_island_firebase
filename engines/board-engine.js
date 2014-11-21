@@ -2,10 +2,10 @@
 
 var game = require('./game-engine');
 
-var GameBoard = function(game) {
+var GameBoard = function(game, small_num, large_num) {
     this.game = game;
     this.boardTiles = [];
-    this.boardVertices = this.createBoard(3, 6);
+    this.boardVertices = this.createVertices(small_num, large_num);
     this.setVerticesOnTile();
     this.gameIsInitialized = false;
     this.boardIsSetup = false;
@@ -13,9 +13,10 @@ var GameBoard = function(game) {
 };
 
 
-GameBoard.prototype.createBoard = function(small_num, large_num, board) {
+GameBoard.prototype.createVertices = function(small_num, large_num, board) {
     if(!board) {
         board = [];
+        large_num++;
         this.createTestResources(small_num, large_num-1);
         var first_or_last = true;
     }
@@ -29,7 +30,7 @@ GameBoard.prototype.createBoard = function(small_num, large_num, board) {
         board.push(this.createRow(small_num));
     }
 
-    board = this.createBoard(small_num+1, large_num, board);
+    board = this.createVertices(small_num+1, large_num, board);
     board.push(this.createRow(small_num));
     if(!first_or_last  && (small_num!==large_num)){
         board.push(this.createRow(small_num));
@@ -301,6 +302,7 @@ GameBoard.prototype.setVerticesOnTile = function(){
             } else {
                 this.boardVertices[vertex_row][col+1].adjacent_tiles.unshift(current_tile);
                 if(vertex_row+3<(this.boardVertices.length/2)){
+                    // Refactor out this ugly, unnecessary if statement
                     // this.boardVertices[vertex_row+3][col+1].adjacent_tiles.push(current_tile);
                 }
                 else {

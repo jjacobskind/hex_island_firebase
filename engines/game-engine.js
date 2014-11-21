@@ -3,10 +3,10 @@
 var GameBoard = require('./board-engine');
 var Player = require('./player-engine');
 
-function GameEngine() {
+function GameEngine(small_num, large_num) {
     this.players = [],
     this.turn = 0,
-	this.gameBoard = new GameBoard(this),
+	this.gameBoard = new GameBoard(this, small_num, large_num),
     //are all players added to the game model, and are we ready to setup the board?
     this.areAllPlayersAdded = false;
     //true or false: is the stage where players add their first two settlements, and first two roads complete?
