@@ -2,20 +2,22 @@
 
 var game = require('./game-engine');
 
-var GameBoard = function(game) {
+var GameBoard = function(game, small_num, large_num) {
     this.game = game;
     this.boardTiles = [];
-    this.boardVertices = this.createBoard(3, 6);
+    this.boardVertices = this.createVertices(small_num, large_num);
+    this.setVerticesOnTile();
     this.gameIsInitialized = false;
     this.boardIsSetup = false;
     this.gameIsStarted = false; 
 };
 
 
-GameBoard.prototype.createBoard = function(small_num, large_num, board) {
+GameBoard.prototype.createVertices = function(small_num, large_num, board) {
     if(!board) {
         board = [];
-        this.createTestResources();
+        large_num++;
+        this.createTestResources(small_num, large_num-1);
         var first_or_last = true;
     }
 
@@ -28,12 +30,13 @@ GameBoard.prototype.createBoard = function(small_num, large_num, board) {
         board.push(this.createRow(small_num));
     }
 
-    board = this.createBoard(small_num+1, large_num, board);
+    board = this.createVertices(small_num+1, large_num, board);
     board.push(this.createRow(small_num));
     if(!first_or_last  && (small_num!==large_num)){
         board.push(this.createRow(small_num));
     }
     this.gameIsInitialized = true;
+
     return board;
 };
 
@@ -46,6 +49,7 @@ GameBoard.prototype.createRow = function(num_elements) {
                 left: null,
                 right: null
             },
+            adjacent_tiles: [],
             owner: null,
             land: true,
 
@@ -227,7 +231,7 @@ GameBoard.prototype.getRoadDestination = function(currentLocation, direction) {
 
 // below function to be used in test environment ONLY
 
-GameBoard.prototype.createTestResources = function() {
+GameBoard.prototype.createTestResources = function(small_num, large_num) {
     var numberChits = [5,2,6,3,8,10,9,12,11,4,8,10,9,4,5,6,3,11];
     var resources = ['grain', 'grain', 'grain', 'grain', 'lumber', 'lumber', 
     'lumber', 'lumber', 'wool', 'wool', 'wool', 'wool', 'ore', 'ore', 'ore', 
@@ -242,14 +246,14 @@ GameBoard.prototype.createTestResources = function() {
                 hex: i,
                 resource: 'desert',
                 chit: 7,
-            })
+            });
         }
         else {
             this.boardTiles.push({
                 hex: i,
                 resource: resources.pop(),
                 chit: numberChits.pop(),
-            })
+            });
         }
     }
     for (i = 1; i < desertRandomizer; i++) {
@@ -257,9 +261,57 @@ GameBoard.prototype.createTestResources = function() {
             hex: i,
             resource: resources.pop(),
             chit:numberChits.pop()
-        })
+        });
     }
-    this.boardTiles = tempHexArray.concat(this.boardTiles);
+    tempHexArray = tempHexArray.concat(this.boardTiles);
+
+    // Restructure array of tiles into a multi-dimensional array with same dimensions as the board rendering
+    var increment = 1;
+    var used_tiles=0;
+    this.boardTiles=[];
+    for(var i=small_num;i>=small_num;i+=increment){
+        this.boardTiles.push(tempHexArray.slice(used_tiles, used_tiles+i));
+        used_tiles+=small_num;
+        if(i===large_num){
+            increment= -1;
+        }
+    }
+};
+
+GameBoard.prototype.setVerticesOnTile = function(){
+    var num_rows = this.boardTiles.length;
+
+    for(var row=0; row<num_rows; row++){
+        for(var col=0, num_cols=this.boardTiles[row].length; col<num_cols; col++){
+            var vertex_row = row*2;
+            var current_tile = this.boardTiles[row][col];
+
+            this.boardVertices[vertex_row+1][col].adjacent_tiles.push(current_tile);
+            this.boardVertices[vertex_row+1][col+1].adjacent_tiles.push(current_tile);
+
+            this.boardVertices[vertex_row+2][col].adjacent_tiles.push(current_tile);
+            this.boardVertices[vertex_row+2][col+1].adjacent_tiles.push(current_tile);
+            if(row<=(num_rows/2)){
+                this.boardVertices[vertex_row][col].adjacent_tiles.unshift(current_tile);
+                if(vertex_row+3<(this.boardVertices.length/2)){
+                    this.boardVertices[vertex_row+3][col+1].adjacent_tiles.push(current_tile);
+                }
+                else {
+                    this.boardVertices[vertex_row+3][col].adjacent_tiles.push(current_tile);
+                }
+            } else {
+                this.boardVertices[vertex_row][col+1].adjacent_tiles.unshift(current_tile);
+                if(vertex_row+3<(this.boardVertices.length/2)){
+                    // Refactor out this ugly, unnecessary if statement
+                    // this.boardVertices[vertex_row+3][col+1].adjacent_tiles.push(current_tile);
+                }
+                else {
+                    this.boardVertices[vertex_row+3][col].adjacent_tiles.push(current_tile);
+                }
+            }
+
+        }
+    }
 };
 
 module.exports = GameBoard;
