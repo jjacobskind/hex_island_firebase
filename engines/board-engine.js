@@ -17,7 +17,7 @@ GameBoard.prototype.createVertices = function(small_num, large_num, board) {
     if(!board) {
         board = [];
         large_num++;
-        this.createTestResources(small_num, large_num-1);
+        this.createResources(small_num, large_num-1);
         var first_or_last = true;
     }
 
@@ -228,41 +228,63 @@ GameBoard.prototype.getRoadDestination = function(currentLocation, direction) {
     }
 };
 
-// below function to be used in test environment ONLY
+GameBoard.prototype.createResources = function(small_num, large_num) {
+    var num_tiles = large_num;
+    for(var i=large_num-1;i>=small_num;i--){
+        num_tiles+= (i*2);
+    }
+    var num_extra_deserts= Math.round(num_tiles/15)-1;
+    if(num_extra_deserts<0){
+        num_extra_deserts=0;
+    }
 
-GameBoard.prototype.createTestResources = function(small_num, large_num) {
-    var numberChits = [5,2,6,3,8,10,9,12,11,4,8,10,9,4,5,6,3,11];
-    var resources = ['grain', 'grain', 'grain', 'grain', 'lumber', 'lumber', 
-    'lumber', 'lumber', 'wool', 'wool', 'wool', 'wool', 'ore', 'ore', 'ore', 
-    'brick', 'brick', 'brick'];
+    var numberChit_bank = [5,2,6,3,8,10,9,12,11,4,8,10,9,4,5,6,3,11];
+    var numberChits = [];
+    i=0;
+    while(numberChits.length+num_extra_deserts+1 < num_tiles){
+        numberChits.push(numberChit_bank[i%18]);
+        i++;
+    }
+
+    // There is one less of ore and brick than the other resources
+    var resources = ['grain', 'lumber', 'wool'];
+    while(num_extra_deserts--){
+        resources.push('desert');
+    }
+
+    var resource_bank = this.game.shuffle(['grain', 'lumber', 'wool', 'brick', 'ore'])
+    i=0;
+    // resources length should be one less than num_tiles, since first desert is not in resources array
+    while(resources.length < num_tiles-1){
+        resources.push(resource_bank[i%5]);
+        i++;
+    }
     numberChits = numberChits.reverse();
     resources = this.game.shuffle(resources);
     var tempHexArray = [];
-    var desertRandomizer = Math.floor((Math.random() * 19)+1);
-    for (i = desertRandomizer; i <= 19; i++) {
-        if (i === desertRandomizer) {
-            this.boardTiles.push({
-                hex: i,
-                resource: 'desert',
-                chit: 7,
-            });
-        }
-        else {
-            this.boardTiles.push({
-                hex: i,
-                resource: resources.pop(),
-                chit: numberChits.pop(),
-            });
-        }
+    var desertRandomizer = Math.floor((Math.random() * num_tiles)+1);
+    tempHexArray[desertRandomizer] = {
+                                        hex: desertRandomizer + 1,
+                                        resource: 'desert',
+                                        chit: 7,
+                                    };
+
+    // Inserted first desert manually
+    // Using modulus to insert each tile by index and loop back to zero index to fill in tiles that come before the desert
+    for (i = desertRandomizer+1; i%num_tiles !==desertRandomizer; i++) {
+            var this_resource = resources.pop();
+            if(this_resource==='desert'){
+                var this_chit = 7;
+            }
+            else {
+                this_chit = numberChits.pop();
+            }
+            tempHexArray[i%num_tiles] = {
+                                            hex: i%num_tiles +1,
+                                            resource: this_resource,
+                                            chit: this_chit,
+                                        };
     }
-    for (i = 1; i < desertRandomizer; i++) {
-        tempHexArray.push({
-            hex: i,
-            resource: resources.pop(),
-            chit:numberChits.pop()
-        });
-    }
-    tempHexArray = tempHexArray.concat(this.boardTiles);
 
     // Restructure array of tiles into a multi-dimensional array with same dimensions as the board rendering
     var increment = 1;
@@ -270,7 +292,7 @@ GameBoard.prototype.createTestResources = function(small_num, large_num) {
     this.boardTiles=[];
     for(var i=small_num;i>=small_num;i+=increment){
         this.boardTiles.push(tempHexArray.slice(used_tiles, used_tiles+i));
-        used_tiles+=small_num;
+        used_tiles+=i;
         if(i===large_num){
             increment= -1;
         }

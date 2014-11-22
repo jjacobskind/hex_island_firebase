@@ -1,5 +1,5 @@
 var Engine = require('../engines/game-engine')
-var game = new Engine(3, 5);
+var game = new Engine(3, 6);
 
 module.exports = game;
 
@@ -15,4 +15,5 @@ for(var row=0, num_rows=game.gameBoard.boardTiles.length; row<num_rows; row++){
 		console.log(game.gameBoard.boardTiles[row][col]);
 	}
 	console.log("------------");
+	// console.log(game.gameBoard.boardVertices[row].length);
 }
