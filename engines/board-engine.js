@@ -167,8 +167,11 @@ GameBoard.prototype.getRoadDestination = function(currentLocation, direction) {
     var row = currentLocation[0];
     var col = currentLocation[1];
 
+    // Row index of vertical adjacent vertex is one greater than the current vertex row if the current row is odd
+    // If the current row is even, the adjacent vertical vertex is one less than the current row index
+    // If water is vertically adjacent to current vertex, return null
     if(direction==="vertical"){
-         if(row===0 || (row+1 >= num_rows)){
+        if(row===0 || (row+1 >= num_rows)){
             return null;
         }
         else if (row%2===0){
@@ -178,54 +181,50 @@ GameBoard.prototype.getRoadDestination = function(currentLocation, direction) {
             return this.boardVertices[row+1][col];
         }
     }
-    else if(direction==="left"){
 
+    if(row%2===0){
+        var adjusted_row = row+1;
+    } else {
+        adjusted_row = row-1;
+    }
+
+    if(direction==="left"){
+        // If water is to left of vertex, return null
+        if(col===0){
+            return null;
+        }
+
+        // Column number of left adjacent vertex is the same as current vertex
+        // UNLESS the current vertex is in an odd-indexed row in top half of board
+        // OR the current vertex is in an even-indexed row in bottom half of board
         if(row<num_rows/2){
-            if(row % 2===0) {
-                return this.boardVertices[row+1][col];
-            }
-            else if (col!==0) {
-                return this.boardVertices[row-1][col-1];
-            }
-            else {
-                return null;
-            }
-        } else {
             if(row % 2===1) {
-                return this.boardVertices[row-1][col];
+                col--;
             }
-            else if (col!==0) {
-                return this.boardVertices[row+1][col-1];
-            }
-            else {
-                return null;
-            }
-        }        
+        } else if(row % 2===0) {
+            col--;
+        } 
+        return this.boardVertices[adjusted_row][col];       
     }
     else if(direction==="right"){
         var last_col = this.boardVertices[row].length-1;
 
+        // If water is to right of vertex, return null
+        if(col===last_col){
+            return null;
+        }
+
+        // Column number of right adjacent vertex is the same as current vertex
+        // UNLESS the current vertex is in an even-indexed row in top half of board
+        // OR the current vertex is in an odd-indexed row in bottom half of board
         if(row<num_rows/2){
             if(row % 2===0) {
-                return this.boardVertices[row+1][col+1];
+                col++;
             }
-            else if (col!==last_col) {
-                return this.boardVertices[row-1][col];
-            }
-            else {
-                return null;
-            }
-        } else {
-            if(row % 2===1) {
-                return this.boardVertices[row-1][col+1];
-            }
-            else if (col!==last_col) {
-                return this.boardVertices[row+1][col];
-            }
-            else {
-                return null;
-            }
+        } else if(row % 2===1) {
+            col++;
         }
+        return this.boardVertices[adjusted_row][col]; 
     }
 };
 
@@ -280,36 +279,36 @@ GameBoard.prototype.createTestResources = function(small_num, large_num) {
 
 GameBoard.prototype.setVerticesOnTile = function(){
     var num_rows = this.boardTiles.length;
+    var num_vertex_rows = this.boardVertices.length;
 
     for(var row=0; row<num_rows; row++){
         for(var col=0, num_cols=this.boardTiles[row].length; col<num_cols; col++){
             var vertex_row = row*2;
             var current_tile = this.boardTiles[row][col];
 
-            this.boardVertices[vertex_row+1][col].adjacent_tiles.push(current_tile);
-            this.boardVertices[vertex_row+1][col+1].adjacent_tiles.push(current_tile);
-
-            this.boardVertices[vertex_row+2][col].adjacent_tiles.push(current_tile);
-            this.boardVertices[vertex_row+2][col+1].adjacent_tiles.push(current_tile);
-            if(row<=(num_rows/2)){
-                this.boardVertices[vertex_row][col].adjacent_tiles.unshift(current_tile);
-                if(vertex_row+3<(this.boardVertices.length/2)){
-                    this.boardVertices[vertex_row+3][col+1].adjacent_tiles.push(current_tile);
-                }
-                else {
-                    this.boardVertices[vertex_row+3][col].adjacent_tiles.push(current_tile);
-                }
-            } else {
-                this.boardVertices[vertex_row][col+1].adjacent_tiles.unshift(current_tile);
-                if(vertex_row+3<(this.boardVertices.length/2)){
-                    // Refactor out this ugly, unnecessary if statement
-                    // this.boardVertices[vertex_row+3][col+1].adjacent_tiles.push(current_tile);
-                }
-                else {
-                    this.boardVertices[vertex_row+3][col].adjacent_tiles.push(current_tile);
-                }
+            // Add resource tile to vertices on the second and third rows of the tile
+            for(var i=1;i<=2;i++){
+                this.boardVertices[vertex_row+i][col].adjacent_tiles.push(current_tile);
+                this.boardVertices[vertex_row+i][col+1].adjacent_tiles.push(current_tile);
             }
 
+            // Adjust column of top vertex of tile depending on whether the vertex is in the top or bottom half of board
+            if(vertex_row<(num_vertex_rows/2)){
+                var top_col_adjusted = col;
+            } else {
+                top_col_adjusted = col + 1;
+            }
+
+            // Adjust column of bottom vertex of tile depending on whether the vertex is in the top or bottom half of board
+            if(vertex_row+3<(num_vertex_rows/2)){
+                var bottom_col_adjusted = col + 1;
+            } else {
+                bottom_col_adjusted = col;
+            }
+
+            // Add resource tile to top and bottom vertices of the tile
+            this.boardVertices[vertex_row][top_col_adjusted].adjacent_tiles.unshift(current_tile);
+            this.boardVertices[vertex_row+3][bottom_col_adjusted].adjacent_tiles.push(current_tile);
         }
     }
 };
