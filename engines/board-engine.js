@@ -15,7 +15,7 @@ var GameBoard = function(game) {
 GameBoard.prototype.createBoard = function(small_num, large_num, board) {
     if(!board) {
         board = [];
-        this.createTestResources();
+        this.createResources(small_num, large_num);
         var first_or_last = true;
     }
 
@@ -225,9 +225,7 @@ GameBoard.prototype.getRoadDestination = function(currentLocation, direction) {
     }
 };
 
-// below function to be used in test environment ONLY
-
-GameBoard.prototype.createTestResources = function() {
+GameBoard.prototype.createResources = function(small_num, large_num) {
     var numberChits = [5,2,6,3,8,10,9,12,11,4,8,10,9,4,5,6,3,11];
     var resources = ['grain', 'grain', 'grain', 'grain', 'lumber', 'lumber', 
     'lumber', 'lumber', 'wool', 'wool', 'wool', 'wool', 'ore', 'ore', 'ore', 
