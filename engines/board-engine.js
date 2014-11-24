@@ -156,8 +156,32 @@ GameBoard.prototype.validateNewVertices = function(player, endpointLocation) {
     });
 };
 
-GameBoard.prototype.constructRoad = function(first_argument) {
-    // body...
+GameBoard.prototype.constructRoad = function(player, currentLocation, newDirection) {
+    var destinationCoords = this.game.gameBoard.getRoadDestination(currentLocation, newDirection);
+    switch (newDirection)
+        {  case "left":
+               var originDirection = "right";
+               break;
+           case "right":
+               var originDirection = "left";
+               break;
+           case "vertical":
+               var originDirection = "vertical";
+               break;
+        };
+    this.game.gameBoard.boardVertices[currentLocation[0]][currentLocation[1]].connections[newDirection] = player;
+    this.game.gameBoard.boardVertices[destinationCoords[0]][destinationCoords[1]].connections[originDirection] = player;
+    //housekeeping
+    player.playerQualities.roadSegments++;
+    player.constructionPool.roads--;
+    player.ownedProperties.roads.push({
+        origin: currentLocation,
+        destination: destinationCoords,
+    });
+    //TO DO: resource removal?
+    //validation
+    player.rulesValidatedBuildableVertices.push(destinationCoords);
+    this.validateNewVertices(player, destinationCoords);
 };
 
 // returns vertex object that a given road goes to
