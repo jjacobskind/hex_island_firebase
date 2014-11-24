@@ -15,7 +15,7 @@ function Player(id) {
         cities: 4,
         settlements: 5,
         roads: 15
-    }
+    };
     this.devCards = {
         knight: 0,
         point: 0,
@@ -30,6 +30,13 @@ function Player(id) {
         knightsPlayed: 0,
         publicPoints: 0,
         privatePoints: 0
+    };
+    this.tradingCosts = {
+        sheep: 4,
+        grain: 4,
+        brick: 4,
+        ore: 4,
+        lumber: 4
     };
     this.ownedProperties = {
         settlements: [],
