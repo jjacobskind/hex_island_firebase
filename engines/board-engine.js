@@ -155,8 +155,32 @@ GameBoard.prototype.validateNewVertices = function(player, endpointLocation) {
     });
 };
 
-GameBoard.prototype.constructRoad = function(first_argument) {
-    // body...
+GameBoard.prototype.constructRoad = function(player, currentLocation, newDirection) {
+    var destinationCoords = this.game.gameBoard.getRoadDestination(currentLocation, newDirection);
+    switch (newDirection)
+        {  case "left":
+               var originDirection = "right";
+               break;
+           case "right":
+               var originDirection = "left";
+               break;
+           case "vertical":
+               var originDirection = "vertical";
+               break;
+        };
+    this.game.gameBoard.boardVertices[currentLocation[0]][currentLocation[1]].connections[newDirection] = player;
+    this.game.gameBoard.boardVertices[destinationCoords[0]][destinationCoords[1]].connections[originDirection] = player;
+    //housekeeping
+    player.playerQualities.roadSegments++;
+    player.constructionPool.roads--;
+    player.ownedProperties.roads.push({
+        origin: currentLocation,
+        destination: destinationCoords,
+    });
+    //TO DO: resource removal?
+    //validation
+    player.rulesValidatedBuildableVertices.push(destinationCoords);
+    this.validateNewVertices(player, destinationCoords);
 };
 
 // returns vertex object that a given road goes to
@@ -175,10 +199,10 @@ GameBoard.prototype.getRoadDestination = function(currentLocation, direction) {
             return null;
         }
         else if (row%2===0){
-            return this.boardVertices[row-1][col];
+            return [row-1, col];
         }
         else {
-            return this.boardVertices[row+1][col];
+            return [row+1, col];
         }
     }
 
@@ -204,7 +228,7 @@ GameBoard.prototype.getRoadDestination = function(currentLocation, direction) {
         } else if(row % 2===0) {
             col--;
         } 
-        return this.boardVertices[adjusted_row][col];       
+        return [adjusted_row, col];       
     }
     else if(direction==="right"){
         var last_col = this.boardVertices[row].length-1;
@@ -224,7 +248,7 @@ GameBoard.prototype.getRoadDestination = function(currentLocation, direction) {
         } else if(row % 2===1) {
             col++;
         }
-        return this.boardVertices[adjusted_row][col]; 
+        return [adjusted_row, col]; 
     }
 };
 
