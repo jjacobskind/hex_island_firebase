@@ -78,7 +78,7 @@ GameBoard.prototype.placeSettlement = function(player, location) {
             player.ownedProperties.settlements.push({settlementID: location, data: vertices[location[0]][location[1]]});
             //validate new buildable tiles?
             this.validateNewVertices(player, location);
-            if (vertices[location[0]][location[1]].port !== nullgit ) {
+            if (vertices[location[0]][location[1]].port !== null) {
                 if (vertices[location[0]][location[1]].port === 'general') {
                     for (var resource in player.tradingCosts) {
                         player.tradingCosts[resource] === 4 ? player.tradingCosts[resource] = 3 : player.tradingCosts[resource] = player.tradingCosts[resource];
