@@ -78,6 +78,19 @@ GameBoard.prototype.placeSettlement = function(player, location) {
             player.ownedProperties.settlements.push({settlementID: location, data: vertices[location[0]][location[1]]});
             //validate new buildable tiles?
             this.validateNewVertices(player, location);
+            if (vertices[location[0]][location[1]].port !== nullgit ) {
+                if (vertices[location[0]][location[1]].port === 'general') {
+                    for (var resource in player.tradingCosts) {
+                        player.tradingCosts[resource] === 4 ? player.tradingCosts[resource] = 3 : player.tradingCosts[resource] = player.tradingCosts[resource];
+                    }
+                }
+                else {
+                    var resourceToModify = vertices[location[0]][location[1]].port;
+                    for (var resource in player.tradingCosts) {
+                        resourceToModify === resource ? player.tradingCosts[resource] = 2 : player.tradingCosts[resource] = player.tradingCosts[resource];
+                    }
+                }
+            }
         }
 };
 
@@ -417,7 +430,7 @@ GameBoard.prototype.portCreation = function() {
 
     // Creates an array of ports to be placed
     // Even number of general ports and specific ports, and roughly even number of ports for each resource
-    var resource_ports = ['lumber', 'wheat', 'wool', 'brick', 'ore'];
+    var resource_ports = ['lumber', 'grain', 'wool', 'brick', 'ore'];
     var all_ports = [];
     var i=0;
     var len = resource_ports.length;
