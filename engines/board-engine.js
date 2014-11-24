@@ -7,6 +7,7 @@ var GameBoard = function(game, small_num, large_num) {
     this.boardTiles = [];
     this.boardVertices = this.createVertices(small_num, large_num);
     this.setVerticesOnTile();
+    this.portCreation();
     this.gameIsInitialized = false;
     this.boardIsSetup = false;
     this.gameIsStarted = false; 
@@ -52,7 +53,7 @@ GameBoard.prototype.createRow = function(num_elements) {
             adjacent_tiles: [],
             owner: null,
             land: true,
-
+            port: null
         });
     }
     return row;
@@ -175,10 +176,10 @@ GameBoard.prototype.getRoadDestination = function(currentLocation, direction) {
             return null;
         }
         else if (row%2===0){
-            return this.boardVertices[row-1][col];
+            return [row-1, col];
         }
         else {
-            return this.boardVertices[row+1][col];
+            return [row+1, col];
         }
     }
 
@@ -191,7 +192,12 @@ GameBoard.prototype.getRoadDestination = function(currentLocation, direction) {
     if(direction==="left"){
         // If water is to left of vertex, return null
         if(col===0){
-            return null;
+            if(row<num_rows/2 && row%2===1){
+                return null;
+            }
+            else if (row>=num_rows/2 && row%2===0){
+                return null;
+            }
         }
 
         // Column number of left adjacent vertex is the same as current vertex
@@ -204,14 +210,19 @@ GameBoard.prototype.getRoadDestination = function(currentLocation, direction) {
         } else if(row % 2===0) {
             col--;
         } 
-        return this.boardVertices[adjusted_row][col];       
+        return [adjusted_row, col];       
     }
     else if(direction==="right"){
         var last_col = this.boardVertices[row].length-1;
 
         // If water is to right of vertex, return null
         if(col===last_col){
-            return null;
+            if(row<num_rows/2 && row%2===1){
+                return null;
+            }
+            else if (row>=num_rows/2 && row%2===0){
+                return null;
+            }
         }
 
         // Column number of right adjacent vertex is the same as current vertex
@@ -224,7 +235,7 @@ GameBoard.prototype.getRoadDestination = function(currentLocation, direction) {
         } else if(row % 2===1) {
             col++;
         }
-        return this.boardVertices[adjusted_row][col]; 
+        return [adjusted_row, col]; 
     }
 };
 
@@ -333,6 +344,133 @@ GameBoard.prototype.setVerticesOnTile = function(){
             this.boardVertices[vertex_row+3][bottom_col_adjusted].adjacent_tiles.push(current_tile);
         }
     }
+};
+
+GameBoard.prototype.portCreation = function() {
+    var num_sides = (this.boardVertices.length -1 + ((this.boardVertices[0].length-1)*2)) * 2;
+    var num_spaces = Math.round(2*num_sides/3);
+    var num_ports = num_sides - num_spaces;
+    var two_space_intervals = 0;
+    var three_space_intervals = 0;
+    var space_interval_sum=0;
+
+    // Number of tile sides between ports can either be 2 or three
+    // Based on the size of the board,calculate exactly how many 2 and 3-interval gaps there are so that it circles the board once
+    // while maintaining as close as possible to a 2:1 ratio of 2:3 side gaps
+    while(space_interval_sum<num_spaces){
+        two_space_intervals+=2;
+        three_space_intervals++;
+        space_interval_sum = (two_space_intervals*2)+(three_space_intervals*3);
+    }
+    var space_interval_diff = space_interval_sum-num_spaces;
+    switch(space_interval_diff){
+        case 1:
+            two_space_intervals++;
+            three_space_intervals--;
+            break;
+        case 2:
+            two_space_intervals--;
+            break;
+        case 3:
+            three_space_intervals--;
+            break;
+        case 4:
+            two_space_intervals-=2;
+            break;
+        case 5:
+            two_space_intervals--;
+            three_space_intervals--;
+            break;
+        case 6:
+            three_space_intervals-=2;
+            break;
+    }
+
+    // Creates an array of ports to be placed
+    // Even number of general ports and specific ports, and roughly even number of ports for each resource
+    var resource_ports = ['lumber', 'wheat', 'wool', 'brick', 'ore'];
+    var all_ports = [];
+    var i=0;
+    var len = resource_ports.length;
+    for(var count=1;count<=num_ports; count++){
+        if(count%2===1){
+            all_ports.push(resource_ports[i%len])
+            i++;
+        } else {
+            all_ports.push('general');
+        }
+    }
+
+    var all_intervals = [];
+
+    var frequency = Math.floor(num_ports/three_space_intervals);
+
+    // Creates an array with the order of 2 and 3 interval gaps
+    // This way, the 3 interval gaps aren't all grouped on one side of the board
+    for(i=1;i<=num_ports;i++){
+        if(i%frequency===0 && three_space_intervals!==0){
+            all_intervals.push(3);
+            three_space_intervals--;
+        } else {
+            all_intervals.push(2);
+        }
+    }
+
+
+    // Create an array with references to all outer vertex objects to facilitate port assignment
+    var vertex = [1, 0];
+    var border_vertices = [];
+
+    while(vertex!==null){
+        border_vertices.push(vertex);
+        vertex = this.getRoadDestination(vertex, "right");
+    }
+
+    var left_side = [];
+    for(var row=2, num_rows=this.boardVertices.length; row<=this.boardVertices.length-3; row++){
+        border_vertices.push([row, this.boardVertices[row].length-1]);
+        left_side.push([row, 0]);
+    }
+
+    left_side = left_side.reverse();
+
+    vertex = [num_rows-2, this.boardVertices[num_rows-2].length-1];
+
+    while(vertex!==null){
+        border_vertices.push(vertex);
+        vertex = this.getRoadDestination(vertex, "left");
+    }
+
+    border_vertices = border_vertices.concat(left_side);
+
+    // Since port was built on first vertex in array, don't need last vertex
+    border_vertices.pop();
+
+    // Don't need to iterate through last interval, since it just leads back to first vertex
+    all_intervals.pop();
+
+    // Ports beng assigned to vertices
+    // At the beginning of each loop, i is at a buildable vertex
+    // Assigns ports on that vertex and the next one before looping through next interval
+    for(i=0, len=border_vertices.length; i<len;i++) {
+        var this_port = all_ports.pop();
+        var row=border_vertices[i][0];
+        var col = border_vertices[i][1];
+        this.boardVertices[row][col].port = this_port;
+        i++;
+        var row=border_vertices[i][0];
+        var col = border_vertices[i][1];
+        this.boardVertices[row][col].port = this_port;
+
+        // Fast-forwards to next port-buildable vertex, using the array of 2 & 3 gap interval values
+        while(all_intervals[0]>0){
+            i++;
+            all_intervals[0]--;
+        }
+        all_intervals.shift();
+
+    }
+
 };
 
 module.exports = GameBoard;

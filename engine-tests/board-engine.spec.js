@@ -69,8 +69,18 @@ describe("Board class", function() {
 		var num_end_cols = game.gameBoard.boardVertices[0].length;
 		for(var row=0; row<num_rows;row++){
 			var col=game.gameBoard.boardVertices[row].length-1;
-			expect(game.gameBoard.getRoadDestination([row,0], "left")).toBe(null);
-			expect(game.gameBoard.getRoadDestination([row,col], "right")).toBe(null);
+			if(row<num_rows/2 && row%2===1){
+				expect(game.gameBoard.getRoadDestination([row,0], "left")).toBe(null);
+			}
+			else if(row>=num_rows/2 && row%2===0){
+				expect(game.gameBoard.getRoadDestination([row,0], "left")).toBe(null);
+			}
+			if(row<num_rows/2 && row%2===1){
+				expect(game.gameBoard.getRoadDestination([row,col], "right")).toBe(null);
+			}
+			else if(row>=num_rows/2 && row%2===0){
+				expect(game.gameBoard.getRoadDestination([row,col], "right")).toBe(null);
+			}
 		}
 
 		for(col=0;col<num_end_cols; col++){
