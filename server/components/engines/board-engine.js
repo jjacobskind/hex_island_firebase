@@ -13,7 +13,6 @@ var GameBoard = function(game, small_num, large_num) {
     this.gameIsStarted = false; 
 };
 
-
 GameBoard.prototype.createVertices = function(small_num, large_num, board) {
     if(!board) {
         board = [];
@@ -61,37 +60,52 @@ GameBoard.prototype.createRow = function(num_elements) {
 
 
 GameBoard.prototype.placeSettlement = function(player, location) {
-    //TO DO
-    //test the rules validator
     var vertices = this.boardVertices;
-        //board initialization place settlement, get board tiles, and if the location does not have the property owner, allow them to build
-        if (vertices[location[0]][location[1]].owner !== null){
-            throw new Error ('This location is owned already!');
-        };
-        if ((vertices[location[0]][location[1]].owner === null && this.boardIsSetup === false) || 
-            (vertices[location[0]][location[1]].owner === null && player.rulesValidatedBuildableVertices.indexOf(location) !== -1))
-        {   
-            vertices[location[0]][location[1]].owner = player;
-            player.constructionPool.settlements--;
-            player.playerQualities.settlements++;
-            //add one point to their score
-            player.ownedProperties.settlements.push({settlementID: location, data: vertices[location[0]][location[1]]});
-            //validate new buildable tiles?
-            this.validateNewVertices(player, location);
-            if (vertices[location[0]][location[1]].port !== null) {
-                if (vertices[location[0]][location[1]].port === 'general') {
-                    for (var resource in player.tradingCosts) {
-                        player.tradingCosts[resource] === 4 ? player.tradingCosts[resource] = 3 : player.tradingCosts[resource] = player.tradingCosts[resource];
-                    }
+    //board initialization place settlement, get board tiles, and if the location does not have the property owner OR there is not a settlement within one vertex, allow them to build
+
+    //check if owned
+    if (vertices[location[0]][location[1]].owner !== null){
+        throw new Error ('This location is owned already!');
+    };
+    //check if there is a settlement within one tile
+    var nearestThreeVertices = [];
+    nearestThreeVertices.push(this.getRoadDestination(location, 'left'));
+    nearestThreeVertices.push(this.getRoadDestination(location, 'vertical'));
+    nearestThreeVertices.push(this.getRoadDestination(location, 'right'));
+    while (nearestThreeVertices.length !== 0) {
+        var thisVertex = nearestThreeVertices[0];
+        if (vertices[thisVertex[0]][thisVertex[1]].owner !== null)
+        {
+            throw new Error ('There is a settlement or city one tile away from this location, so this settlement cannot be built.');
+        }
+        nearestThreeVertices.shift();
+    };
+    // place settlement within initial setup phase
+    if ((vertices[location[0]][location[1]].owner === null && this.boardIsSetup === false) || 
+        (vertices[location[0]][location[1]].owner === null && player.rulesValidatedBuildableVertices.indexOf(location) !== -1))
+    {   
+        vertices[location[0]][location[1]].owner = player;
+        player.constructionPool.settlements--;
+        player.playerQualities.settlements++;
+        //add one point to their score
+        player.ownedProperties.settlements.push({settlementID: location, data: vertices[location[0]][location[1]]});
+        //validate new buildable tiles?
+        this.validateNewVertices(player, location);
+        if (vertices[location[0]][location[1]].port !== null) {
+            if (vertices[location[0]][location[1]].port === 'general') {
+                for (var resource in player.tradingCosts) {
+                    player.tradingCosts[resource] === 4 ? player.tradingCosts[resource] = 3 : player.tradingCosts[resource] = player.tradingCosts[resource];
                 }
-                else {
-                    var resourceToModify = vertices[location[0]][location[1]].port;
-                    for (var resource in player.tradingCosts) {
-                        resourceToModify === resource ? player.tradingCosts[resource] = 2 : player.tradingCosts[resource] = player.tradingCosts[resource];
-                    }
+            }
+            else {
+                var resourceToModify = vertices[location[0]][location[1]].port;
+                for (var resource in player.tradingCosts) {
+                    resourceToModify === resource ? player.tradingCosts[resource] = 2 : player.tradingCosts[resource] = player.tradingCosts[resource];
                 }
             }
         }
+    }
+    //TO DO: validate tile in 'during game' phase 
 };
 
 
@@ -170,7 +184,7 @@ GameBoard.prototype.validateNewVertices = function(player, endpointLocation) {
 };
 
 GameBoard.prototype.constructRoad = function(player, currentLocation, newDirection) {
-    if (player.constructionPool.roads = 0) {
+    if (player.constructionPool.roads === 0) {
         throw new Error ('No more roads in your construction pool!');
     }
     else {
@@ -564,6 +578,39 @@ GameBoard.prototype.followRoad = function(location, road, player) {
             }
         }
         return longest_road;
+    }
+};
+
+GameBoard.prototype.getDevelopmentCard = function(player) {
+    var odds = 25;
+    var deck = {
+        size: 25,
+        choiceCeiling: [14,19,21,23,25]
+    };
+    if (this.game.players.length > 4) {
+        deck.choiceCeiling = [19,24,26,28,30];
+        odds = 30;
+    }
+    var cardChoice = Math.floor((Math.random() * odds)) + 1;
+    console.log(cardChoice);
+    switch (true){
+        case (cardChoice <= deck.choiceCeiling[0]):
+            player.devCards.knight++;
+            break;
+        case (cardChoice > deck.choiceCeiling[0] && cardChoice <= deck.choiceCeiling[1]):
+            player.devCards.point++;
+            break;
+        case (cardChoice > deck.choiceCeiling[1] && cardChoice <= deck.choiceCeiling[2]):
+            player.devCards.monopoly++;
+            break;
+        case (cardChoice > deck.choiceCeiling[2] && cardChoice <= deck.choiceCeiling[3]):
+            player.devCards.plenty++;
+            break;
+        case (cardChoice > deck.choiceCeiling[3] && cardChoice <= deck.choiceCeiling[4]):
+            player.devCards.roadBuilding++;
+            break;
+        default:
+            throw new Error ('Something weird happened in the deck: Error on this draw - ' + cardChoice);
     }
 };
 

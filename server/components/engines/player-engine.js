@@ -20,7 +20,8 @@ function Player(id) {
         knight: 0,
         point: 0,
         monopoly: 0,
-        plenty: 0
+        plenty: 0,
+        roadBuilding: 0
     };
     this.playerQualities = {
         settlements: 0,

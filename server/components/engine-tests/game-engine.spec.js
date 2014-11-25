@@ -17,7 +17,7 @@ describe("Game class", function() {
 		i++;
 
 
-		game.gameBoard.placeSettlement(game.players[1],[0,0]);
+		game.gameBoard.placeSettlement(game.players[1],[1,1]);
 
 
 		game.gameBoard.constructRoad(game.players[0],[0,0], 'left');
@@ -26,7 +26,7 @@ describe("Game class", function() {
 		i++;
 
 		game.gameBoard.constructRoad(game.players[0],[3,0], 'vertical');
-		expect(game.findLongestRoad()).toEqual(2);
+		expect(game.findLongestRoad()).toEqual(3);
 	});
 
 	it("finds the index of a nested array", function(){
