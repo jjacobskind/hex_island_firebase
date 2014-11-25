@@ -18,8 +18,8 @@ function GameEngine(small_num, large_num) {
 GameEngine.prototype.addPlayer = function() {
     if (this.areAllPlayersAdded === false) {
     var id = this.players.length;
-    if (id > 3) {
-        throw new Error ("Sorry, no more than 4 players!");
+    if (id > 4) {
+        throw new Error ("Sorry, no more than 6 players!");
     }
     this.players.push(new Player(id));
     }

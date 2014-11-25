@@ -60,37 +60,52 @@ GameBoard.prototype.createRow = function(num_elements) {
 
 
 GameBoard.prototype.placeSettlement = function(player, location) {
-    //TO DO
-    //test the rules validator
     var vertices = this.boardVertices;
-        //board initialization place settlement, get board tiles, and if the location does not have the property owner, allow them to build
-        if (vertices[location[0]][location[1]].owner !== null){
-            throw new Error ('This location is owned already!');
-        };
-        if ((vertices[location[0]][location[1]].owner === null && this.boardIsSetup === false) || 
-            (vertices[location[0]][location[1]].owner === null && player.rulesValidatedBuildableVertices.indexOf(location) !== -1))
-        {   
-            vertices[location[0]][location[1]].owner = player;
-            player.constructionPool.settlements--;
-            player.playerQualities.settlements++;
-            //add one point to their score
-            player.ownedProperties.settlements.push({settlementID: location, data: vertices[location[0]][location[1]]});
-            //validate new buildable tiles?
-            this.validateNewVertices(player, location);
-            if (vertices[location[0]][location[1]].port !== null) {
-                if (vertices[location[0]][location[1]].port === 'general') {
-                    for (var resource in player.tradingCosts) {
-                        player.tradingCosts[resource] === 4 ? player.tradingCosts[resource] = 3 : player.tradingCosts[resource] = player.tradingCosts[resource];
-                    }
+    //board initialization place settlement, get board tiles, and if the location does not have the property owner OR there is not a settlement within one vertex, allow them to build
+
+    //check if owned
+    if (vertices[location[0]][location[1]].owner !== null){
+        throw new Error ('This location is owned already!');
+    };
+    //check if there is a settlement within one tile
+    var nearestThreeVertices = [];
+    nearestThreeVertices.push(this.getRoadDestination(location, 'left'));
+    nearestThreeVertices.push(this.getRoadDestination(location, 'vertical'));
+    nearestThreeVertices.push(this.getRoadDestination(location, 'right'));
+    while (nearestThreeVertices.length !== 0) {
+        var thisVertex = nearestThreeVertices[0];
+        if (vertices[thisVertex[0]][thisVertex[1]].owner !== null)
+        {
+            throw new Error ('There is a settlement or city one tile away from this location, so this settlement cannot be built.');
+        }
+        nearestThreeVertices.shift();
+    };
+    // place settlement within initial setup phase
+    if ((vertices[location[0]][location[1]].owner === null && this.boardIsSetup === false) || 
+        (vertices[location[0]][location[1]].owner === null && player.rulesValidatedBuildableVertices.indexOf(location) !== -1))
+    {   
+        vertices[location[0]][location[1]].owner = player;
+        player.constructionPool.settlements--;
+        player.playerQualities.settlements++;
+        //add one point to their score
+        player.ownedProperties.settlements.push({settlementID: location, data: vertices[location[0]][location[1]]});
+        //validate new buildable tiles?
+        this.validateNewVertices(player, location);
+        if (vertices[location[0]][location[1]].port !== null) {
+            if (vertices[location[0]][location[1]].port === 'general') {
+                for (var resource in player.tradingCosts) {
+                    player.tradingCosts[resource] === 4 ? player.tradingCosts[resource] = 3 : player.tradingCosts[resource] = player.tradingCosts[resource];
                 }
-                else {
-                    var resourceToModify = vertices[location[0]][location[1]].port;
-                    for (var resource in player.tradingCosts) {
-                        resourceToModify === resource ? player.tradingCosts[resource] = 2 : player.tradingCosts[resource] = player.tradingCosts[resource];
-                    }
+            }
+            else {
+                var resourceToModify = vertices[location[0]][location[1]].port;
+                for (var resource in player.tradingCosts) {
+                    resourceToModify === resource ? player.tradingCosts[resource] = 2 : player.tradingCosts[resource] = player.tradingCosts[resource];
                 }
             }
         }
+    }
+    //TO DO: validate tile in 'during game' phase 
 };
 
 
@@ -169,7 +184,7 @@ GameBoard.prototype.validateNewVertices = function(player, endpointLocation) {
 };
 
 GameBoard.prototype.constructRoad = function(player, currentLocation, newDirection) {
-    if (player.constructionPool.roads = 0) {
+    if (player.constructionPool.roads === 0) {
         throw new Error ('No more roads in your construction pool!');
     }
     else {
