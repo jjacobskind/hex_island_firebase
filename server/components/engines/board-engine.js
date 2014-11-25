@@ -13,7 +13,6 @@ var GameBoard = function(game, small_num, large_num) {
     this.gameIsStarted = false; 
 };
 
-
 GameBoard.prototype.createVertices = function(small_num, large_num, board) {
     if(!board) {
         board = [];
@@ -513,6 +512,39 @@ GameBoard.prototype.portCreation = function() {
 
     }
 
+};
+
+GameBoard.prototype.getDevelopmentCard = function(player) {
+    var odds = 25;
+    var deck = {
+        size: 25,
+        choiceCeiling: [14,19,21,23,25]
+    };
+    if (this.game.players.length > 4) {
+        deck.choiceCeiling = [19,24,26,28,30];
+        odds = 30;
+    }
+    var cardChoice = Math.floor((Math.random() * odds)) + 1;
+    console.log(cardChoice);
+    switch (true){
+        case (cardChoice <= deck.choiceCeiling[0]):
+            player.devCards.knight++;
+            break;
+        case (cardChoice > deck.choiceCeiling[0] && cardChoice <= deck.choiceCeiling[1]):
+            player.devCards.point++;
+            break;
+        case (cardChoice > deck.choiceCeiling[1] && cardChoice <= deck.choiceCeiling[2]):
+            player.devCards.monopoly++;
+            break;
+        case (cardChoice > deck.choiceCeiling[2] && cardChoice <= deck.choiceCeiling[3]):
+            player.devCards.plenty++;
+            break;
+        case (cardChoice > deck.choiceCeiling[3] && cardChoice <= deck.choiceCeiling[4]):
+            player.devCards.roadBuilding++;
+            break;
+        default:
+            throw new Error ('Something weird happened in the deck: Error on this draw - ' + cardChoice);
+    }
 };
 
 module.exports = GameBoard;
