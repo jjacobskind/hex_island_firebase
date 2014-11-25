@@ -28,4 +28,4 @@ for(var col=0, num_cols=game.gameBoard.boardTiles[1].length; col<num_cols; col++
 game.addPlayer();
 game.addPlayer();
 game.gameBoard.constructRoad(game.players[0],[0,1], 'left');
-console.log(game.players[0].ownedProperties.roads)
+

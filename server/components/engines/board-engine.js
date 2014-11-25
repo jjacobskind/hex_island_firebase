@@ -515,4 +515,56 @@ GameBoard.prototype.portCreation = function() {
 
 };
 
+GameBoard.prototype.followRoad = function(location, road, player) {
+    var row = location[0];
+    var col = location[1];
+    var vertex = this.boardVertices[row][col];
+    var longest_road = [];
+    // console.log(row, col);
+
+    // If this is the starting vertex
+    if(!road){
+        var road=[];
+        road.push([row, col]);
+        for(var key in vertex.connections){
+            var next_vertex = this.getRoadDestination([row, col], String(key));
+            if(!!next_vertex){
+                if(vertex.connections[key]!==null){
+                    var temp_road = this.followRoad(next_vertex, road.slice(0), vertex.connections[key].playerID);
+                    if(temp_road.length>longest_road.length){
+                        longest_road = temp_road;
+                    }
+                }
+            }
+        }
+        return longest_road;
+    // If this vertex and previous vertex have been visited twice, return array that doesn't include the road between the two vertices
+    } else if ((this.game.getNestedArrayIndex(road, road[road.length-1])!==road.length-1)  //Check if there is an earlier instance of the last road on the array
+                && (this.game.getNestedArrayIndex(road, [row, col])!==-1)) {
+        return road;
+    // Prevent from double-backing on itself and adding an extra length to the longest road
+    } else if(road.length>1 && this.game.getNestedArrayIndex(road, [row, col])===road.length-2){
+        return road;
+    // Return road if we hit a vertex owned by another player
+    } else if(vertex.owner!==null && vertex.owner.playerID!==player){
+        road.push([row, col]);
+        return road;
+    } else {
+        // console.log(this.game.getNestedArrayIndex(road, [row, col]));
+        road.push([row, col]);
+        for(key in vertex.connections){
+            if(!!vertex.connections[key] && vertex.connections[key].playerID===player){
+                next_vertex = this.getRoadDestination([row, col], String(key));
+                if(!!next_vertex){
+                    var temp_road = this.followRoad(next_vertex, road.slice(0), player); 
+                    if(temp_road.length>longest_road.length){
+                        longest_road = temp_road;
+                    }
+                }
+            }
+        }
+        return longest_road;
+    }
+};
+
 module.exports = GameBoard;
