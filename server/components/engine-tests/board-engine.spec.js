@@ -8,8 +8,6 @@ describe("Board class", function() {
 	});
 
 	it("should create a board that corresponds to input dimensions", function(){
-		//*** This test is currently breaking on larger dimensions than (3, 5) 
-			// because the array of tiles to be distributed is not dynamic and runs out
 		var dimensions=[];
 		var k=0;
 		for(var i=0, len=game.gameBoard.boardTiles.length;i<len; i++){
