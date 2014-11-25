@@ -31,7 +31,6 @@ describe("Game class", function() {
 
 	it("finds the index of a nested array", function(){
 		var arr1 = [ [0, 1], [3, 4], [1, 2] ];
-		console.log(arr1.indexOf([3, 4]));
 		expect(game.getNestedArrayIndex(arr1, [3, 4])).toEqual(1);
 	});
 

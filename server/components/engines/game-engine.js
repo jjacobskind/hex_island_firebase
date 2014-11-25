@@ -55,7 +55,6 @@ GameEngine.prototype.findLongestRoad = function() {
       if(!longest_road.length || road.length > longest_road[0].length){
         longest_road=[];
         longest_road.unshift(road);
-        console.log("****", road);
       }
       else if(!!longest_road[0] && road.length===longest_road[0].length) {
         // Need to do something here so that ties don't change possessor of points for longest road
@@ -63,6 +62,7 @@ GameEngine.prototype.findLongestRoad = function() {
       }
     }
   }
+  console.log(longest_road[0]);
   return longest_road[0].length-1;  //number of roads is always one less than the number of vertices along it
 };
 
