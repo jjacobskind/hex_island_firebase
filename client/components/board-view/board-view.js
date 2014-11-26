@@ -9,7 +9,6 @@ angular.module('settlersApp')
     var canvas_height = 500;
 
     var init = function() {
-      renderer = createRenderer();
 
       scene = new THREE.Scene();
 
@@ -52,7 +51,6 @@ angular.module('settlersApp')
     var renderer = new THREE.WebGLRenderer({antialias:true});
     renderer.setClearColor( 0xA1CEED );
     renderer.setSize( canvas_width, canvas_height );
-    document.body.appendChild( renderer.domElement );
 
     // Click event handler calculates the  x & z coordinates on the y=0 plane that correspond to where user clicked on canvas
     renderer.domElement.addEventListener('click', function(event){
@@ -101,8 +99,24 @@ angular.module('settlersApp')
     return mirrorMesh;
   };
 
+  var renderer = createRenderer();
   init();
   animate();
 
-  return {};
-});
+  return {
+    insert: function(){
+          $("#board_container").append( renderer.domElement );
+    }
+  };
+})
+.controller('BoardCtrl', function(boardFactory){
+  boardFactory.insert();
+}) 
+.directive('board', function() {
+    return {
+      restrict: 'E',
+      template: '<div id="board_container"></div>',
+      controller: 'BoardCtrl',
+      scope:true 
+    };
+  });
