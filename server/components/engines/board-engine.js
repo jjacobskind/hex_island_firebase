@@ -74,9 +74,11 @@ GameBoard.prototype.placeSettlement = function(player, location) {
     nearestThreeVertices.push(this.getRoadDestination(location, 'right'));
     while (nearestThreeVertices.length !== 0) {
         var thisVertex = nearestThreeVertices[0];
-        if (vertices[thisVertex[0]][thisVertex[1]].owner !== null)
-        {
-            throw new Error ('There is a settlement or city one tile away from this location, so this settlement cannot be built.');
+        if (thisVertex !== null) {
+            if (vertices[thisVertex[0]][thisVertex[1]].owner !== null)
+            {
+                throw new Error ('There is a settlement or city one tile away from this location, so this settlement cannot be built.');
+            }
         }
         nearestThreeVertices.shift();
     };
@@ -582,17 +584,15 @@ GameBoard.prototype.followRoad = function(location, road, player) {
 };
 
 GameBoard.prototype.getDevelopmentCard = function(player) {
-    var odds = 25;
     var deck = {
         size: 25,
         choiceCeiling: [14,19,21,23,25]
     };
     if (this.game.players.length > 4) {
         deck.choiceCeiling = [19,24,26,28,30];
-        odds = 30;
+        deck.size = 30;
     }
-    var cardChoice = Math.floor((Math.random() * odds)) + 1;
-    console.log(cardChoice);
+    var cardChoice = Math.floor((Math.random() * deck.size)) + 1;
     switch (true){
         case (cardChoice <= deck.choiceCeiling[0]):
             player.devCards.knight++;
