@@ -43,8 +43,8 @@ chip_geometry = new THREE.ExtrudeGeometry(new THREE.Shape(circlePts), {amount:1,
 																		bevelEnabled:false
 																		});
 var Game = function(scene) {
-	this.board = new Board(this);
 	this.scene = scene;
+	this.board = new Board(this);
 
 	// this.scene.add(this.drawSettlement(30, 0, "blue"));
 	// this.scene.add(this.drawCity(-30,0, "red"));
@@ -143,7 +143,7 @@ Board.prototype.drawBoard = function() {
 	var spaces = [];
 	geometry = new THREE.ExtrudeGeometry( hex, extrudeSettings );
 	var outer_middle_distance = Math.sqrt(Math.pow(l*4,2) - Math.pow(0.5*l*4, 2));
-	var obj=new Tile(0,0, 0, this.resources.pop());
+	var obj=new Tile(this, 0,0, 0, this.resources.pop());
 	var spaces=[obj.tile];
 	var num_chips=[obj.num_chip];
 	var count =0;
@@ -151,13 +151,14 @@ Board.prototype.drawBoard = function() {
 		if(i%2===0){
 			for(var j=4;j>=2;j-=2) {
 				count++;
-				obj = new Tile(count, i, l*j, this.resources.pop());
+				obj = new Tile(this, count, i, l*j, this.resources.pop());
 				spaces.push(obj.tile);
 				num_chips.push(obj.num_chip);
 			}
 		} else {
 			count++;
-			obj = new Tile(count, i, outer_middle_distance, this.resources.pop());
+			console.log(this);
+			obj = new Tile(this, count, i, outer_middle_distance, this.resources.pop());
 			spaces.push(obj.tile);
 			num_chips.push(obj.num_chip);
 		}
@@ -166,12 +167,14 @@ Board.prototype.drawBoard = function() {
 	return spaces;
 };
 
-var Tile = function(count, i, dist, color) {
+var Tile = function(board, count, i, dist, color) {
+	this.board = board;
 	this.tile = this.drawTile(count, i, dist, color).tile;
 };
 
 
 Tile.prototype.drawTile = function(count, i, dist, color) {
+	var scene = this.board.game.scene;
 	var white_material = new THREE.MeshLambertMaterial( { color: 0xffffff, wireframe: false } );
 	var colored_material = new THREE.MeshLambertMaterial( { color: color, wireframe: false } );
 	var materials = new THREE.MeshFaceMaterial([white_material, colored_material]);

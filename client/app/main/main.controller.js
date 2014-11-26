@@ -1,7 +1,7 @@
 'use strict';
 
 angular.module('settlersApp')
-  .controller('MainCtrl', function ($scope, $http) {
+  .controller('MainCtrl', function ($scope, $http, boardFactory) {
     $scope.awesomeThings = [];
 
     $http.get('/api/things').success(function(awesomeThings) {
