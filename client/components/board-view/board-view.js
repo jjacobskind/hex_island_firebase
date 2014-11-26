@@ -4,7 +4,6 @@ angular.module('settlersApp')
   .factory('boardFactory', function() {
 
     var camera, scene, renderer, controls, light, water;
-
     var canvas_width = 1000;
     var canvas_height = 500;
 
@@ -18,7 +17,7 @@ angular.module('settlersApp')
 
       controls = new THREE.OrbitControls( camera );
       controls.addEventListener( 'change', render );
-      // controls.autoRotate=true;
+      controls.autoRotate=true;
       controls.noPan = true;
       controls.maxPolarAngle = Math.PI/2.5;
 
@@ -54,6 +53,8 @@ angular.module('settlersApp')
 
     // Click event handler calculates the  x & z coordinates on the y=0 plane that correspond to where user clicked on canvas
     renderer.domElement.addEventListener('click', function(event){
+
+      controls.autoRotate=false;
 
       var vector = new THREE.Vector3();
 
@@ -100,6 +101,7 @@ angular.module('settlersApp')
   };
 
   var renderer = createRenderer();
+
   init();
   animate();
 
