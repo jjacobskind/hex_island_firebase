@@ -42,9 +42,9 @@ for(i=0;i<numCirclePts*2;i++){
 chip_geometry = new THREE.ExtrudeGeometry(new THREE.Shape(circlePts), {amount:1,
 																		bevelEnabled:false
 																		});
-var Game = function(scene) {
+var Game = function(scene, small_num, big_num) {
 	this.scene = scene;
-	this.board = new Board(this);
+	this.board = new Board(this, 3, 5);
 
 	// this.scene.add(this.drawSettlement(30, 0, "blue"));
 	// this.scene.add(this.drawCity(-30,0, "red"));
@@ -132,64 +132,90 @@ Game.prototype.drawRobber = function(){
 	return lathe;
 };
 
-var Board = function(game) {
+var Board = function(game, small_num, big_num) {
 	this.game = game;
 	this.resources = game.shuffle([0xFFB13D, 0xFFB13D, 0xFFB13D, 0xFFB13D, 0x996600, 0x996600, 0x996600, 0x996600, 0xE0E0E0, 0xE0E0E0, 0xE0E0E0, 0xE0E0E0, 0x3D3D3D, 0x3D3D3D, 0x3D3D3D, 0xFF0000, 0xFF0000, 0xFF0000, 0xFFFFCC]);
-	this.spaces = this.drawBoard();
+	this.spaces = this.drawBoard(small_num, big_num);
 };
 
 
-Board.prototype.drawBoard = function() {
-	var spaces = [];
-	geometry = new THREE.ExtrudeGeometry( hex, extrudeSettings );
+Board.prototype.drawBoard = function(small_num, big_num) {
+	var num_rows = (2*(big_num-small_num)) + 1;
 	var outer_middle_distance = Math.sqrt(Math.pow(l*4,2) - Math.pow(0.5*l*4, 2));
-	var obj=new Tile(this, 0,0, 0, this.resources.pop());
-	var spaces=[obj.tile];
-	var num_chips=[obj.num_chip];
 	var count =0;
-	for ( i = 0; i < numPts*2; i++ ) {
-		if(i%2===0){
-			for(var j=4;j>=2;j-=2) {
-				count++;
-				obj = new Tile(this, count, i, l*j, this.resources.pop());
-				spaces.push(obj.tile);
-				num_chips.push(obj.num_chip);
-			}
+	var iterator=0;
+	for(var row=0; row<num_rows;row++){
+		var num_cols = small_num + iterator;
+		if(row<Math.floor(num_rows/2)){
+			iterator++;
 		} else {
-			count++;
-			console.log(this);
-			obj = new Tile(this, count, i, outer_middle_distance, this.resources.pop());
-			spaces.push(obj.tile);
-			num_chips.push(obj.num_chip);
+			iterator--;
 		}
 
+
+		for(var col=0;col<num_cols; col++){
+			var coordinates = this.indicesToCoordinates(small_num, big_num, [row, col]);
+			var obj=new Tile(this, coordinates, this.resources.pop());
+			this.game.scene.add(obj.tile);
+			this.game.scene.add(obj.chit);
+		}
 	}
-	return spaces;
 };
 
-var Tile = function(board, count, i, dist, color) {
+Board.prototype.indicesToCoordinates = function(small_num, big_num, indices){
+	console.log(indices);
+	var num_rows = (2*(big_num-small_num)) + 1;
+	var row = indices[0];
+	var col = indices[1];
+	var middle_row = Math.floor(num_rows/2);
+	var x_pos = 0;
+	if(row!==middle_row){
+		var half_col = (small_num+(row%middle_row))/2;
+	} else {
+		half_col = big_num/2;
+	}
+	x_pos=(col-half_col)*l*2;
+
+	var z_pos = (row-middle_row) * l * 2;
+	z_pos-=(row-middle_row)*10;
+	return [x_pos,z_pos];
+};
+
+Board.prototype.coordinatesToIndices = function(coordinates){
+	var x = coordinates[0];
+	var z = coordinates[1];
+	var indices;
+
+
+	return indices;
+};
+
+var Tile = function(board, coordinates, color) {
 	this.board = board;
-	this.tile = this.drawTile(count, i, dist, color).tile;
+	this.tile = this.drawTile(coordinates, color);
+	this.chit = this.drawChit(coordinates, color);
 };
 
 
-Tile.prototype.drawTile = function(count, i, dist, color) {
+Tile.prototype.drawTile = function(coordinates, color) {
+	var tile_geometry = new THREE.ExtrudeGeometry( hex, extrudeSettings );
 	var scene = this.board.game.scene;
 	var white_material = new THREE.MeshLambertMaterial( { color: 0xffffff, wireframe: false } );
 	var colored_material = new THREE.MeshLambertMaterial( { color: color, wireframe: false } );
 	var materials = new THREE.MeshFaceMaterial([white_material, colored_material]);
-	var tile = new THREE.Mesh( geometry, materials );
-	var a = i / numPts * Math.PI;
-	tile.position.set( Math.sin(a)*dist, 0, Math.cos(a)*dist );
-	tile.rotation.set(Math.PI/2, 0, 0);
-	scene.add( tile );
+	var tile = new THREE.Mesh( tile_geometry, materials );
 
+	tile.position.set( coordinates[0], 0, coordinates[1] );
+	tile.rotation.set(Math.PI/2, 0, Math.PI/6);
+	return tile;
+};
 
+Tile.prototype.drawChit = function(coordinates, color) {
+	var white_material = new THREE.MeshLambertMaterial( { color: 0xffffff, wireframe: false } );
 	var num_chip = new THREE.Mesh(chip_geometry, white_material);
 	num_chip.rotation.set(Math.PI/2, 0, 0);
-	num_chip.position.set( Math.sin(a)*dist, 2, Math.cos(a)*dist );
-	scene.add(num_chip);
-	return {tile: tile, num_chip:num_chip};
+	num_chip.position.set( coordinates[0], 2, coordinates[1] );
+	return num_chip;
 };
 
 function colorConversion(color_string){
