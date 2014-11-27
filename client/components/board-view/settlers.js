@@ -44,7 +44,13 @@ chip_geometry = new THREE.ExtrudeGeometry(new THREE.Shape(circlePts), {amount:1,
 																		});
 var Game = function(scene, small_num, big_num) {
 	this.scene = scene;
-	this.board = new Board(this, 3, 5);
+	// if(typeof small_num !== number){
+	// 	small_num = 3;
+	// }
+	// if(typeof small_num !== number){
+	// 	big_num = 5;
+	// }
+	this.board = new Board(this, small_num, big_num);
 
 	// this.scene.add(this.drawSettlement(30, 0, "blue"));
 	// this.scene.add(this.drawCity(-30,0, "red"));
@@ -134,7 +140,19 @@ Game.prototype.drawRobber = function(){
 
 var Board = function(game, small_num, big_num) {
 	this.game = game;
-	this.resources = game.shuffle([0xFFB13D, 0xFFB13D, 0xFFB13D, 0xFFB13D, 0x996600, 0x996600, 0x996600, 0x996600, 0xE0E0E0, 0xE0E0E0, 0xE0E0E0, 0xE0E0E0, 0x3D3D3D, 0x3D3D3D, 0x3D3D3D, 0xFF0000, 0xFF0000, 0xFF0000, 0xFFFFCC]);
+	var src_arr = [0xFFB13D, 0xFFB13D, 0xFFB13D, 0xFFB13D, 0x996600, 0x996600, 0x996600, 0x996600, 0xE0E0E0, 0xE0E0E0, 0xE0E0E0, 0xE0E0E0, 0x3D3D3D, 0x3D3D3D, 0x3D3D3D, 0xFF0000, 0xFF0000, 0xFF0000, 0xFFFFCC];
+	var sum=0;
+	var iterator = 1;
+	for(var i=small_num;i>=small_num;i+=iterator){
+		sum+=i;
+		if(i===big_num){
+			iterator=-1;
+		}
+	}
+	while(src_arr.length<sum){
+		src_arr = src_arr.concat(src_arr);
+	}
+	this.resources = game.shuffle(src_arr);
 	this.spaces = this.drawBoard(small_num, big_num);
 };
 
@@ -163,19 +181,27 @@ Board.prototype.drawBoard = function(small_num, big_num) {
 };
 
 Board.prototype.indicesToCoordinates = function(small_num, big_num, indices){
-	console.log(indices);
 	var num_rows = (2*(big_num-small_num)) + 1;
 	var row = indices[0];
 	var col = indices[1];
 	var middle_row = Math.floor(num_rows/2);
 	var x_pos = 0;
 	if(row!==middle_row){
-		var half_col = (small_num+(row%middle_row))/2;
+		if(row<=middle_row){
+			var half_col = (small_num+(row%middle_row))/2;
+		}else if(row===num_rows-1){
+			half_col = small_num/2;
+		} else {
+			half_col = (big_num-(row%middle_row))/2;
+		}
 	} else {
 		half_col = big_num/2;
 	}
-	x_pos=(col-half_col)*l*2;
-
+	if(big_num%2===1){
+		x_pos=(col-half_col)*l*2;
+	} else {
+		x_pos=(col-half_col+0.5)*l*2;
+	}
 	var z_pos = (row-middle_row) * l * 2;
 	z_pos-=(row-middle_row)*10;
 	return [x_pos,z_pos];

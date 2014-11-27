@@ -3,11 +3,11 @@
 angular.module('settlersApp')
   .factory('boardFactory', function() {
 
-    var camera, scene, renderer, controls, light, water;
+    var camera, scene, renderer, controls, light, water, game;
     var canvas_width = 1000;
     var canvas_height = 500;
 
-    var init = function() {
+    var init = function(small_num, big_num) {
 
       scene = new THREE.Scene();
 
@@ -29,7 +29,7 @@ angular.module('settlersApp')
 
       scene.add( renderWater() );
 
-      var game = new Game(scene);
+      game = new Game(scene, small_num, big_num);
   }
 
   var animate = function() {
@@ -70,7 +70,6 @@ angular.module('settlersApp')
       var distance = - camera.position.y / dir.y;
 
       var pos = camera.position.clone().add( dir.multiplyScalar( distance ) );
-      console.log( [pos.x, pos.z]);
     });
     return renderer;
   };
@@ -102,12 +101,20 @@ angular.module('settlersApp')
 
   var renderer = createRenderer();
 
-  init();
+  init(3, 12);
   animate();
 
   return {
     insert: function(){
           $("#board_container").append( renderer.domElement );
+    },
+    newBoard: function(small_num, big_num){
+      renderer.delete;
+      scene.delete;
+      renderer = createRenderer();
+      init(small_num, big_num);
+      animate();
+
     }
   };
 })
