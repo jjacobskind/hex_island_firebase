@@ -101,7 +101,7 @@ angular.module('settlersApp')
 
   var renderer = createRenderer();
 
-  init(3, 12);
+  init(3, 5);
   animate();
 
   return {
