@@ -12,12 +12,12 @@ angular.module('settlersApp')
       scene = new THREE.Scene();
 
 
-      camera = new THREE.PerspectiveCamera( 45, canvas_width / canvas_height, 1, 1000 );
+      camera = new THREE.PerspectiveCamera( 45, canvas_width / canvas_height, 1, 5000 );
       camera.position.set( 0, 200, 300 );
 
       controls = new THREE.OrbitControls( camera );
       controls.addEventListener( 'change', render );
-      controls.autoRotate=true;
+      // controls.autoRotate=true;
       controls.noPan = true;
       controls.maxPolarAngle = Math.PI/2.5;
 
@@ -59,8 +59,8 @@ angular.module('settlersApp')
       var vector = new THREE.Vector3();
 
       vector.set(
-          ( event.clientX / width ) * 2 - 1,
-          - ( event.clientY / height ) * 2 + 1,
+          ( event.clientX / canvas_width ) * 2 - 1,
+          - ( event.clientY / canvas_height ) * 2 + 1,
           0.5 );
 
       vector.unproject( camera );
@@ -101,7 +101,7 @@ angular.module('settlersApp')
 
   var renderer = createRenderer();
 
-  init(3, 5);
+  init(3, 6);
   animate();
 
   return {
