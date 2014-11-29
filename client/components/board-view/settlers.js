@@ -5,44 +5,7 @@ var border_material = new THREE.MeshLambertMaterial( { color: 0xffffff, wirefram
 var tile_material = new THREE.MeshLambertMaterial( { color: 0xff8000, wireframe: false } );
 var materials = [ border_material, tile_material ];
 
-var pts = [], numPts = 6;
-var l = 30;
-
-for ( var i = 0; i < numPts * 2; i+=2 ) {
-
-	var a = i / numPts * Math.PI;
-
-	pts.push( new THREE.Vector2 ( Math.cos( a ) * l, Math.sin( a ) * l ) );
-
-}
-
-var hex = new THREE.Shape( pts );
-
-
-
-var extrudeSettings = {
-	amount			: tile_depth,
-	steps			: 1,
-	material		: 1,
-	extrudeMaterial : 0,
-	bevelEnabled	: true,
-	bevelThickness  : 1,
-	bevelSize       : 4,
-	bevelSegments   : 1,
-};
-
-var circlePts = [];
-var numCirclePts = 32
-
-for(i=0;i<numCirclePts*2;i++){
-	var a = i/numCirclePts * Math.PI;
-	circlePts.push(new THREE.Vector2(Math.cos(a)*l/4, Math.sin(a)*l/4));
-}
-
-chip_geometry = new THREE.ExtrudeGeometry(new THREE.Shape(circlePts), {amount:1,
-																		bevelEnabled:false
-																		});
-var Game = function(scene, small_num, big_num) {
+var Game = function(scene, small_num, big_num, scale) {
 	this.scene = scene;
 	// if(typeof small_num !== number){
 	// 	small_num = 3;
@@ -50,10 +13,13 @@ var Game = function(scene, small_num, big_num) {
 	// if(typeof small_num !== number){
 	// 	big_num = 5;
 	// }
-	this.board = new Board(this, small_num, big_num);
+	this.board = new Board(this, small_num, big_num, scale);
 
-	// this.scene.add(this.drawSettlement(30, 0, "blue"));
-	// this.scene.add(this.drawCity(-30,0, "red"));
+	var settlement = new Building(this.board, "settlement", 30, 0, "blue");
+	this.scene.add(settlement.building);
+
+	var settlement = new Building(this.board, "city", -30, 0, "red");
+	this.scene.add(settlement.building);
 	// this.scene.add(this.drawRobber());
 };
 
@@ -67,79 +33,48 @@ Game.prototype.shuffle = function(array) {
    return array;
 };
 
-Game.prototype.drawSettlement = function(x, z, color) {
-	var pts = [];
-	pts.push(new THREE.Vector2(-5, 0));
-	pts.push(new THREE.Vector2(5, 0));
-	pts.push(new THREE.Vector2(5, 7));
-	pts.push(new THREE.Vector2(8, 7));
-	pts.push(new THREE.Vector2(0, 13));
-	pts.push(new THREE.Vector2(-8, 7));
-	pts.push(new THREE.Vector2(-5, 7));
-	pts.push(new THREE.Vector2(-5, 0));
 
-	settlement_geometry = new THREE.ExtrudeGeometry(new THREE.Shape(pts), {amount:15,
-																bevelEnabled:false
-																});
+var Board = function(game, small_num, big_num, scale) {
+	this.game = game;
+	if(!!scale){
+		this.scale = scale;
+	} else {
+		this.scale = 1;
+	}
+	this.side_length = 30 * this.scale;
 
-	var material = new THREE.MeshLambertMaterial( { color: colorConversion(color), wireframe: false } );
+	// Create shape for hex tile geometry
+	var pts = [], numPts = 6;
+	for ( var i = 0; i < numPts * 2; i+=2 ) {
+		var a = i / numPts * Math.PI;
+		pts.push( new THREE.Vector2 ( Math.cos( a ) * this.side_length, Math.sin( a ) * this.side_length ) );
+	}
+	this.hex = new THREE.Shape( pts );
 
-	var settlement = new THREE.Mesh(settlement_geometry, material);
-	settlement.position.set( x, 0, z );
-	return settlement;
-};
+	// Set extrude settings to be applied to hex tile shape
+	this.extrudeSettings = {
+		amount			: tile_depth,
+		steps			: 1,
+		material		: 1,
+		extrudeMaterial : 0,
+		bevelEnabled	: true,
+		bevelThickness  : this.scale,
+		bevelSize       : 4 * this.scale,
+		bevelSegments   : 1,
+	};
 
-Game.prototype.drawCity = function(x,z, color){
-	var pts = [];
-	pts.push(new THREE.Vector2(-10, 0));
-	pts.push(new THREE.Vector2(7, 0));
-	pts.push(new THREE.Vector2(7, 9));
-	pts.push(new THREE.Vector2(0, 9));
-	pts.push(new THREE.Vector2(0, 15));
-	pts.push(new THREE.Vector2(-5, 20));
-	pts.push(new THREE.Vector2(-10, 15));
-	pts.push(new THREE.Vector2(-10, 0));
-
-	settlement_geometry = new THREE.ExtrudeGeometry(new THREE.Shape(pts), {amount:15,
-																bevelEnabled:false
-																});
-
-	var material = new THREE.MeshLambertMaterial( { color: colorConversion(color), wireframe: false } );
-
-	var settlement = new THREE.Mesh(settlement_geometry, material);
-	settlement.position.set( x, 0, z );
-	return settlement;
-};
-
-Game.prototype.drawRobber = function(){
-	var points = [];
-	var neck_width;
-	for ( var i = 0; i < 30; i++ ) {
-		if(i<3){
-			points.push(new THREE.Vector3( l/5, 0, i ) );
-		}
-		else if (i>=3 && i<=4){
-			points.push(new THREE.Vector3( l/5 - (i-2), 0, i ) );
-		}
-		else if (i>=5 && i<=20){
-			points.push(new THREE.Vector3( l/5 + Math.sin((i-5)/10*Math.PI), 0, i*1.2 ) );
-			neck_width = l/5 + Math.sin((i-5)/10*Math.PI);
-		}
-		else if (i>=21 && i<30){
-			points.push(new THREE.Vector3( l/5 + Math.cos((i-21)/10*Math.PI), 0, i*1.2 ) );
-		}
+	// Create geometry for number chits
+	var circlePts = [];
+	var numCirclePts = 32
+	for(i=0;i<numCirclePts*2;i++){
+		var a = i/numCirclePts * Math.PI;
+		circlePts.push(new THREE.Vector2(Math.cos(a)* this.side_length / 4, Math.sin(a)* this.side_length /4));
 	}
 
-	var geometry = new THREE.LatheGeometry( points);
-	var material = new THREE.MeshLambertMaterial( { color: 0x111111 } );
-	var lathe = new THREE.Mesh( geometry, material );
-	lathe.rotation.set(Math.PI,Math.PI/2,0);
-	lathe.position.set(0,20,0);
-	return lathe;
-};
+	this.chip_geometry = new THREE.ExtrudeGeometry(new THREE.Shape(circlePts), {amount:1,
+																			bevelEnabled:false
+																			});
 
-var Board = function(game, small_num, big_num) {
-	this.game = game;
 	var src_arr = [0xFFB13D, 0xFFB13D, 0xFFB13D, 0xFFB13D, 0x996600, 0x996600, 0x996600, 0x996600, 0xE0E0E0, 0xE0E0E0, 0xE0E0E0, 0xE0E0E0, 0x3D3D3D, 0x3D3D3D, 0x3D3D3D, 0xFF0000, 0xFF0000, 0xFF0000, 0xFFFFCC];
 	var sum=0;
 	var iterator = 1;
@@ -159,7 +94,7 @@ var Board = function(game, small_num, big_num) {
 
 Board.prototype.drawBoard = function(small_num, big_num) {
 	var num_rows = (2*(big_num-small_num)) + 1;
-	var outer_middle_distance = Math.sqrt(Math.pow(l*4,2) - Math.pow(0.5*l*4, 2));
+	var outer_middle_distance = Math.sqrt(Math.pow(this.side_length*4,2) - Math.pow(0.5*this.side_length*4, 2));
 	var count =0;
 	var iterator=0;
 	for(var row=0; row<num_rows;row++){
@@ -197,21 +132,17 @@ Board.prototype.indicesToCoordinates = function(small_num, big_num, indices){
 	} else {
 		half_col = big_num/2;
 	}
-	if(big_num%2===1){
-		x_pos=(col-half_col)*l*2;
-	} else {
-		x_pos=(col-half_col+0.5)*l*2;
-	}
-	var z_pos = (row-middle_row) * l * 2;
-	z_pos-=(row-middle_row)*10;
-	return [x_pos,z_pos];
+	half_col-=0.5;
+	x_pos=(col-half_col) * this.side_length * 2;
+	var z_pos = (row-middle_row) * this.side_length * 2;
+	z_pos-=(row-middle_row)*10*this.scale;
+	return [x_pos, z_pos];
 };
 
 Board.prototype.coordinatesToIndices = function(coordinates){
 	var x = coordinates[0];
 	var z = coordinates[1];
 	var indices;
-
 
 	return indices;
 };
@@ -224,7 +155,7 @@ var Tile = function(board, coordinates, color) {
 
 
 Tile.prototype.drawTile = function(coordinates, color) {
-	var tile_geometry = new THREE.ExtrudeGeometry( hex, extrudeSettings );
+	var tile_geometry = new THREE.ExtrudeGeometry( this.board.hex, this.board.extrudeSettings );
 	var scene = this.board.game.scene;
 	var white_material = new THREE.MeshLambertMaterial( { color: 0xffffff, wireframe: false } );
 	var colored_material = new THREE.MeshLambertMaterial( { color: color, wireframe: false } );
@@ -238,10 +169,93 @@ Tile.prototype.drawTile = function(coordinates, color) {
 
 Tile.prototype.drawChit = function(coordinates, color) {
 	var white_material = new THREE.MeshLambertMaterial( { color: 0xffffff, wireframe: false } );
-	var num_chip = new THREE.Mesh(chip_geometry, white_material);
+	var num_chip = new THREE.Mesh(this.chip_geometry, white_material);
 	num_chip.rotation.set(Math.PI/2, 0, 0);
 	num_chip.position.set( coordinates[0], 2, coordinates[1] );
 	return num_chip;
+};
+
+var Building = function(board, building_type, x, z, color){
+	this.board = board;
+	switch(building_type){
+		case "settlement":
+			this.building_type = building_type;
+			var shape = this.drawSettlement(x, z, color);
+			break;
+		case "city":
+			this.building_type = building_type;	
+			shape = this.drawCity(x, z, color);
+			break;
+		default:
+			throw ("Invalid building type!");
+			break;
+	}
+
+	var building_geometry = new THREE.ExtrudeGeometry(shape, {amount:15 * this.board.scale,
+																bevelEnabled:false
+																});
+
+	var material = new THREE.MeshLambertMaterial( { color: colorConversion(color), wireframe: false } );
+
+	this.building = new THREE.Mesh(building_geometry, material);
+	this.building.position.set( x, 0, z );
+};
+
+Building.prototype.drawSettlement = function(x, z, color) {
+	var scale = this.board.scale;
+	var pts = [];
+	pts.push(new THREE.Vector2(-5 * scale, 0));
+	pts.push(new THREE.Vector2(5 * scale, 0));
+	pts.push(new THREE.Vector2(5 * scale, 7 * scale));
+	pts.push(new THREE.Vector2(8 * scale, 7 * scale));
+	pts.push(new THREE.Vector2(0, 13 * scale));
+	pts.push(new THREE.Vector2(-8 * scale, 7 * scale));
+	pts.push(new THREE.Vector2(-5 * scale, 7 * scale));
+	pts.push(new THREE.Vector2(-5 * scale, 0));
+
+	return new THREE.Shape(pts);
+};
+
+Building.prototype.drawCity = function(x,z, color){
+	var scale = this.board.scale;
+	var pts = [];
+	pts.push(new THREE.Vector2(-10 * scale, 0));
+	pts.push(new THREE.Vector2(7 * scale, 0));
+	pts.push(new THREE.Vector2(7 * scale, 9 * scale));
+	pts.push(new THREE.Vector2(0, 9 * scale));
+	pts.push(new THREE.Vector2(0, 15 * scale));
+	pts.push(new THREE.Vector2(-5 * scale, 20 * scale));
+	pts.push(new THREE.Vector2(-10 * scale, 15 * scale));
+	pts.push(new THREE.Vector2(-10 * scale, 0));
+
+	return new THREE.Shape(pts);
+};
+
+Board.prototype.drawRobber = function(){
+	var points = [];
+	var neck_width;
+	for ( var i = 0; i < 30; i++ ) {
+		if(i<3){
+			points.push(new THREE.Vector3( l/5, 0, i ) );
+		}
+		else if (i>=3 && i<=4){
+			points.push(new THREE.Vector3( l/5 - (i-2), 0, i ) );
+		}
+		else if (i>=5 && i<=20){
+			points.push(new THREE.Vector3( l/5 + Math.sin((i-5)/10*Math.PI), 0, i*1.2 ) );
+			neck_width = l/5 + Math.sin((i-5)/10*Math.PI);
+		}
+		else if (i>=21 && i<30){
+			points.push(new THREE.Vector3( l/5 + Math.cos((i-21)/10*Math.PI), 0, i*1.2 ) );
+		}
+	}
+
+	var geometry = new THREE.LatheGeometry( points);
+	var material = new THREE.MeshLambertMaterial( { color: 0x111111 } );
+	var lathe = new THREE.Mesh( geometry, material );
+	lathe.rotation.set(Math.PI,Math.PI/2,0);
+	lathe.position.set(0,20,0);
+	return lathe;
 };
 
 function colorConversion(color_string){
