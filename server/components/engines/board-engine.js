@@ -338,6 +338,7 @@ GameBoard.prototype.createResources = function(small_num, large_num) {
                                         hex: desertRandomizer + 1,
                                         resource: 'desert',
                                         chit: 7,
+                                        robber: false,
                                     };
 
     // Inserted first desert manually
