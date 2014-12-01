@@ -6,7 +6,7 @@ var Player = require('./player-engine');
 function GameEngine(small_num, large_num) {
     this.players = [],
     this.turn = 0,
-	this.gameBoard = new GameBoard(this, small_num, large_num),
+    this.gameBoard = new GameBoard(this, small_num, large_num),
     //are all players added to the game model, and are we ready to setup the board?
     this.areAllPlayersAdded = false;
     //true or false: is the stage where players add their first two settlements, and first two roads complete?
@@ -85,6 +85,53 @@ GameEngine.prototype.getNestedArrayIndex = function(search_arr, find_arr) {
     }
   }
   return -1;
+};
+
+GameEngine.prototype.buildSettlement = function(player, location) {
+  if (player.resources.wool < 1 || player.resources.grain < 1 || player.resources.lumber < 1 || player.resources.brick < 1) {
+    throw new Error ('Not enough resources to build settlement!')
+  }
+  else {
+    player.resources.wool--;
+    player.resources.grain--;
+    player.resources.lumber--;
+    player.resources.brick--;
+    this.gameBoard.placeSettlement(player, location);
+  }
+};
+
+GameEngine.prototype.buildRoad = function(player, location, direction) {
+  if (player.resources.lumber < 1 || player.resources.brick < 1) {
+    throw new Error ('Not enough resources to build road!')
+  }
+  else {
+    player.resources.lumber--;
+    player.resources.brick--;
+    this.gameBoard.constructRoad(player,location,direction);
+  }
+};
+
+GameEngine.prototype.upgradeSettlementToCity = function(player, location) {
+  if (player.resources.grain < 2 || player.resources.ore < 3) {
+    throw new Error ('Not enough resources to build city!')
+  }
+  else {
+    player.resources.grain = player.resources.grain - 2;
+    player.resources.ore = player.resources.ore - 3;
+    this.gameBoard.upgradeSettlementToCity(player, location); 
+  }
+};
+
+GameEngine.prototype.buyDevelopmentCard = function(player) {
+  if (player.resources.wool < 1 || player.resources.grain < 1 || player.resources.ore < 1) {
+    throw new Error ('Not enough resources to purchase a development card!')
+  }
+  else {
+    player.resources.wool--;
+    player.resources.grain--;
+    player.resources.ore--;
+    this.gameBoard.getDevelopmentCard(player);
+  }
 };
 
 
