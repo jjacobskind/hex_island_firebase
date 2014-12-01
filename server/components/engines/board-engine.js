@@ -51,6 +51,7 @@ GameBoard.prototype.createRow = function(num_elements) {
             },
             adjacent_tiles: [],
             owner: null,
+            hasSettlementOrCity: null,
             land: true,
             port: null
         });
@@ -87,6 +88,7 @@ GameBoard.prototype.placeSettlement = function(player, location) {
         (vertices[location[0]][location[1]].owner === null && player.rulesValidatedBuildableVertices.indexOf(location) !== -1))
     {   
         vertices[location[0]][location[1]].owner = player;
+        vertices[location[0]][location[1]].hasSettlementOrCity = 'settlement';
         player.constructionPool.settlements--;
         player.playerQualities.settlements++;
         //add one point to their score
@@ -124,7 +126,7 @@ GameBoard.prototype.upgradeSettlementToCity = function(player, location) {
             throw new Error ('This isn\'t your settlement!');
     };
     if (vertices[location[0]][location[1]].owner === player) {
-        var removeSettlement = null;
+        vertices[location[0]][location[1]].hasSettlementOrCity = 'city';
         player.ownedProperties.settlements.forEach(function(item, index){
             if (item.settlementID = location){
                 player.ownedProperties.settlements.splice(index, 1);

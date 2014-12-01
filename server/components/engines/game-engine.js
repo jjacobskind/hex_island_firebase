@@ -6,7 +6,7 @@ var Player = require('./player-engine');
 function GameEngine(small_num, large_num) {
     this.players = [],
     this.turn = 0,
-	this.gameBoard = new GameBoard(this, small_num, large_num),
+	  this.gameBoard = new GameBoard(this, small_num, large_num),
     //are all players added to the game model, and are we ready to setup the board?
     this.areAllPlayersAdded = false;
     //true or false: is the stage where players add their first two settlements, and first two roads complete?
@@ -18,7 +18,7 @@ function GameEngine(small_num, large_num) {
 GameEngine.prototype.addPlayer = function() {
     if (this.areAllPlayersAdded === false) {
     var id = this.players.length;
-    if (id > 4) {
+    if (id > 5) {
         throw new Error ("Sorry, no more than 6 players!");
     }
     this.players.push(new Player(id));
@@ -85,6 +85,33 @@ GameEngine.prototype.getNestedArrayIndex = function(search_arr, find_arr) {
     }
   }
   return -1;
+};
+
+GameEngine.prototype.distributeResources = function(rollNum) {
+  // earlier function goes here
+};
+
+GameEngine.prototype.tradeResources = function(firstPlayer, firstResource, secondPlayer, secondResource) {
+  // arguments should be formatted as follows [game.players[x], 'resource', number to shift],
+  // example: game.tradeResources(game.players[0], {brick: 1}, game.players[1], {wool: 2});
+  // in a situation where
+  // player0 is giving 2 wool to player2 for 1 brick
+  // player0 will decrease 1 brick, and increase 1 wool
+  // player1 will increase 1 brick, and decrease 1 wool
+  // game.tradeResources(game.players[0], {brick: 1}, game.players[1], {wool: 1, grain: 1});
+  // player0 will increase 1 grain and 1 wool and decrease 1 brick
+  // player1 will increase 1 brick and decrease 1 wool and 1 grain
+
+  var playerOne = firstPlayer;
+  var playerTwo = secondPlayer;
+  for (var resource in firstResource) {
+    playerOne.resources[resource] = playerOne.resources[resource] - firstResource[resource];
+    playerTwo.resources[resource] = playerTwo.resources[resource] + firstResource[resource];
+  }
+  for (var resource in secondResource) {
+    playerOne.resources[resource] = playerOne.resources[resource] + secondResource[resource];
+    playerTwo.resources[resource] = playerTwo.resources[resource] - secondResource[resource];
+  }
 };
 
 
