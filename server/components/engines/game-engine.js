@@ -90,8 +90,37 @@ GameEngine.prototype.getNestedArrayIndex = function(search_arr, find_arr) {
   return -1;
 };
 
-GameEngine.prototype.distributeResources = function(rollNum) {
-  // earlier function goes here
+GameEngine.prototype.distributeResources = function(sumDice) {
+  var rows = game.gameBoard.boardVertices;
+  // if player's dice roll doesn't trigger robber fn
+  if (sumDice !== 7) {
+      var boardSnapShot = {};
+      // loop through the game board
+      for (i = 0; i < rows.length; i++) {
+        for (j = 0; j < rows[i].length; j++) {
+          if (rows[i][j].owner !== null) {
+            var resourcesToDistribute = 1;
+            // check adjacent tiles if they contain a settlement or a city
+            if (rows[i][j].settlementOrCity === 'city'){
+              resourcesToDistribute++;
+            }
+            // distribute resources if player contains settlement on adjacent tiles
+            rows[i][j].adjacent_tiles.forEach(function (item) {
+              if (item.chit === rollTest) {
+                resourceArray.push({resourceCount: resourcesToDistribute, resource: item.resource});
+              }
+            })
+            if (resourceArray.length !== 0) {
+              resourceArray.forEach(function(item){
+                var resources = player.resources;
+                console.log(item.resource)
+                resources[item.resource] = resources[item.resource] + resourcesToDistribute;
+              })
+            }
+          }
+        }
+      }
+    }
 };
 
 GameEngine.prototype.tradeResources = function(firstPlayer, firstResource, secondPlayer, secondResource) {
