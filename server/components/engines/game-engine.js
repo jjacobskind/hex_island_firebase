@@ -44,7 +44,10 @@ GameEngine.prototype.shuffle = function(array){
 };
 
 GameEngine.prototype.roll = function() {
-//roll goes here
+    var firstRoll = Math.floor(Math.random() * 6) + 1,
+        secondRoll = Math.floor(Math.random() * 6) + 1,
+        sumDice = firstRoll + secondRoll;
+        return sumDice;
 };
 
 GameEngine.prototype.findLongestRoad = function() {
