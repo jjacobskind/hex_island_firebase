@@ -5,7 +5,7 @@ var game = require('./game-engine');
 function Player(id) {
     this.playerID = id;
     this.resources = {
-        sheep: 0,
+        wool: 0,
         grain: 0,
         brick: 0,
         ore: 0,
@@ -33,7 +33,7 @@ function Player(id) {
         privatePoints: 0
     };
     this.tradingCosts = {
-        sheep: 4,
+        wool: 4,
         grain: 4,
         brick: 4,
         ore: 4,
