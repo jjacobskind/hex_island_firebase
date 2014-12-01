@@ -36,6 +36,8 @@ Game.prototype.shuffle = function(array) {
 
 var Board = function(game, small_num, big_num, scale) {
 	this.game = game;
+	this.small_num = small_num;
+	this.big_num = big_num;
 	if(!!scale){
 		this.scale = scale;
 	} else {
@@ -88,11 +90,13 @@ var Board = function(game, small_num, big_num, scale) {
 		src_arr = src_arr.concat(src_arr);
 	}
 	this.resources = game.shuffle(src_arr);
-	this.spaces = this.drawBoard(small_num, big_num);
+	this.spaces = this.drawBoard();
 };
 
 
-Board.prototype.drawBoard = function(small_num, big_num) {
+Board.prototype.drawBoard = function() {
+	var small_num = this.small_num;
+	var big_num = this.big_num;
 	var num_rows = (2*(big_num-small_num)) + 1;
 	var outer_middle_distance = Math.sqrt(Math.pow(this.side_length*4,2) - Math.pow(0.5*this.side_length*4, 2));
 	var count =0;
@@ -107,7 +111,7 @@ Board.prototype.drawBoard = function(small_num, big_num) {
 
 
 		for(var col=0;col<num_cols; col++){
-			var coordinates = this.indicesToCoordinates(small_num, big_num, [row, col]);
+			var coordinates = this.indicesToCoordinates([row, col]);
 			var obj=new Tile(this, coordinates, this.resources.pop());
 			this.game.scene.add(obj.tile);
 			this.game.scene.add(obj.chit);
@@ -115,7 +119,9 @@ Board.prototype.drawBoard = function(small_num, big_num) {
 	}
 };
 
-Board.prototype.indicesToCoordinates = function(small_num, big_num, indices){
+Board.prototype.indicesToCoordinates = function(indices){
+	var small_num = this.small_num;
+	var big_num = this.big_num;
 	var num_rows = (2*(big_num-small_num)) + 1;
 	var row = indices[0];
 	var col = indices[1];
@@ -139,12 +145,60 @@ Board.prototype.indicesToCoordinates = function(small_num, big_num, indices){
 	return [x_pos, z_pos];
 };
 
-Board.prototype.coordinatesToIndices = function(coordinates){
+Board.prototype.coordinatesToVertices = function(coordinates){
+	var small_num = this.small_num;
+	var big_num = this.big_num;
+	var num_rows = (4*(big_num-small_num)) + 4;
 	var x = coordinates[0];
 	var z = coordinates[1];
-	var indices;
 
-	return indices;
+	var side_length = this.side_length + this.extrudeSettings.bevelSize;
+	var half_length = side_length/2;
+	var short_distance = side_length * Math.cos(Math.PI/3);
+	
+	// Calculate row
+	var remainder = Math.abs(z) - short_distance;
+
+	var intervals = [short_distance, side_length];
+	var i=0;
+	while(remainder>=-10){
+		remainder-= intervals[i%2];
+		i++;
+	}
+	if(z!==Math.abs(z)){
+		z_index = (num_rows/2) + i -1;
+	} else {
+		z_index = (num_rows/2) - i;
+	}
+
+	if(z_index<0 || z_index>num_rows){
+		return -1;
+	}
+
+	// Calculate column
+	var middle_radius = (side_length * Math.sin(Math.PI/3));
+	var x_index = Math.round(x/middle_radius);
+
+	if(z_index===0 || z_index===num_rows-1){
+		var num_cols= small_num;
+	}
+	else if(z_index===num_rows/2 || z_index===(num_rows/2)-1){
+		num_cols = big_num+1;
+	} else if(z_index<=num_rows/2) {
+		num_cols = Math.ceil(z_index/2)+small_num;
+	} else {
+		num_cols = Math.floor((num_rows-z_index)/2) + small_num;
+	}
+	var half_col = num_cols/2;
+	var col = Math.floor(half_col + (x_index/2));
+	
+	if(col<0 || col>num_cols){
+		return -1;
+	}
+
+
+
+	return [z_index, col];
 };
 
 var Tile = function(board, coordinates, color) {
@@ -168,8 +222,8 @@ Tile.prototype.drawTile = function(coordinates, color) {
 };
 
 Tile.prototype.drawChit = function(coordinates, color) {
-	var white_material = new THREE.MeshLambertMaterial( { color: 0xffffff, wireframe: false } );
-	var num_chip = new THREE.Mesh(this.chip_geometry, white_material);
+	var white_material = new THREE.MeshLambertMaterial( { color: 0xffffff, wireframe: false} );
+	var num_chip = new THREE.Mesh(this.board.chip_geometry, white_material);
 	num_chip.rotation.set(Math.PI/2, 0, 0);
 	num_chip.position.set( coordinates[0], 2, coordinates[1] );
 	return num_chip;
