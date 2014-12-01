@@ -13,7 +13,7 @@ angular.module('settlersApp')
 
 
       camera = new THREE.PerspectiveCamera( 45, canvas_width / canvas_height, 1, 5000 );
-      camera.position.set( 0, 200, 300 );
+      camera.position.set( 0, 200, -300 );
 
       controls = new THREE.OrbitControls( camera );
       controls.addEventListener( 'change', render );
@@ -51,6 +51,8 @@ angular.module('settlersApp')
     renderer.setClearColor( 0xA1CEED );
     renderer.setSize( canvas_width, canvas_height );
 
+    renderer.domElement.id="board-canvas";
+
     // Click event handler calculates the  x & z coordinates on the y=0 plane that correspond to where user clicked on canvas
     renderer.domElement.addEventListener('click', function(event){
 
@@ -58,9 +60,10 @@ angular.module('settlersApp')
 
       var vector = new THREE.Vector3();
 
+      var canvas_position = $("#board-canvas").offset();
       vector.set(
-          ( event.clientX / canvas_width ) * 2 - 1,
-          - ( event.clientY / canvas_height ) * 2 + 1,
+          ((event.clientX - canvas_position.left) / canvas_width ) * 2 - 1,
+          - ( (event.clientY - canvas_position.top) / canvas_height ) * 2 + 1,
           0.5 );
 
       vector.unproject( camera );
@@ -70,6 +73,9 @@ angular.module('settlersApp')
       var distance = - camera.position.y / dir.y;
 
       var pos = camera.position.clone().add( dir.multiplyScalar( distance ) );
+      pos.x*= -1;
+      // console.log(pos.x, pos.z);
+      console.log(game.board.coordinatesToVertices([pos.x, pos.z]));
     });
     return renderer;
   };
@@ -101,7 +107,7 @@ angular.module('settlersApp')
 
   var renderer = createRenderer();
 
-  init(3, 6);
+  init(3, 5);
   animate();
 
   return {
