@@ -51,6 +51,7 @@ GameBoard.prototype.createRow = function(num_elements) {
             },
             adjacent_tiles: [],
             owner: null,
+            hasSettlementOrCity: null,
             land: true,
             port: null
         });
@@ -74,9 +75,11 @@ GameBoard.prototype.placeSettlement = function(player, location) {
     nearestThreeVertices.push(this.getRoadDestination(location, 'right'));
     while (nearestThreeVertices.length !== 0) {
         var thisVertex = nearestThreeVertices[0];
-        if (vertices[thisVertex[0]][thisVertex[1]].owner !== null)
-        {
-            throw new Error ('There is a settlement or city one tile away from this location, so this settlement cannot be built.');
+        if (thisVertex !== null) {
+            if (vertices[thisVertex[0]][thisVertex[1]].owner !== null)
+            {
+                throw new Error ('There is a settlement or city one tile away from this location, so this settlement cannot be built.');
+            }
         }
         nearestThreeVertices.shift();
     };
@@ -85,6 +88,7 @@ GameBoard.prototype.placeSettlement = function(player, location) {
         (vertices[location[0]][location[1]].owner === null && player.rulesValidatedBuildableVertices.indexOf(location) !== -1))
     {   
         vertices[location[0]][location[1]].owner = player;
+        vertices[location[0]][location[1]].hasSettlementOrCity = 'settlement';
         player.constructionPool.settlements--;
         player.playerQualities.settlements++;
         //add one point to their score
@@ -122,7 +126,7 @@ GameBoard.prototype.upgradeSettlementToCity = function(player, location) {
             throw new Error ('This isn\'t your settlement!');
     };
     if (vertices[location[0]][location[1]].owner === player) {
-        var removeSettlement = null;
+        vertices[location[0]][location[1]].hasSettlementOrCity = 'city';
         player.ownedProperties.settlements.forEach(function(item, index){
             if (item.settlementID = location){
                 player.ownedProperties.settlements.splice(index, 1);
@@ -334,6 +338,7 @@ GameBoard.prototype.createResources = function(small_num, large_num) {
                                         hex: desertRandomizer + 1,
                                         resource: 'desert',
                                         chit: 7,
+                                        robber: false,
                                     };
 
     // Inserted first desert manually
@@ -582,17 +587,15 @@ GameBoard.prototype.followRoad = function(location, road, player) {
 };
 
 GameBoard.prototype.getDevelopmentCard = function(player) {
-    var odds = 25;
     var deck = {
         size: 25,
         choiceCeiling: [14,19,21,23,25]
     };
     if (this.game.players.length > 4) {
         deck.choiceCeiling = [19,24,26,28,30];
-        odds = 30;
+        deck.size = 30;
     }
-    var cardChoice = Math.floor((Math.random() * odds)) + 1;
-    console.log(cardChoice);
+    var cardChoice = Math.floor((Math.random() * deck.size)) + 1;
     switch (true){
         case (cardChoice <= deck.choiceCeiling[0]):
             player.devCards.knight++;
