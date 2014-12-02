@@ -129,6 +129,44 @@ GameEngine.prototype.distributeResources = function(sumDice) {
     }
 };
 
+GameEngine.prototype.bankTrading = function(player, resources_give, resources_take){
+  
+  // trading_power determines how many resource cards player can acquire through a bank var
+  var trading_power = 0;
+
+  // Validate whether player has enough of each resource to conduct this trade
+  for(var i=0, len=resources_give.length; i<len; i++){
+    var this_resource = resources_give[i];
+    if(player.resources[this_resource.resource] < this_resource.quantity || player.resources[this_resource.resource]<player.tradingCosts[this_resource.resource]){
+      return false;
+    } else {
+      trading_power += Math.floor(this_resource.quantity/player.tradingCosts[this_resource.resource]);
+    }
+  }
+
+  // Tally the number of resource cards player is trying to acquire through this trade
+  var seeking_sum = 0;
+  for(var i=0, len=resources_take.length; i<len; i++){
+    seeking_sum += resources_take[i].quantity;
+  }
+
+  if(trading_power<seeking_sum){
+    return false;
+  } else {
+
+    // Deduct resources player is trading away
+    for(var i=0, len=resources_give.length; i<len; i++){
+      var this_resource = resources_give[i];
+      player.resources[this_resource.resource]-=this_resource.quantity;
+    }
+    // Add resources player is receiving
+    for(var i=0, len=resources_take.length; i<len; i++){
+      var this_resource = resources_take[i];
+      player.resources[this_resource.resource]+=this_resource.quantity;
+    }
+  }
+}
+
 GameEngine.prototype.tradeResources = function(firstPlayer, firstResource, secondPlayer, secondResource) {
   // arguments should be formatted as follows [game.players[x], 'resource', number to shift],
   // example: game.tradeResources(game.players[0], {brick: 1}, game.players[1], {wool: 2});
