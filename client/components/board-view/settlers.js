@@ -22,7 +22,7 @@ var Game = function(scene, small_num, big_num, scale) {
 	this.scene.add(settlement.building);
 	// this.scene.add(this.drawRobber());
 
-	var road = this.board.buildRoad();
+	var road = this.board.buildRoad([7,3], [6,4]);
 	this.scene.add(road);
 };
 
@@ -250,7 +250,6 @@ Board.prototype.verticesToCoordinates = function(location){
 	while(temp_row!==z){
 		temp_row-=direction;
 		z_offset += direction * intervals[i%2];
-		console.log(direction*intervals[i%2]);
 		i++;
 	}
 
@@ -259,6 +258,7 @@ Board.prototype.verticesToCoordinates = function(location){
 
 Board.prototype.buildRoad = function(location1, location2){
 	var edge = 5 * this.scale;
+	var depth = this.side_length*0.7;
 	var pts = [new THREE.Vector2(0, 0)];
 	pts.push(new THREE.Vector2(edge/2, 0));
 	pts.push(new THREE.Vector2(edge/2, edge));
@@ -266,11 +266,23 @@ Board.prototype.buildRoad = function(location1, location2){
 	pts.push(new THREE.Vector2(edge/-2, 0));
 	pts.push(new THREE.Vector2(0, 0));
 	var shape = new THREE.Shape(pts);
-	var geometry = new THREE.ExtrudeGeometry(shape,{amount:this.side_length*.7, bevelEnabled:false});
+	var geometry = new THREE.ExtrudeGeometry(shape,{amount:depth, bevelEnabled:false});
 	var road = new THREE.Mesh(geometry, new THREE.MeshLambertMaterial({color: 0xbb0000, wireframe:false}));
-	var coords1 = this.verticesToCoordinates([11, 2]);
-	var coords2 = this.verticesToCoordinates([10, 3]);
-	// road.position.set(coords[0],0,coords[1]);
+	var coords1 = this.verticesToCoordinates(location1);
+	var coords2 = this.verticesToCoordinates(location2);
+
+	// Set road angle
+	var x_diff = coords2[0] - coords1[0];
+	var angle = Math.asin(x_diff/(this.side_length + this.extrudeSettings.bevelSize));
+	road.rotation.set(0, angle, 0);
+
+	// Set road position
+	var x_avg = (coords1[0] + coords2[0])/2;
+	var x_offset = (Math.sin(angle)*depth)/2;
+	var z_avg = (coords1[1] + coords2[1])/2;
+	var z_offset = Math.cos(angle)*depth/2;
+	road.position.set(x_avg - x_offset,0,z_avg - z_offset);
+
 	return road;
 };
 
