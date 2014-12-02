@@ -18,7 +18,8 @@ function GameEngine(small_num, large_num) {
 GameEngine.prototype.calculatePlayerTurn = function() {
   var currentTurn = this.turn,
       playerLength = this.players.length;
-  return currentTurn % playerLength;
+      playerTurn = currentTurn % playerLength;
+  return playerTurn;
 }
 
 GameEngine.prototype.addPlayer = function() {
@@ -55,6 +56,52 @@ GameEngine.prototype.roll = function() {
         sumDice = firstRoll + secondRoll;
         return sumDice;
 };
+
+GameEngine.prototype.robber = function(){
+	  var rows = game.gameBoard.boardVertices,
+         	    stealable = [],
+         	    toStealFrom = '',
+         	    stolenResource = 0,
+         	    randomResource = function(obj) {
+         	    	var keys = Object.keys(obj)
+         	    	return obj[keys[keys.length * Math.random() << 0]];
+         	    };;
+	if (this.turn !== 1 && sumDice == 7) {
+         // loop through each player and remove half of their resources if they have less than 7
+         for (var i = 0; i < this.players.length; i++) {
+             var sum = 0;
+             for (var resource in this.players[i].resources) {
+               if ( this.players[i].resources.hasOwnProperty(resource) ) {
+                // removed parseFloat on sum: [original: sum += parseFloat( this.players[i].resources[resource] ); ]
+                sum += this.players[i].resources[resource];
+                if (sum > 7) {
+                    var keptResources = { wool: 0, grain: 0, brick: 0, ore: 1, lumber: 1 };
+                    // hard code value test:
+                    // keptResources = { wool: 2, grain: 0, brick: 0, ore: 1, lumber: 1 }
+                    console.log('The bandit stole half of your resources! You have X resources left! please select which resources you wish to keep');
+                    this.players[i].resources = keptResources;
+                 }
+               }
+             }
+         }
+         // need to add this.playerTurn specific modal here
+         console.log('player '+playerTurn+' please select a new tile for the bandit to occupy')
+         // banditMove = game.gameBoard.boardTiles[this.row][this.col]
+         console.log('player '+playerTurn+' chased the robber into a new area!');
+         // rolled player selects another player to steal from
+         for (var a = 0; a < rows.length; a++) {
+         	for (var b = 0; b < rows[a].length; b++) {
+         		if ( rows[a][b].owner !== null ) {
+         			stealable.push(rows[a][b].owner);
+         			console.log('please select a player from whom to steal one resource');
+         			toStealFrom = stealable[1];
+         			stolenResource = randomResource( game.players[1].resources );
+         		}
+         	}
+         }
+        }
+	
+}
 
 GameEngine.prototype.findLongestRoad = function() {
   var longest_road = [];
@@ -116,7 +163,7 @@ GameEngine.prototype.distributeResources = function(sumDice) {
                 resourceArray.push({resourceCount: resourcesToDistribute, resource: item.resource});
               }
             })
-            if (resourceArray.length !== 0) {
+            if (resourceArray.length !== 0 && item.robber == false) {
               resourceArray.forEach(function(item){
                 var resources = player.resources;
                 console.log(item.resource)
