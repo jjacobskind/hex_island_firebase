@@ -15,6 +15,12 @@ function GameEngine(small_num, large_num) {
     this.hasGameStartedYet = false;
 }
 
+GameEngine.prototype.calculatePlayerTurn = function() {
+  var currentTurn = this.turn,
+      playerLength = this.players.length;
+  return currentTurn % playerLength;
+}
+
 GameEngine.prototype.addPlayer = function() {
     if (this.areAllPlayersAdded === false) {
     var id = this.players.length;
