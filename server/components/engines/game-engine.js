@@ -152,5 +152,52 @@ GameEngine.prototype.tradeResources = function(firstPlayer, firstResource, secon
   }
 };
 
+GameEngine.prototype.buildSettlement = function(player, location) {
+  if (player.resources.wool < 1 || player.resources.grain < 1 || player.resources.lumber < 1 || player.resources.brick < 1) {
+    throw new Error ('Not enough resources to build settlement!')
+  }
+  else {
+    player.resources.wool--;
+    player.resources.grain--;
+    player.resources.lumber--;
+    player.resources.brick--;
+    this.gameBoard.placeSettlement(player, location);
+  }
+};
+
+GameEngine.prototype.buildRoad = function(player, location, direction) {
+  if (player.resources.lumber < 1 || player.resources.brick < 1) {
+    throw new Error ('Not enough resources to build road!')
+  }
+  else {
+    player.resources.lumber--;
+    player.resources.brick--;
+    this.gameBoard.constructRoad(player,location,direction);
+  }
+};
+
+GameEngine.prototype.upgradeSettlementToCity = function(player, location) {
+  if (player.resources.grain < 2 || player.resources.ore < 3) {
+    throw new Error ('Not enough resources to build city!')
+  }
+  else {
+    player.resources.grain = player.resources.grain - 2;
+    player.resources.ore = player.resources.ore - 3;
+    this.gameBoard.upgradeSettlementToCity(player, location); 
+  }
+};
+
+GameEngine.prototype.buyDevelopmentCard = function(player) {
+  if (player.resources.wool < 1 || player.resources.grain < 1 || player.resources.ore < 1) {
+    throw new Error ('Not enough resources to purchase a development card!')
+  }
+  else {
+    player.resources.wool--;
+    player.resources.grain--;
+    player.resources.ore--;
+    this.gameBoard.getDevelopmentCard(player);
+  }
+};
+
 
 module.exports = GameEngine;
