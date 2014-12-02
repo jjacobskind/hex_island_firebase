@@ -21,6 +21,9 @@ var Game = function(scene, small_num, big_num, scale) {
 	var settlement = new Building(this.board, "city", -30, 0, "red");
 	this.scene.add(settlement.building);
 	// this.scene.add(this.drawRobber());
+
+	var road = this.board.buildRoad();
+	this.scene.add(road);
 };
 
 Game.prototype.shuffle = function(array) {
@@ -195,10 +198,80 @@ Board.prototype.coordinatesToVertices = function(coordinates){
 	if(col<0 || col>num_cols){
 		return -1;
 	}
-
-
-
 	return [z_index, col];
+};
+
+Board.prototype.verticesToCoordinates = function(location){
+	var z = location[0];
+	var x = location[1];
+	var small_num = this.small_num;
+	var big_num = this.big_num;
+	var num_rows = (4*(big_num-small_num)) + 4;
+
+	// Calculate x-coordinate of vertex
+	var side_length = this.side_length + this.extrudeSettings.bevelSize;
+	if(z===0 || z===num_rows-1){
+		var num_cols = small_num;
+		var offset = num_cols-1;
+	}
+	else if(z===num_rows/2 || z===(num_rows/2)-1){
+		num_cols = big_num+1;
+		offset = big_num;
+	} else if(z<=num_rows/2) {
+		num_cols = Math.ceil(z/2)+small_num;
+	} else {
+		num_cols = Math.floor((num_rows-z)/2) + small_num;
+	}
+
+	if(!offset){
+		offset = Math.ceil(num_cols/2) + 1;
+	}
+	var middle_radius = (side_length * Math.sin(Math.PI/3));
+	var left_edge = middle_radius*offset;
+	var x_coord = left_edge - (middle_radius * x * 2);
+
+	// Calculate z-coordinate of vertex
+	var short_distance = side_length * Math.cos(Math.PI/3);
+	var temp_row = (num_rows-1)/2;
+	if(z>temp_row){
+		var direction = -1;
+	} else {
+		direction = 1;
+	}
+	
+	//Board coordinates drop as row gets higher, so z_offset and temp_row need to iterate in opposite directions
+	var z_offset = side_length*0.5*direction;
+	temp_row -= 0.5 * direction;
+
+	var intervals = [short_distance, side_length];
+	var i=0;
+
+
+	while(temp_row!==z){
+		temp_row-=direction;
+		z_offset += direction * intervals[i%2];
+		console.log(direction*intervals[i%2]);
+		i++;
+	}
+
+	return [x_coord, z_offset];
+};
+
+Board.prototype.buildRoad = function(location1, location2){
+	var edge = 5 * this.scale;
+	var pts = [new THREE.Vector2(0, 0)];
+	pts.push(new THREE.Vector2(edge/2, 0));
+	pts.push(new THREE.Vector2(edge/2, edge));
+	pts.push(new THREE.Vector2(edge/-2, edge));
+	pts.push(new THREE.Vector2(edge/-2, 0));
+	pts.push(new THREE.Vector2(0, 0));
+	var shape = new THREE.Shape(pts);
+	var geometry = new THREE.ExtrudeGeometry(shape,{amount:this.side_length*.7, bevelEnabled:false});
+	var road = new THREE.Mesh(geometry, new THREE.MeshLambertMaterial({color: 0xbb0000, wireframe:false}));
+	var coords1 = this.verticesToCoordinates([11, 2]);
+	var coords2 = this.verticesToCoordinates([10, 3]);
+	// road.position.set(coords[0],0,coords[1]);
+	return road;
 };
 
 var Tile = function(board, coordinates, color) {
@@ -210,7 +283,6 @@ var Tile = function(board, coordinates, color) {
 
 Tile.prototype.drawTile = function(coordinates, color) {
 	var tile_geometry = new THREE.ExtrudeGeometry( this.board.hex, this.board.extrudeSettings );
-	var scene = this.board.game.scene;
 	var white_material = new THREE.MeshLambertMaterial( { color: 0xffffff, wireframe: false } );
 	var colored_material = new THREE.MeshLambertMaterial( { color: color, wireframe: false } );
 	var materials = new THREE.MeshFaceMaterial([white_material, colored_material]);
