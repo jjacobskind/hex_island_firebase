@@ -12,7 +12,7 @@ angular.module('settlersApp')
       scene = new THREE.Scene();
 
 
-      camera = new THREE.PerspectiveCamera( 45, canvas_width / canvas_height, 1, 5000 );
+      camera = new THREE.PerspectiveCamera( 45, canvas_width / canvas_height, 1, 1500 );
       camera.position.set( 0, 200, -300 );
 
       controls = new THREE.OrbitControls( camera );

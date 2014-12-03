@@ -5,3 +5,26 @@
 	<button type="button" class="btn btn-success" ng-click="main_ctrl.makeBoard()">Preview Board</button>
 </div> -->
 <board></board>
+<!-- 
+<div id='messagesDiv'></div>
+    <input type='text' id='nameInput' placeholder='Name'>
+    <input type='text' id='messageInput' placeholder='Message'>
+    <script type='text/javascript'>
+      var myDataRef = new Firebase('https://flickering-heat-2888.firebaseio.com/' + gameID + '/chat');
+      $('#messageInput').keypress(function (e) {
+        if (e.keyCode == 13) {
+          var name = $('#nameInput').val();
+          var text = $('#messageInput').val();
+          myDataRef.push({name: name, text: text});
+          $('#messageInput').val('');
+        }
+      });
+      function printChatMessage(name, text) {
+        $('<div/>').text(text).prepend($('<em/>').text(name+': ')).appendTo($('#messagesDiv'));
+        $('#messagesDiv')[0].scrollTop = $('#messagesDiv')[0].scrollHeight;
+      };
+      myDataRef.on('child_added', function(snapshot) {
+        var message = snapshot.val();
+        printChatMessage(message.name, message.text);
+      });
+</script> -->
