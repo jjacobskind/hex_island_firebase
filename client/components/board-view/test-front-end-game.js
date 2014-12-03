@@ -894,8 +894,7 @@ function syncDatabase(game) {
 
 function _refreshDatabase(){
     game = new GameEngine(3, 5);
-    //this is so hacky.
-    setTimeout(syncDatabase(game), 2000);
+    syncDatabase(game);
 };
 
 gameDatabase.on("value", function(snapshot) {
