@@ -198,6 +198,48 @@ GameEngine.prototype.buyDevelopmentCard = function(player) {
     this.gameBoard.getDevelopmentCard(player);
   }
 };
+
+// Iterates through two 2-dimensional arrays of objects, identifies which object is different
+// Returns the indices of the changed object, as well as which of its properties have changed
+GameEngine.prototype.findObjectDifferences = function(old_arr, new_arr){
+
+  var changes = 0;
+  var all_changes=[];
+  for(var row=0, num_rows=old_arr.length; row<num_rows; row++){
+    for(var col=0, num_cols=old_arr[row].length; col<num_cols; col++) {
+      var old_obj=old_arr[row][col];
+      var new_obj=new_arr[row][col];
+
+
+      var changes_obj = {row:row, col:col, keys:[]};
+      for(var key in old_obj) {
+        if(key==='connections'){
+          for(var direction in old_obj[key]){
+            if(old_obj[key][direction]!==new_obj[key][direction]){
+              changes++;
+              changes_obj.keys.push([direction, new_obj[key][direction]]);
+              all_changes.push(changes_obj);
+            }
+          }
+        }
+        else if(key==='adjacent_tiles'){
+          // changes+=2;
+
+        }
+        else if(old_obj[key]!=new_obj[key]) {
+            changes+=2;
+            changes_obj.keys.push(key);
+          all_changes.push(changes_obj);
+        }
+      }
+      if(changes>=2){
+        console.log(all_changes);
+        return all_changes;
+      }
+    }
+  }
+};
+
 var gameID = 0;
 var dataLink = new Firebase("https://flickering-heat-2888.firebaseio.com/");
 var gameDatabase = dataLink.child(gameID);
@@ -220,10 +262,6 @@ function _refreshDatabase(){
     game = new GameEngine(3, 5);
     syncDatabase(game);
     console.log('the database and local board have been synched and refreshed')
-};
-
-function pushUpdates(player, action, optionalLocation, optionalDirection) {
-    gameDatabase.child('turnActions').push(JSON.stringify({turnID: turn, data: {player: player, action: action, location: optionalLocation, direction: optionalDirection}}));
 };
 
 function boardSync() {
@@ -253,7 +291,7 @@ currentGameData.on("child_changed", function(childSnapshot) {
       var callback = function(data) {game.gameBoard.boardTiles = data};
       break;
     case "boardVertices":
-      var callback = function(data) {game.gameBoard.boardVertices = data};
+      var callback = function(data) {game.findObjectDifferences(game.gameBoard.boardVertices, data)};//function(data) {game.gameBoard.boardVertices = data};
       break;
     default:
       var callback = function(data) {throw new Error ('incident occurred with this data: ', data)};
