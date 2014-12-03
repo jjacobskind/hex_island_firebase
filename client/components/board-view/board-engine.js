@@ -105,8 +105,8 @@ GameBoard.prototype.placeSettlement = function(player, location) {
             }
         }
     }
-    gameDatabase.child('data').child('players').set(JSON.stringify({players: game.players}));
-    gameDatabase.child('data').child('boardVertices').set(JSON.stringify({players: game.gameBoard.boardVertices}));
+    currentGameData.child('players').set(JSON.stringify(game.players));
+    currentGameData.child('boardVertices').set(JSON.stringify(game.gameBoard.boardVertices));
 };
 
 
@@ -136,8 +136,8 @@ GameBoard.prototype.upgradeSettlementToCity = function(player, location) {
         player.constructionPool.settlements++;
         player.constructionPool.cities--;
         player.ownedProperties.cities.push({settlementID: location})
-        gameDatabase.child('data').child('players').set(JSON.stringify({players: game.players}));
-        gameDatabase.child('data').child('boardVertices').set(JSON.stringify({players: game.gameBoard.boardVertices}));
+        currentGameData.child('players').set(JSON.stringify(game.players));
+        currentGameData.child('boardVertices').set(JSON.stringify(game.gameBoard.boardVertices));
     }
 
 };
@@ -216,8 +216,8 @@ GameBoard.prototype.constructRoad = function(player, currentLocation, newDirecti
         //validation - this is two lines because validateNewVertices does not account for the vertex that is passed in, so we manually pass in the vertex and then validate all surrounding
         player.rulesValidatedBuildableVertices.push(destinationCoords);
         this.validateNewVertices(player, destinationCoords);
-        gameDatabase.child('data').child('players').set(JSON.stringify({players: game.players}));
-        gameDatabase.child('data').child('boardVertices').set(JSON.stringify({players: game.gameBoard.boardVertices}));
+        currentGameData.child('players').set(JSON.stringify(game.players));
+        currentGameData.child('boardVertices').set(JSON.stringify(game.gameBoard.boardVertices));
     }
 };
 
@@ -616,5 +616,5 @@ GameBoard.prototype.getDevelopmentCard = function(player) {
         default:
             throw new Error ('Something weird happened in the deck: Error on this draw - ' + cardChoice);
     }
-    gameDatabase.child('data').child('players').set(JSON.stringify({players: game.players}));
+    currentGameData.child('players').set(JSON.stringify(game.players));
 };
