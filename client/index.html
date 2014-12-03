@@ -20,8 +20,42 @@
       <!-- injector:css -->
       <!-- endinjector -->
     <!-- endbuild -->
-              <!-- firebase -->
-          <script src="https://cdn.firebase.com/js/client/2.0.5/firebase.js"></script>
+    
+    <!--styles for UI Testing-->
+    <style type="text/css">
+    /* test buttons*/
+    :before, :after {
+      -webkit-box-sizing: border-box;
+      -moz-box-sizing: border-box;
+      box-sizing: border-box;
+    }
+
+    .bs-example {
+      position: relative;
+      padding: 45px 15px 15px;
+      margin: 0 -15px 15px;
+      border-color: #e5e5e5 #eee #eee;
+      border-style: solid;
+      border-width: 1px 0;
+      -webkit-box-shadow: inset 0 3px 6px rgba(0,0,0,.05);
+      box-shadow: inset 0 3px 6px rgba(0,0,0,.05);
+    }
+
+    .bs-example:after {
+      position: absolute;
+      top: 15px;
+      left: 15px;
+      font-size: 12px;
+      font-weight: 700;
+      color: #959595;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      content: "Test Build";
+    }
+    </style>
+    
+    <!-- firebase -->
+    <script src="https://cdn.firebase.com/js/client/2.0.5/firebase.js"></script>
   </head>
   <body ng-app="settlersApp">
     
@@ -31,6 +65,20 @@
 
     <!-- Add your site or application content here -->
     <div ui-view=""></div>
+    
+    <!-- Base UI Components for board functionality testing -->
+        <div class="container">
+          <div class="bs-example">
+            <div class="btn-toolbar" role="toolbar">
+              <button type="button" class="btn btn-default">
+                <span class="glyphicon glyphicon-tower" aria-hidden="true"></span> Build
+              </button>
+              <button type="button" class="btn btn-default">
+                <span class="glyphicon glyphicon-transfer" aria-hidden="true"></span> Trade
+              </button>
+            </div>
+          </div>
+        </div>
     
     <!-- Google Analytics: change UA-XXXXX-X to be your site's ID -->
 <!--     <script>
