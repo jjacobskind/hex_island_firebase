@@ -23,7 +23,7 @@ GameEngine.prototype.addPlayer = function() {
         throw new Error ("Sorry, no more than 6 players!");
     }
     this.players.push(new Player(id));
-    gameDatabase.child('data').child('players').set(JSON.stringify({players: game.players}));
+    currentGameData.child('players').set(JSON.stringify({players: game.players}));
     }
     else if (this.areAllPlayersAdded === true) {
         throw new Error ("Game is already started!");
@@ -108,7 +108,7 @@ GameEngine.prototype.distributeResources = function(sumDice) {
             }
             // distribute resources if player contains settlement on adjacent tiles
             rows[i][j].adjacent_tiles.forEach(function (item) {
-              if (item.chit === rollTest) {
+              if (item.chit === sumDice) {
                 resourceArray.push({resourceCount: resourcesToDistribute, resource: item.resource});
               }
             })
@@ -146,7 +146,7 @@ GameEngine.prototype.tradeResources = function(firstPlayer, firstResource, secon
     playerOne.resources[resource] = playerOne.resources[resource] + secondResource[resource];
     playerTwo.resources[resource] = playerTwo.resources[resource] - secondResource[resource];
   }
-  gameDatabase.child('data').child('players').set(JSON.stringify({players: game.players}));
+  currentGameData.child('players').set(JSON.stringify({players: game.players}));
 };
 
 GameEngine.prototype.buildSettlement = function(player, location) {
@@ -159,6 +159,7 @@ GameEngine.prototype.buildSettlement = function(player, location) {
     player.resources.lumber--;
     player.resources.brick--;
     this.gameBoard.placeSettlement(player, location);
+    pushUpdates(player, 'buildSettlement', location);
   }
 };
 
@@ -170,6 +171,7 @@ GameEngine.prototype.buildRoad = function(player, location, direction) {
     player.resources.lumber--;
     player.resources.brick--;
     this.gameBoard.constructRoad(player,location,direction);
+    pushUpdates(player, 'buildRoad', location, direction);
   }
 };
 
@@ -181,6 +183,7 @@ GameEngine.prototype.upgradeSettlementToCity = function(player, location) {
     player.resources.grain = player.resources.grain - 2;
     player.resources.ore = player.resources.ore - 3;
     this.gameBoard.upgradeSettlementToCity(player, location); 
+    pushUpdates(player, 'upgradeSettlementToCity', location);
   }
 };
 
@@ -197,7 +200,8 @@ GameEngine.prototype.buyDevelopmentCard = function(player) {
 };
 var gameID = 0;
 var dataLink = new Firebase("https://flickering-heat-2888.firebaseio.com/");
-var gameDatabase = dataLink.child(gameID)
+var gameDatabase = dataLink.child(gameID);
+var currentGameData = gameDatabase.child('data');
 
 var game = new GameEngine(3, 5);
 
@@ -207,9 +211,9 @@ function parseJSON(data, callback) {
 };
 
 function syncDatabase(game) {
-    gameDatabase.child('data').child('players').set(JSON.stringify(game.players));
-    gameDatabase.child('data').child('boardTiles').set(JSON.stringify(game.gameBoard.boardTiles));
-    gameDatabase.child('data').child('boardVertices').set(JSON.stringify(game.gameBoard.boardVertices));
+    currentGameData.child('players').set(JSON.stringify(game.players));
+    currentGameData.child('boardTiles').set(JSON.stringify(game.gameBoard.boardTiles));
+    currentGameData.child('boardVertices').set(JSON.stringify(game.gameBoard.boardVertices));
 };
 
 function _refreshDatabase(){
@@ -219,16 +223,31 @@ function _refreshDatabase(){
 };
 
 function pushUpdates(player, action, optionalLocation, optionalDirection) {
-
+    gameDatabase.child('turnActions').push(JSON.stringify({turnID: turn, data: {player: player, action: action, location: optionalLocation, direction: optionalDirection}}));
 };
 
-gameDatabase.on("value", function(snapshot) {
-  var tempStorage = snapshot.val();
-  persistedData = tempStorage.data;
+function boardSync() {
+  currentGameData.once("value", function(snapshot) {
+  var persistedData = snapshot.val();
   parseJSON(persistedData.players, function(data){game.players = data});
   parseJSON(persistedData.boardTiles, function(data){game.gameBoard.boardTiles = data});
   parseJSON(persistedData.boardVertices, function(data){game.gameBoard.boardVertices = data});
   console.log('data loaded')
 }, function (errorObject) {
   console.log("The read failed: " + errorObject.code);
-});
+})
+};
+
+//this will load all the data when the page loads initially, then turn itself off
+//for loading the saved state of the board
+$(document).ready(boardSync());
+
+//check for changes in player model
+currentGameData.child('players').on("value", function(snapshot){
+  var tempStorage = snapshot.val();
+  var players = tempStorage;
+  parseJSON(players, function(data){
+    game.players = data.players;
+  });
+})
+
