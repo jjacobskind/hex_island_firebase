@@ -615,6 +615,7 @@ GameBoard.prototype.getDevelopmentCard = function(player) {
         default:
             throw new Error ('Something weird happened in the deck: Error on this draw - ' + cardChoice);
     }
+
 };
 
 module.exports = GameBoard;
