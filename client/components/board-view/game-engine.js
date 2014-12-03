@@ -23,7 +23,7 @@ GameEngine.prototype.addPlayer = function() {
         throw new Error ("Sorry, no more than 6 players!");
     }
     this.players.push(new Player(id));
-    currentGameData.child('players').set(JSON.stringify({players: game.players}));
+    currentGameData.child('players').set(JSON.stringify(game.players));
     }
     else if (this.areAllPlayersAdded === true) {
         throw new Error ("Game is already started!");
@@ -146,7 +146,7 @@ GameEngine.prototype.tradeResources = function(firstPlayer, firstResource, secon
     playerOne.resources[resource] = playerOne.resources[resource] + secondResource[resource];
     playerTwo.resources[resource] = playerTwo.resources[resource] - secondResource[resource];
   }
-  currentGameData.child('players').set(JSON.stringify({players: game.players}));
+  currentGameData.child('players').set(JSON.stringify(game.players));
 };
 
 GameEngine.prototype.buildSettlement = function(player, location) {
@@ -242,12 +242,24 @@ function boardSync() {
 //for loading the saved state of the board
 $(document).ready(boardSync());
 
-//check for changes in player model
-currentGameData.child('players').on("value", function(snapshot){
-  var tempStorage = snapshot.val();
-  var players = tempStorage;
-  parseJSON(players, function(data){
-    game.players = data.players;
-  });
-})
+currentGameData.on("child_changed", function(childSnapshot) {
+  var dataToSanitize = childSnapshot.val();
+  var keyName = childSnapshot.key();
+  switch (keyName) {
+    case "players":
+      var callback = function(data) {game.players = data};
+      break;
+    case "boardTiles":
+      var callback = function(data) {game.gameBoard.boardTiles = data};
+      break;
+    case "boardVertices":
+      var callback = function(data) {game.gameBoard.boardVertices = data};
+      break;
+    default:
+      var callback = function(data) {throw new Error ('incident occurred with this data: ', data)};
+      break;
+  };
+  parseJSON(dataToSanitize, callback)
+});
+
 
