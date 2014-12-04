@@ -12,7 +12,7 @@ angular.module('settlersApp')
       scene = new THREE.Scene();
 
 
-      camera = new THREE.PerspectiveCamera( 45, canvas_width / canvas_height, 1, 1500 );
+      camera = new THREE.PerspectiveCamera( 45, canvas_width / canvas_height, 1, 1000 );
       camera.position.set( 0, 200, -300 );
 
       controls = new THREE.OrbitControls( camera );
@@ -33,14 +33,15 @@ angular.module('settlersApp')
   }
 
   var animate = function() {
-    requestAnimationFrame( animate );
+
     controls.update();
+    requestAnimationFrame(function(){});
   }
 
   var render = function(){
     light.position.copy(camera.position);
 
-    water.material.uniforms.time.value += 1.0 / 60.0;
+    water.material.uniforms.time.value += 1.0 / 15.0;
     water.render();
 
     renderer.render( scene, camera );
@@ -108,7 +109,8 @@ angular.module('settlersApp')
   var renderer = createRenderer();
 
   init(3, 5);
-  animate();
+  // animate();
+  setInterval(animate, 85);
 
   return {
     insert: function(){
