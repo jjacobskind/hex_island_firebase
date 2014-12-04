@@ -4,10 +4,10 @@ angular.module('settlersApp')
 	.factory('engineFactory', function(){
 		var game;
 
-		var gameID;// = 0;
-		var dataLink;// = new Firebase("https://flickering-heat-2888.firebaseio.com/");
-		var gameDatabase;// = dataLink.child(gameID);
-		var currentGameData;// = gameDatabase.child('data');
+		var gameID;
+		var dataLink;
+		var gameDatabase;
+		var currentGameData;
 
 		function parseJSON(data, callback) {
 		    var tempData = JSON.parse(data);
@@ -43,10 +43,6 @@ angular.module('settlersApp')
 				currentGameData.child(key).set(updates[key]);
 			}
 		};
-
-		//this will load all the data when the page loads initially, then turn itself off
-		//for loading the saved state of the board
-
 
 		return {
 			newGame: function(small_num, big_num){

@@ -108,8 +108,6 @@ GameBoard.prototype.placeSettlement = function(player, location) {
     return {'players': JSON.stringify(this.game.players),
             'boardVertices': JSON.stringify(this.boardVertices)
     };
-    // currentGameData.child('players').set(JSON.stringify(game.players));
-    // currentGameData.child('boardVertices').set(JSON.stringify(game.gameBoard.boardVertices));
 };
 
 
