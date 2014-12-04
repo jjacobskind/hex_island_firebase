@@ -203,7 +203,7 @@ GameEngine.prototype.buyDevelopmentCard = function(player) {
 // Returns the indices of the changed object, as well as which of its properties have changed
 GameEngine.prototype.findObjectDifferences = function(old_arr, new_arr){
 
-  var changes = 0;
+  var found_change = false;
   var all_changes=[];
   for(var row=0, num_rows=old_arr.length; row<num_rows; row++){
     for(var col=0, num_cols=old_arr[row].length; col<num_cols; col++) {
@@ -216,9 +216,22 @@ GameEngine.prototype.findObjectDifferences = function(old_arr, new_arr){
         if(key==='connections'){
           for(var direction in old_obj[key]){
             if(old_obj[key][direction]!==new_obj[key][direction]){
-              changes++;
-              changes_obj.keys.push([direction, new_obj[key][direction]]);
+              changes_obj.keys = [direction, new_obj[key][direction]];
               all_changes.push(changes_obj);
+              var roadEnd = this.gameBoard.getRoadDestination([row, col], direction);
+              all_changes.push({row:roadEnd[0], col:roadEnd[1], keys:[new_obj[key][direction]]});
+              switch(direction){
+                case "left":
+                  all_changes[1].keys.unshift("right");
+                  break;
+                case "right":
+                  all_changes[1].keys.unshift("left");
+                  break;
+                case "vertical":
+                  all_changes[1].keys.unshift("vertical");
+                  break;
+              }
+              return all_changes;
             }
           }
         }
@@ -227,13 +240,12 @@ GameEngine.prototype.findObjectDifferences = function(old_arr, new_arr){
 
         }
         else if(old_obj[key]!=new_obj[key]) {
-            changes+=2;
+            found_change=true;
             changes_obj.keys.push(key);
-          all_changes.push(changes_obj);
         }
       }
-      if(changes>=2){
-        console.log(all_changes);
+      if(found_change){
+        all_changes.push(changes_obj);
         return all_changes;
       }
     }
@@ -249,7 +261,7 @@ var game = new GameEngine(3, 5);
 
 function parseJSON(data, callback) {
     var tempData = JSON.parse(data);
-    callback(tempData);
+    return callback(tempData);
 };
 
 function syncDatabase(game) {
@@ -288,16 +300,16 @@ currentGameData.on("child_changed", function(childSnapshot) {
       var callback = function(data) {game.players = data};
       break;
     case "boardTiles":
-      var callback = function(data) {game.gameBoard.boardTiles = data};
+      callback = function(data) {game.gameBoard.boardTiles = data};
       break;
     case "boardVertices":
-      var callback = function(data) {game.findObjectDifferences(game.gameBoard.boardVertices, data)};//function(data) {game.gameBoard.boardVertices = data};
+      callback = function(data) { return game.findObjectDifferences(game.gameBoard.boardVertices, data)};//function(data) {game.gameBoard.boardVertices = data};
       break;
     default:
-      var callback = function(data) {throw new Error ('incident occurred with this data: ', data)};
+      callback = function(data) {throw new Error ('incident occurred with this data: ', data)};
       break;
   };
-  parseJSON(dataToSanitize, callback)
+   var change = parseJSON(dataToSanitize, callback);
 });
 
 
