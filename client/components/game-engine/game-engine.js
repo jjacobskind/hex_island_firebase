@@ -1,7 +1,7 @@
 function GameEngine(small_num, large_num) {
     this.players = [],
     this.turn = 0,
-      this.gameBoard = new GameBoard(this, small_num, large_num),
+    this.gameBoard = new GameBoard(this, small_num, large_num),
     //are all players added to the game model, and are we ready to setup the board?
     this.areAllPlayersAdded = false;
     //true or false: is the stage where players add their first two settlements, and first two roads complete?
@@ -18,12 +18,12 @@ GameEngine.prototype.calculatePlayerTurn = function() {
 
 GameEngine.prototype.addPlayer = function() {
     if (this.areAllPlayersAdded === false) {
-    var id = this.players.length;
-    if (id > 5) {
-        throw new Error ("Sorry, no more than 6 players!");
-    }
-    this.players.push(new Player(id));
-    currentGameData.child('players').set(JSON.stringify(game.players));
+      var id = this.players.length;
+      if (id > 5) {
+          throw new Error ("Sorry, no more than 6 players!");
+      }
+      this.players.push(new Player(id));
+      return {'players': JSON.stringify(this.players)};
     }
     else if (this.areAllPlayersAdded === true) {
         throw new Error ("Game is already started!");
@@ -149,7 +149,8 @@ GameEngine.prototype.tradeResources = function(firstPlayer, firstResource, secon
   currentGameData.child('players').set(JSON.stringify(game.players));
 };
 
-GameEngine.prototype.buildSettlement = function(player, location) {
+GameEngine.prototype.buildSettlement = function(playerID, location) {
+  player = this.players[playerID];
   if (player.resources.wool < 1 || player.resources.grain < 1 || player.resources.lumber < 1 || player.resources.brick < 1) {
     throw new Error ('Not enough resources to build settlement!')
   }
@@ -158,8 +159,7 @@ GameEngine.prototype.buildSettlement = function(player, location) {
     player.resources.grain--;
     player.resources.lumber--;
     player.resources.brick--;
-    this.gameBoard.placeSettlement(player, location);
-    pushUpdates(player, 'buildSettlement', location);
+    return this.gameBoard.placeSettlement(player, location);
   }
 };
 
@@ -251,65 +251,3 @@ GameEngine.prototype.findObjectDifferences = function(old_arr, new_arr){
     }
   }
 };
-
-var gameID = 0;
-var dataLink = new Firebase("https://flickering-heat-2888.firebaseio.com/");
-var gameDatabase = dataLink.child(gameID);
-var currentGameData = gameDatabase.child('data');
-
-var game = new GameEngine(3, 5);
-
-function parseJSON(data, callback) {
-    var tempData = JSON.parse(data);
-    return callback(tempData);
-};
-
-function syncDatabase(game) {
-    currentGameData.child('players').set(JSON.stringify(game.players));
-    currentGameData.child('boardTiles').set(JSON.stringify(game.gameBoard.boardTiles));
-    currentGameData.child('boardVertices').set(JSON.stringify(game.gameBoard.boardVertices));
-};
-
-function _refreshDatabase(){
-    game = new GameEngine(3, 5);
-    syncDatabase(game);
-    console.log('the database and local board have been synched and refreshed')
-};
-
-function boardSync() {
-  currentGameData.once("value", function(snapshot) {
-  var persistedData = snapshot.val();
-  parseJSON(persistedData.players, function(data){game.players = data});
-  parseJSON(persistedData.boardTiles, function(data){game.gameBoard.boardTiles = data});
-  parseJSON(persistedData.boardVertices, function(data){game.gameBoard.boardVertices = data});
-  console.log('data loaded')
-}, function (errorObject) {
-  console.log("The read failed: " + errorObject.code);
-})
-};
-
-//this will load all the data when the page loads initially, then turn itself off
-//for loading the saved state of the board
-$(document).ready(boardSync());
-
-currentGameData.on("child_changed", function(childSnapshot) {
-  var dataToSanitize = childSnapshot.val();
-  var keyName = childSnapshot.key();
-  switch (keyName) {
-    case "players":
-      var callback = function(data) {game.players = data};
-      break;
-    case "boardTiles":
-      callback = function(data) {game.gameBoard.boardTiles = data};
-      break;
-    case "boardVertices":
-      callback = function(data) { return game.findObjectDifferences(game.gameBoard.boardVertices, data)};//function(data) {game.gameBoard.boardVertices = data};
-      break;
-    default:
-      callback = function(data) {throw new Error ('incident occurred with this data: ', data)};
-      break;
-  };
-   var change = parseJSON(dataToSanitize, callback);
-});
-
-

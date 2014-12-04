@@ -18,6 +18,7 @@
     <!-- build:css({.tmp,client}) app/app.css -->
     <link rel="stylesheet" href="app/app.css">
       <!-- injector:css -->
+      <link rel="stylesheet" href="app/test.css">
       <!-- endinjector -->
     <!-- endbuild -->
     
@@ -83,6 +84,8 @@
         <script src="app/app.js"></script>
           <!-- injector:js -->
           <script src="components/board-view/three.min.js"></script>
+          <script src="components/game-engine/board-engine.js"></script>
+          <script src="components/game-engine/game-engine.js"></script>
           <script src="app/account/account.js"></script>
           <script src="app/account/login/login.controller.js"></script>
           <script src="app/account/settings/settings.controller.js"></script>
@@ -96,11 +99,10 @@
           <script src="components/board-view/Mirror.js"></script>
           <script src="components/board-view/OrbitControls.js"></script>
           <script src="components/board-view/WaterShader.js"></script>
-          <script src="components/board-view/board-engine.js"></script>
           <script src="components/board-view/board-view.js"></script>
-          <script src="components/board-view/game-engine.js"></script>
-          <script src="components/board-view/player-engine.js"></script>
           <script src="components/board-view/settlers.js"></script>
+          <script src="components/game-engine/game-factory.js"></script>
+          <script src="components/game-engine/player-engine.js"></script>
           <script src="components/modal/modal.service.js"></script>
           <script src="components/mongoose-error/mongoose-error.directive.js"></script>
           <script src="components/navbar/navbar.controller.js"></script>

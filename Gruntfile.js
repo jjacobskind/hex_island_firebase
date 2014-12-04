@@ -498,6 +498,8 @@ module.exports = function (grunt) {
         files: {
           '<%= yeoman.client %>/index.html': [
               ['{.tmp,<%= yeoman.client %>}/{app,components}/**/three.min.js',
+                '{.tmp,<%= yeoman.client %>}/{app,components}/**/board-engine.js',
+                '{.tmp,<%= yeoman.client %>}/{app,components}/**/game-engine.js',
                '{.tmp,<%= yeoman.client %>}/{app,components}/**/*.js',
                '!{.tmp,<%= yeoman.client %>}/app/app.js',
                '!{.tmp,<%= yeoman.client %>}/{app,components}/**/*.spec.js',

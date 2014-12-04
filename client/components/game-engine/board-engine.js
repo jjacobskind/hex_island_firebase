@@ -105,8 +105,9 @@ GameBoard.prototype.placeSettlement = function(player, location) {
             }
         }
     }
-    currentGameData.child('players').set(JSON.stringify(game.players));
-    currentGameData.child('boardVertices').set(JSON.stringify(game.gameBoard.boardVertices));
+    return {'players': JSON.stringify(this.game.players),
+            'boardVertices': JSON.stringify(this.boardVertices)
+    };
 };
 
 

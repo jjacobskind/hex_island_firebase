@@ -299,7 +299,6 @@ Tile.prototype.drawTile = function(coordinates, color) {
 	var colored_material = new THREE.MeshLambertMaterial( { color: color, wireframe: false } );
 	var materials = new THREE.MeshFaceMaterial([white_material, colored_material]);
 	var tile = new THREE.Mesh( tile_geometry, materials );
-
 	tile.position.set( coordinates[0], 0, coordinates[1] );
 	tile.rotation.set(Math.PI/2, 0, Math.PI/6);
 	return tile;
