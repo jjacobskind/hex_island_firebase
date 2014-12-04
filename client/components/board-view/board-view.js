@@ -34,14 +34,14 @@ angular.module('settlersApp')
 
   var animate = function() {
 
+    requestAnimationFrame(animate);
     controls.update();
-    requestAnimationFrame(function(){});
   }
 
   var render = function(){
     light.position.copy(camera.position);
 
-    water.material.uniforms.time.value += 1.0 / 15.0;
+    water.material.uniforms.time.value += 1.0 / 60.0;
     water.render();
 
     renderer.render( scene, camera );
@@ -109,8 +109,8 @@ angular.module('settlersApp')
   var renderer = createRenderer();
 
   init(3, 5);
-  // animate();
-  setInterval(animate, 85);
+  animate();
+  // setInterval(animate, 85);
 
   return {
     insert: function(){

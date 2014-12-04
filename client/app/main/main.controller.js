@@ -1,12 +1,25 @@
 'use strict';
 
 angular.module('settlersApp')
-  .controller('MainCtrl', function ($scope, boardFactory) {
+  .controller('MainCtrl', function ($scope, boardFactory, engineFactory) {
     var self = this;
     self.small_num = 3;
     self.big_num = 5;
 
-    self.makeBoard = function(){
-      boardFactory.newBoard(self.small_num, self.big_num);
-    }
+    $scope.game = engineFactory.newGame(3, 5);
+
+    engineFactory.addPlayer();
+
+    //*****
+    $scope.game.players[0].resources = {
+    	brick:10,
+    	grain:10,
+    	lumber:10, 
+    	wool:10,
+    	ore:10
+    };
+    //***
+    engineFactory.buildSettlement(0, [0,0]);
+    // engineFactory._refreshDatabase();
+
   });
