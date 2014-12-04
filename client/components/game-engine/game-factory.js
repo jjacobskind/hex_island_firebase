@@ -5,7 +5,7 @@ angular.module('settlersApp')
 		var game;
 
 		var gameID;
-		var dataLink;
+		var dataLink = new Firebase("https://flickering-heat-2888.firebaseio.com/");
 		var gameDatabase;
 		var currentGameData;
 
@@ -47,8 +47,8 @@ angular.module('settlersApp')
 		return {
 			newGame: function(small_num, big_num){
 				game = new GameEngine(small_num, big_num);
-				gameID=0;
-				dataLink = new Firebase("https://flickering-heat-2888.firebaseio.com/");
+				// gameID=Date.now();
+				gameID = 0;
 				gameDatabase = dataLink.child('games').child(gameID);
 				currentGameData = gameDatabase.child('data');
 				currentGameData.on("child_changed", function(childSnapshot) {
@@ -85,6 +85,12 @@ angular.module('settlersApp')
 			addPlayer: function(){
 				var updates = game.addPlayer();
 				updateFireBase(updates);
+			},
+			getGameID: function(){
+				return gameID;
+			},
+			getDataLink: function(){
+				return dataLink;
 			}
 		}
 	});

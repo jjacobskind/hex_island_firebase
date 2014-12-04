@@ -1,10 +1,37 @@
 <div ng-include="'components/navbar/navbar.html'"></div>
+
+<div ng-if="!gameIsLoaded && userIsLoggedIn">
+<button ng-click="createNewGame()"> create a new game </button>
+<button ng-click="loadPreviousGame()"> load an older game </button>
+</div>
+
+<div ng-if="userIsLoggedIn && gameIsLoaded">
+<board></board>
+        <div class="container">
+          <div class="bs-example">
+            <div class="btn-toolbar" role="toolbar">
+              <button type="button" class="btn btn-default">
+                <span class="glyphicon glyphicon-tower" aria-hidden="true"></span> Build
+              </button>
+              <button type="button" class="btn btn-default">
+                <span class="glyphicon glyphicon-transfer" aria-hidden="true"></span> Trade
+              </button>
+            </div>
+          </div>
+        </div>
+</div>
+
+<div ng-if="!userIsLoggedIn">
+you should log in bro
+<button ng-click="facebookLoginFunction()">facebook login</button>
+</div>
+
 <!-- <div id="board_preview_inputs">
 	<input type="text" ng-model="main_ctrl.small_num" />
 	<input type="text" ng-model="main_ctrl.big_num" />
 	<button type="button" class="btn btn-success" ng-click="main_ctrl.makeBoard()">Preview Board</button>
 </div> -->
-<board></board>
+<!--  -->
 <!-- 
 <div id='messagesDiv'></div>
     <input type='text' id='nameInput' placeholder='Name'>
