@@ -1,3 +1,9 @@
+/* fonts */
+  body {
+    font-family: 'Muli', sans-serif;
+    color:#fff;
+  }
+
    /* Heads up display */
     #board_container{
         position:relative;
