@@ -239,9 +239,9 @@ GameEngine.prototype.findObjectDifferences = function(old_arr, new_arr){
           // changes+=2;
 
         }
-        else if(old_obj[key]!=new_obj[key]) {
+        else if(old_obj[key]!==new_obj[key]) {
             found_change=true;
-            console.log(old_obj[key], new_obj[key])
+            console.log(old_obj, new_obj)
             changes_obj.keys.push(key);
         }
       }

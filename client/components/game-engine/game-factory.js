@@ -54,7 +54,7 @@ angular.module('settlersApp')
 		return {
 			newGame: function(small_num, big_num){
 				game = new GameEngine(small_num, big_num);
-				gameID=0;
+				gameID=567843;
 				dataLink = new Firebase("https://flickering-heat-2888.firebaseio.com/");
 				gameDatabase = dataLink.child('games').child(gameID);
 				currentGameData = gameDatabase.child('data');
@@ -95,7 +95,7 @@ angular.module('settlersApp')
 				  	}
 				  }
 				});
-				boardSync();
+				syncDatabase(game);
 				return game;	
 			},
 			getGame: function(){
