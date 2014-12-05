@@ -79,14 +79,19 @@ angular.module('settlersApp')
 				  if(!change){
 				  	return null;
 				  }
+				  var coords1 = [change[0].row, change[0].col];
 				  if(change.length===2){
-				  	var coords1 = [change[0].row, change[0].col];
 				  	var coords2 = [change[1].row, change[1].col];
 				  	drawRoad(coords1, coords2);
 				  } else if(change.length===1){
 				  	console.log(change[0]);
 				  	if(change[0].keys.indexOf("owner")!==-1) {
-				  		boardFactory.placeSettlement(change[0].owner, [change[0].row, change[0].col]);
+				  		boardFactory.placeSettlement(change[0].owner, coords1);
+				  	}
+				  	else if(change[0].keys.indexOf("hasSettlementOrCity")!==-1) {
+				  		console.log(change[0]);
+				  		var owner = game.gameBoard.boardVertices[coords1[0]][coords1[1]].owner;
+				  		boardFactory.upgradeSettlementToCity(owner, coords1);
 				  	}
 				  }
 				});
@@ -104,6 +109,16 @@ angular.module('settlersApp')
 				}
 				else {
 					boardFactory.placeSettlement(player, location);
+					updateFireBase(updates);
+				}
+			},
+			upgradeSettlementToCity: function(player, location){
+				var updates = game.upgradeSettlementToCity(player, location);
+				if(updates.hasOwnProperty("err")){
+					console.log(updates.err);
+				}
+				else {
+					boardFactory.upgradeSettlementToCity(player, location);
 					updateFireBase(updates);
 				}
 			},
