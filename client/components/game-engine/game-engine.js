@@ -20,13 +20,13 @@ GameEngine.prototype.addPlayer = function() {
     if (this.areAllPlayersAdded === false) {
       var id = this.players.length;
       if (id > 5) {
-          throw new Error ("Sorry, no more than 6 players!");
+          return {err: "Sorry, no more than 6 players!"};
       }
       this.players.push(new Player(id));
       return {'players': JSON.stringify(this.players)};
     }
     else if (this.areAllPlayersAdded === true) {
-        throw new Error ("Game is already started!");
+        return {err: "Game is already started!"};
     }
 };
 

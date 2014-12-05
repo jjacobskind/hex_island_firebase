@@ -15,7 +15,7 @@ angular.module('settlersApp')
       camera = new THREE.PerspectiveCamera( 45, canvas_width / canvas_height, 1, 1000 );
       camera.position.set( 0, 200, -300 );
 
-      controls = new THREE.OrbitControls( camera );
+      controls = new THREE.OrbitControls( camera, renderer.domElement );
       controls.addEventListener( 'change', render );
       // controls.autoRotate=true;
       controls.noPan = true;
@@ -132,7 +132,7 @@ angular.module('settlersApp')
 .directive('board', function() {
     return {
       restrict: 'E',
-      template: '<div id="board_container"></div>',
+      template: '<div id="board_container"><div id="canvas-elem"></div></div>',
       controller: 'BoardCtrl',
       scope:true 
     };

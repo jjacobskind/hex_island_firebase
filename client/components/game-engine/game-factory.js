@@ -1,7 +1,7 @@
 'use strict';
 
 angular.module('settlersApp')
-	.factory('engineFactory', function(){
+	.factory('engineFactory', function($q){
 		var game;
 
 		var gameID;
@@ -26,13 +26,16 @@ angular.module('settlersApp')
 		    console.log('the database and local board have been synched and refreshed')
 		};
 
-		function boardSync() {
+		function boardSync(currentGameData) {
+			var deferred = $q.defer();
+			game = new GameEngine(3,5);
 		    currentGameData.once("value", function(snapshot) {
 		    var persistedData = snapshot.val();
 		    parseJSON(persistedData.players, function(data){game.players = data});
 		    parseJSON(persistedData.boardTiles, function(data){game.gameBoard.boardTiles = data});
 		    parseJSON(persistedData.boardVertices, function(data){game.gameBoard.boardVertices = data});
 		    console.log('data loaded')
+		    return deferred.promise;
 		  }, function (errorObject) {
 		    console.log("The read failed: " + errorObject.code);
 		  });
@@ -47,8 +50,7 @@ angular.module('settlersApp')
 		return {
 			newGame: function(small_num, big_num){
 				game = new GameEngine(small_num, big_num);
-				// gameID=Date.now();
-				gameID = 0;
+				gameID = 123;
 				gameDatabase = dataLink.child('games').child(gameID);
 				currentGameData = gameDatabase.child('data');
 				currentGameData.on("child_changed", function(childSnapshot) {
@@ -70,7 +72,7 @@ angular.module('settlersApp')
 				  };
 				  var change = parseJSON(dataToSanitize, callback);
 				});
-				boardSync();
+				syncDatabase(game);
 				return game;	
 			},
 			getGame: function(){
@@ -82,18 +84,19 @@ angular.module('settlersApp')
 				updateFireBase(updates);
 			},
 			addPlayer: function(){
+				console.log(game);
 				var updates = game.addPlayer();
-				updateFireBase(updates);
+				if(updates.hasOwnProperty("err")){
+					console.log(updates.err);
+				} else {
+					updateFireBase(updates);
+				}
 			},
 			restorePreviousSession: function(gameID) {
-				game = new GameEngine(3, 5);
-				//test data
-				gameID = 0;
 				gameDatabase = dataLink.child('games').child(gameID);
 				currentGameData = gameDatabase.child('data');
-				//
-				boardSync();
-				return game;
+				var syncData = boardSync(currentGameData);
+				return syncData
 			},
 			getGameID: function(){
 				return gameID;
