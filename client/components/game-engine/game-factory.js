@@ -1,7 +1,7 @@
 'use strict';
 
 angular.module('settlersApp')
-	.factory('engineFactory', function(){
+	.factory('engineFactory', function(boardFactory){
 		var game;
 
 		var gameID;
@@ -11,7 +11,8 @@ angular.module('settlersApp')
 
 		function parseJSON(data, callback) {
 		    var tempData = JSON.parse(data);
-		    return callback(tempData);
+		    var tempArr =  callback(tempData);
+		    return tempArr;
 		};
 
 		function syncDatabase(game) {
@@ -44,6 +45,12 @@ angular.module('settlersApp')
 			}
 		};
 
+		var drawRoad = function(coords1, coords2){
+			var game_view = boardFactory.getGame();
+		  	var road = game_view.board.buildRoad(coords1, coords2);
+		  	game_view.scene.add(road);
+		};
+
 		return {
 			newGame: function(small_num, big_num){
 				game = new GameEngine(small_num, big_num);
@@ -69,6 +76,17 @@ angular.module('settlersApp')
 				      break;
 				  };
 				  var change = parseJSON(dataToSanitize, callback);
+				  if(!change){
+				  	console.log("Change is undefined");
+				  	return null;
+				  }
+				  if(change.length===2){
+				  	var coords1 = [change[0].row, change[0].col];
+				  	var coords2 = [change[1].row, change[1].col];
+				  	drawRoad(coords1, coords2);
+				  } else {
+				  	// Need other if statements
+				  }
 				});
 				boardSync();
 				return game;	
@@ -81,6 +99,17 @@ angular.module('settlersApp')
 				var updates = game.buildSettlement(player, location);
 				updateFireBase(updates);
 
+			},
+			buildRoad: function(player, location, direction){
+				var updates = game.buildRoad(player, location, direction);
+				if(!updates.hasOwnProperty("err")){
+					// Need to place road on client's own board
+					var destination = game.gameBoard.getRoadDestination(location, direction);
+					drawRoad(location, destination);
+					updateFireBase(updates);
+				} else {
+					console.log(updates.err);
+				}
 			},
 			addPlayer: function(){
 				var updates = game.addPlayer();

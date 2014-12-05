@@ -114,7 +114,7 @@ angular.module('settlersApp')
 
   return {
     insert: function(){
-          $("#board_container").append( renderer.domElement );
+      $("#board_container").append( renderer.domElement );
     },
     newBoard: function(small_num, big_num){
       renderer.delete;
@@ -122,7 +122,16 @@ angular.module('settlersApp')
       renderer = createRenderer();
       init(small_num, big_num);
       animate();
-
+    },
+    placeSettlement: function(playerID, location){
+      // Need to refactor this so we can keep track of things built on board
+      var coords = game.board.verticesToCoordinates(location);
+      coords[1]-=game.board.building_depth/1.5;
+      var settlement = new Building(game.board, "settlement", coords[0], coords[1], "red");
+      scene.add(settlement.building);
+    },
+    getGame: function(){
+      return game;
     }
   };
 })

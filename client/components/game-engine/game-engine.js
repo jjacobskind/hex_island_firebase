@@ -164,14 +164,14 @@ GameEngine.prototype.buildSettlement = function(playerID, location) {
 };
 
 GameEngine.prototype.buildRoad = function(player, location, direction) {
+  player = this.players[player];
   if (player.resources.lumber < 1 || player.resources.brick < 1) {
-    throw new Error ('Not enough resources to build road!')
+    return {err: "Not enough resources to build road!"};
   }
   else {
     player.resources.lumber--;
     player.resources.brick--;
-    this.gameBoard.constructRoad(player,location,direction);
-    pushUpdates(player, 'buildRoad', location, direction);
+    return this.gameBoard.constructRoad(player,location,direction);
   }
 };
 
@@ -202,7 +202,6 @@ GameEngine.prototype.buyDevelopmentCard = function(player) {
 // Iterates through two 2-dimensional arrays of objects, identifies which object is different
 // Returns the indices of the changed object, as well as which of its properties have changed
 GameEngine.prototype.findObjectDifferences = function(old_arr, new_arr){
-
   var found_change = false;
   var all_changes=[];
   for(var row=0, num_rows=old_arr.length; row<num_rows; row++){

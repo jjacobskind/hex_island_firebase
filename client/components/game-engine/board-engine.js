@@ -189,10 +189,16 @@ GameBoard.prototype.validateNewVertices = function(player, endpointLocation) {
 
 GameBoard.prototype.constructRoad = function(player, currentLocation, newDirection) {
     if (player.constructionPool.roads === 0) {
-        throw new Error ('No more roads in your construction pool!');
+        return {err: "no roads left"};
+    }
+    else if(this.boardVertices[currentLocation[0]][currentLocation[1]].connections[newDirection]!==null){
+        return {err: "occupied"};
     }
     else {
         var destinationCoords = this.game.gameBoard.getRoadDestination(currentLocation, newDirection);
+        if(!destinationCoords){
+            return {err: "Vertex [" + currentLocation + "] doesn't have a '" + newDirection + "' road!"};
+        }
         switch (newDirection)
             {  case "left":
                    var originDirection = "right";
@@ -217,8 +223,10 @@ GameBoard.prototype.constructRoad = function(player, currentLocation, newDirecti
         //validation - this is two lines because validateNewVertices does not account for the vertex that is passed in, so we manually pass in the vertex and then validate all surrounding
         player.rulesValidatedBuildableVertices.push(destinationCoords);
         this.validateNewVertices(player, destinationCoords);
-        currentGameData.child('players').set(JSON.stringify(game.players));
-        currentGameData.child('boardVertices').set(JSON.stringify(game.gameBoard.boardVertices));
+        return {
+            players: JSON.stringify(this.game.players),
+            boardVertices: JSON.stringify(this.boardVertices)
+        };
     }
 };
 
