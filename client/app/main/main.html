@@ -1,11 +1,53 @@
 <div ng-include="'components/navbar/navbar.html'"></div>
+<h3 ng-if='currentUserData.facebook && !gameIsLoaded'>Welcome to Catan, {{currentUserData.facebook.displayName}}.</h3>
+<img ng-if='currentUserData.facebook' ng-src="{{currentUserData.facebook.cachedUserProfile.picture.data.url}}" style="float:right; height:50px;"></img>
+
+<div ng-if="!gameIsLoaded && userIsLoggedIn">
+<button ng-click="createNewGame()"> create a new game </button>
+<button ng-click="loadGameDataForUser()"> load an older game </button>
+  <p ng-if="previousGameIDs">Your current game ids are as follows...</p>
+  <ul >
+  <li ng-repeat="game in previousGameIDs">Load this game? <a ng-click="loadPreviousGame(game)">{{game}}</a></li>
+  </ul>
+<button ng-click="joinCurrentGame()"> join another game </button> 
+</div>
+
+<div ng-if="userIsLoggedIn && gameIsLoaded">
+{{currentGameID}}
+<board></board>
+        <div class="container">
+          <div class="bs-example">
+            <div class="btn-toolbar" role="toolbar">
+                <span class="glyphicon glyphicon-tower" aria-hidden="true"></span> Build
+              </button>
+              <button type="button" class="btn btn-default">
+                <span class="glyphicon glyphicon-transfer" aria-hidden="true"></span> Trade
+              </button>
+            </div>
+          </div>
+        </div>
+  </div>
+<div ng-if="!userIsLoggedIn">
+  <button ng-click="loginOauth()">Login W/ Facebook</button>
+</div>
+
+<div ng-if="userJoiningCurrentGame">
+enter your game password here
+<div>
+  <form name="userForm">
+    <input type="text" name="currentGameID" ng-model="currentGameID"/>
+  </form>
+  <button ng-click="joinGameID(currentGameID)">join game {{currentGameID}}</button>
+</div>
+</div>
+
 <!-- <div id="board_preview_inputs">
 	<input type="text" ng-model="main_ctrl.small_num" />
 	<input type="text" ng-model="main_ctrl.big_num" />
 	<button type="button" class="btn btn-success" ng-click="main_ctrl.makeBoard()">Preview Board</button>
 </div> -->
-<board></board>
-<!-- 
+<!--  -->
+<!--
 <div id='messagesDiv'></div>
     <input type='text' id='nameInput' placeholder='Name'>
     <input type='text' id='messageInput' placeholder='Message'>

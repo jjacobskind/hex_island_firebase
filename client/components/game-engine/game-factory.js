@@ -1,11 +1,11 @@
 'use strict';
 
 angular.module('settlersApp')
-	.factory('engineFactory', function(boardFactory){
+	.factory('engineFactory', function($q, boardFactory){
 		var game;
 
 		var gameID;
-		var dataLink;
+		var dataLink = new Firebase("https://flickering-heat-2888.firebaseio.com/");
 		var gameDatabase;
 		var currentGameData;
 
@@ -27,13 +27,16 @@ angular.module('settlersApp')
 		    console.log('the database and local board have been synched and refreshed')
 		};
 
-		function boardSync() {
+		function boardSync(currentGameData) {
+			var deferred = $q.defer();
+			game = new GameEngine(3,5);
 		    currentGameData.once("value", function(snapshot) {
 		    var persistedData = snapshot.val();
 		    parseJSON(persistedData.players, function(data){game.players = data});
 		    parseJSON(persistedData.boardTiles, function(data){game.gameBoard.boardTiles = data});
 		    parseJSON(persistedData.boardVertices, function(data){game.gameBoard.boardVertices = data});
 		    console.log('data loaded')
+		    return deferred.promise;
 		  }, function (errorObject) {
 		    console.log("The read failed: " + errorObject.code);
 		  });
@@ -54,7 +57,7 @@ angular.module('settlersApp')
 		return {
 			newGame: function(small_num, big_num){
 				game = new GameEngine(small_num, big_num);
-				gameID=567843;
+				gameID = Date.now();
 				dataLink = new Firebase("https://flickering-heat-2888.firebaseio.com/");
 				gameDatabase = dataLink.child('games').child(gameID);
 				currentGameData = gameDatabase.child('data');
@@ -133,8 +136,25 @@ angular.module('settlersApp')
 				}
 			},
 			addPlayer: function(){
+				console.log(game);
 				var updates = game.addPlayer();
-				updateFireBase(updates);
+				if(updates.hasOwnProperty("err")){
+					console.log(updates.err);
+				} else {
+					updateFireBase(updates);
+				}
+			},
+			restorePreviousSession: function(gameID) {
+				gameDatabase = dataLink.child('games').child(gameID);
+				currentGameData = gameDatabase.child('data');
+				var syncData = boardSync(currentGameData);
+				return syncData
+			},
+			getGameID: function(){
+				return gameID;
+			},
+			getDataLink: function(){
+				return dataLink;
 			}
 		}
 	});
