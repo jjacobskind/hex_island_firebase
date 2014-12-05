@@ -20,6 +20,6 @@ angular.module('settlersApp')
         ore:10
     };
     //***
-    engineFactory.buildSettlement(0, [0,0]);
+    // engineFactory.buildSettlement(0, [0,0]);
 
   });

@@ -34,16 +34,16 @@ angular.module('settlersApp')
 
   var animate = function() {
 
-    requestAnimationFrame(animate);
-    controls.update();
+    setTimeout(function(){
+      water.material.uniforms.time.value += 1.0 / 20.0;
+      light.position.copy(camera.position);
+      requestAnimationFrame(animate);
+      controls.update();
+
+    }, 80);
   }
 
   var render = function(){
-    light.position.copy(camera.position);
-
-    water.material.uniforms.time.value += 1.0 / 60.0;
-    water.render();
-
     renderer.render( scene, camera );
   }
 
@@ -96,11 +96,10 @@ angular.module('settlersApp')
     } );
 
     var mirrorMesh = new THREE.Mesh(
-      new THREE.PlaneBufferGeometry( 10000, 10000 ),
+      new THREE.PlaneBufferGeometry( 2000, 2000 ),
       water.material
     );
-
-    mirrorMesh.position.set(0, tile_depth*-1, 0);
+    // mirrorMesh.position.set(0, tile_depth*-1, 0);
 
     mirrorMesh.rotation.x = - Math.PI * 0.5;
     return mirrorMesh;
