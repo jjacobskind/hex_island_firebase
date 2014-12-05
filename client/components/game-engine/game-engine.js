@@ -150,9 +150,9 @@ GameEngine.prototype.tradeResources = function(firstPlayer, firstResource, secon
 };
 
 GameEngine.prototype.buildSettlement = function(playerID, location) {
-  player = this.players[playerID];
+  var player = this.players[playerID];
   if (player.resources.wool < 1 || player.resources.grain < 1 || player.resources.lumber < 1 || player.resources.brick < 1) {
-    throw new Error ('Not enough resources to build settlement!')
+    return {err: "Not enough resources to build a settlement!"};
   }
   else {
     player.resources.wool--;
@@ -163,27 +163,27 @@ GameEngine.prototype.buildSettlement = function(playerID, location) {
   }
 };
 
-GameEngine.prototype.buildRoad = function(player, location, direction) {
+GameEngine.prototype.buildRoad = function(playerID, location, direction) {
+  var player = this.players[playerID];
   if (player.resources.lumber < 1 || player.resources.brick < 1) {
-    throw new Error ('Not enough resources to build road!')
+    return {err: "Not enough resources to build road!"};
   }
   else {
     player.resources.lumber--;
     player.resources.brick--;
-    this.gameBoard.constructRoad(player,location,direction);
-    pushUpdates(player, 'buildRoad', location, direction);
+    return this.gameBoard.constructRoad(player,location,direction);
   }
 };
 
-GameEngine.prototype.upgradeSettlementToCity = function(player, location) {
+GameEngine.prototype.upgradeSettlementToCity = function(playerID, location) {
+  var player = this.players[playerID];
   if (player.resources.grain < 2 || player.resources.ore < 3) {
-    throw new Error ('Not enough resources to build city!')
+    return {err: 'Not enough resources to build city!'};
   }
   else {
     player.resources.grain = player.resources.grain - 2;
     player.resources.ore = player.resources.ore - 3;
-    this.gameBoard.upgradeSettlementToCity(player, location); 
-    pushUpdates(player, 'upgradeSettlementToCity', location);
+    return this.gameBoard.upgradeSettlementToCity(player, location); 
   }
 };
 
@@ -202,7 +202,6 @@ GameEngine.prototype.buyDevelopmentCard = function(player) {
 // Iterates through two 2-dimensional arrays of objects, identifies which object is different
 // Returns the indices of the changed object, as well as which of its properties have changed
 GameEngine.prototype.findObjectDifferences = function(old_arr, new_arr){
-
   var found_change = false;
   var all_changes=[];
   for(var row=0, num_rows=old_arr.length; row<num_rows; row++){
@@ -231,6 +230,7 @@ GameEngine.prototype.findObjectDifferences = function(old_arr, new_arr){
                   all_changes[1].keys.unshift("vertical");
                   break;
               }
+              this.gameBoard.boardVertices = new_arr;
               return all_changes;
             }
           }
@@ -239,13 +239,15 @@ GameEngine.prototype.findObjectDifferences = function(old_arr, new_arr){
           // changes+=2;
 
         }
-        else if(old_obj[key]!=new_obj[key]) {
+        else if(old_obj[key]!==new_obj[key]) {
             found_change=true;
+            console.log(old_obj, new_obj)
             changes_obj.keys.push(key);
         }
       }
       if(found_change){
         all_changes.push(changes_obj);
+        this.gameBoard.boardVertices = new_arr;
         return all_changes;
       }
     }

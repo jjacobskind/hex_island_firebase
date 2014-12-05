@@ -1,7 +1,7 @@
 'use strict';
 
 angular.module('settlersApp')
-	.factory('engineFactory', function($q){
+	.factory('engineFactory', function($q, boardFactory){
 		var game;
 
 		var gameID;
@@ -11,7 +11,8 @@ angular.module('settlersApp')
 
 		function parseJSON(data, callback) {
 		    var tempData = JSON.parse(data);
-		    return callback(tempData);
+		    var tempArr =  callback(tempData);
+		    return tempArr;
 		};
 
 		function syncDatabase(game) {
@@ -47,10 +48,17 @@ angular.module('settlersApp')
 			}
 		};
 
+		var drawRoad = function(coords1, coords2){
+			var game_view = boardFactory.getGame();
+		  	var road = game_view.board.buildRoad(coords1, coords2);
+		  	game_view.scene.add(road);
+		};
+
 		return {
 			newGame: function(small_num, big_num){
 				game = new GameEngine(small_num, big_num);
-				gameID = 123;
+				gameID = Date.now();
+				dataLink = new Firebase("https://flickering-heat-2888.firebaseio.com/");
 				gameDatabase = dataLink.child('games').child(gameID);
 				currentGameData = gameDatabase.child('data');
 				currentGameData.on("child_changed", function(childSnapshot) {
@@ -71,6 +79,24 @@ angular.module('settlersApp')
 				      break;
 				  };
 				  var change = parseJSON(dataToSanitize, callback);
+				  if(!change){
+				  	return null;
+				  }
+				  var coords1 = [change[0].row, change[0].col];
+				  if(change.length===2){
+				  	var coords2 = [change[1].row, change[1].col];
+				  	drawRoad(coords1, coords2);
+				  } else if(change.length===1){
+				  	console.log(change[0]);
+				  	if(change[0].keys.indexOf("owner")!==-1) {
+				  		boardFactory.placeSettlement(change[0].owner, coords1);
+				  	}
+				  	else if(change[0].keys.indexOf("hasSettlementOrCity")!==-1) {
+				  		console.log(change[0]);
+				  		var owner = game.gameBoard.boardVertices[coords1[0]][coords1[1]].owner;
+				  		boardFactory.upgradeSettlementToCity(owner, coords1);
+				  	}
+				  }
 				});
 				syncDatabase(game);
 				return game;	
@@ -81,7 +107,33 @@ angular.module('settlersApp')
 			_refreshDatabase: _refreshDatabase, 
 			buildSettlement: function(player, location){
 				var updates = game.buildSettlement(player, location);
-				updateFireBase(updates);
+				if(updates.hasOwnProperty("err")){
+					console.log(updates.err);
+				}
+				else {
+					boardFactory.placeSettlement(player, location);
+					updateFireBase(updates);
+				}
+			},
+			upgradeSettlementToCity: function(player, location){
+				var updates = game.upgradeSettlementToCity(player, location);
+				if(updates.hasOwnProperty("err")){
+					console.log(updates.err);
+				}
+				else {
+					boardFactory.upgradeSettlementToCity(player, location);
+					updateFireBase(updates);
+				}
+			},
+			buildRoad: function(player, location, direction){
+				var updates = game.buildRoad(player, location, direction);
+				if(updates.hasOwnProperty("err")){
+					console.log(updates.err);
+				} else {
+					var destination = game.gameBoard.getRoadDestination(location, direction);
+					drawRoad(location, destination);
+					updateFireBase(updates);
+				}
 			},
 			addPlayer: function(){
 				console.log(game);
