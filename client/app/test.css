@@ -1,3 +1,45 @@
+   /* Heads up display */
+    #board_container{
+        position:relative;
+    }
+    .hud-masthead{
+        top:0;
+        left:0;
+        position:absolute;
+        width:100%;
+        background-color: #000;
+        border-bottom:2px solid #f8f9e9;
+/*        box-shadow: 0 -2px 5px rgba(75, 81, 69, 0.1) inset;*/
+        box-shadow: 0 0 0 5px rgba(75, 81, 69, 0.1) inset;
+        padding:12px 0 5px;
+    }
+    .container {
+        padding-right: 15px;
+        padding-left: 15px;
+        margin-right: auto;
+        margin-left: auto;
+    }
+    .hud-nav-item {
+        color: #cdddeb;
+        display: inline-block;
+        font-weight: 500;
+        padding: 10px;
+        position: relative;
+    }
+    /* context separated content */
+    .hudALeft {
+        float:left;
+    }
+    .hudARight {
+        float:right;
+    }
+    /* clears both floats so that HUD content can float both left and right */
+    .cb {
+        clear:both;
+    }
+
+/* end HUD */
+
     /* test buttons*/
     :before, :after {
       -webkit-box-sizing: border-box;
