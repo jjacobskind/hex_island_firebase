@@ -62,7 +62,7 @@ GameBoard.prototype.placeSettlement = function(player, location) {
 
     //check if owned
     if (vertices[location[0]][location[1]].owner !== null){
-        throw new Error ('This location is owned already!');
+        return {err:"This location is owned already!"};
     };
     //check if there is a settlement within one tile
     var nearestThreeVertices = [];
@@ -74,7 +74,7 @@ GameBoard.prototype.placeSettlement = function(player, location) {
         if (thisVertex !== null) {
             if (vertices[thisVertex[0]][thisVertex[1]].owner !== null)
             {
-                throw new Error ('There is a settlement or city one tile away from this location, so this settlement cannot be built.');
+                return {err: "Cannot build next to another settlement!"};
             }
         }
         nearestThreeVertices.shift();

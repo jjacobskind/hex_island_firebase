@@ -22,8 +22,4 @@ angular.module('settlersApp')
     //***
     engineFactory.buildSettlement(0, [0,0]);
 
-    boardFactory.placeSettlement(0, [1, 2]);
-
-    // engineFactory.buildRoad(0, [1,1], "right");
-
   });

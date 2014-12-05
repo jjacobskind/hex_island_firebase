@@ -77,15 +77,17 @@ angular.module('settlersApp')
 				  };
 				  var change = parseJSON(dataToSanitize, callback);
 				  if(!change){
-				  	console.log("Change is undefined");
 				  	return null;
 				  }
 				  if(change.length===2){
 				  	var coords1 = [change[0].row, change[0].col];
 				  	var coords2 = [change[1].row, change[1].col];
 				  	drawRoad(coords1, coords2);
-				  } else {
-				  	// Need other if statements
+				  } else if(change.length===1){
+				  	console.log(change[0]);
+				  	if(change[0].keys.indexOf("owner")!==-1) {
+				  		boardFactory.placeSettlement(change[0].owner, [change[0].row, change[0].col]);
+				  	}
 				  }
 				});
 				boardSync();
@@ -97,18 +99,22 @@ angular.module('settlersApp')
 			_refreshDatabase: _refreshDatabase, 
 			buildSettlement: function(player, location){
 				var updates = game.buildSettlement(player, location);
-				updateFireBase(updates);
-
+				if(updates.hasOwnProperty("err")){
+					console.log(updates.err);
+				}
+				else {
+					boardFactory.placeSettlement(player, location);
+					updateFireBase(updates);
+				}
 			},
 			buildRoad: function(player, location, direction){
 				var updates = game.buildRoad(player, location, direction);
-				if(!updates.hasOwnProperty("err")){
-					// Need to place road on client's own board
+				if(updates.hasOwnProperty("err")){
+					console.log(updates.err);
+				} else {
 					var destination = game.gameBoard.getRoadDestination(location, direction);
 					drawRoad(location, destination);
 					updateFireBase(updates);
-				} else {
-					console.log(updates.err);
 				}
 			},
 			addPlayer: function(){
