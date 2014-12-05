@@ -15,12 +15,8 @@ var Game = function(scene, small_num, big_num, scale) {
 	// }
 	this.board = new Board(this, small_num, big_num, scale);
 
-	var city = new Building(this.board, "city", -30, 0, "red");
-	this.scene.add(city.building);
 	// this.scene.add(this.drawRobber());
 
-	var road = this.board.buildRoad([7,3], [6,4]);
-	this.scene.add(road);
 };
 
 Game.prototype.shuffle = function(array) {
