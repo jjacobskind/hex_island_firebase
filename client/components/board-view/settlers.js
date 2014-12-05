@@ -15,9 +15,6 @@ var Game = function(scene, small_num, big_num, scale) {
 	// }
 	this.board = new Board(this, small_num, big_num, scale);
 
-	var settlement = new Building(this.board, "settlement", 30, 0, "blue");
-	this.scene.add(settlement.building);
-
 	var settlement = new Building(this.board, "city", -30, 0, "red");
 	this.scene.add(settlement.building);
 	// this.scene.add(this.drawRobber());
@@ -46,6 +43,7 @@ var Board = function(game, small_num, big_num, scale) {
 	} else {
 		this.scale = 1;
 	}
+	this.building_depth = 15 * this.scale;
 	this.side_length = 30 * this.scale;
 
 	// Create shape for hex tile geometry
@@ -328,7 +326,7 @@ var Building = function(board, building_type, x, z, color){
 			break;
 	}
 
-	var building_geometry = new THREE.ExtrudeGeometry(shape, {amount:15 * this.board.scale,
+	var building_geometry = new THREE.ExtrudeGeometry(shape, {amount:this.board.building_depth,
 																bevelEnabled:false
 																});
 

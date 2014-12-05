@@ -6,20 +6,24 @@ angular.module('settlersApp')
     self.small_num = 3;
     self.big_num = 5;
 
+    // engineFactory._refreshDatabase();
     $scope.game = engineFactory.newGame(3, 5);
 
     engineFactory.addPlayer();
 
     //*****
     $scope.game.players[0].resources = {
-    	brick:10,
-    	grain:10,
-    	lumber:10, 
-    	wool:10,
-    	ore:10
+        brick:10,
+        grain:10,
+        lumber:10, 
+        wool:10,
+        ore:10
     };
     //***
     engineFactory.buildSettlement(0, [0,0]);
-    // engineFactory._refreshDatabase();
+
+    boardFactory.placeSettlement(0, [1, 2]);
+
+    // engineFactory.buildRoad(0, [1,1], "right");
 
   });
