@@ -7,12 +7,12 @@ angular.module('settlersApp')
     self.big_num = 5;
 
     // engineFactory._refreshDatabase();
-    $scope.game = engineFactory.newGame(3, 5);
+    var game = engineFactory.newGame(3, 5);
 
     engineFactory.addPlayer();
 
     //*****
-    $scope.game.players[0].resources = {
+    game.players[0].resources = {
         brick:10,
         grain:10,
         lumber:10, 

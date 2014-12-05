@@ -15,8 +15,8 @@ var Game = function(scene, small_num, big_num, scale) {
 	// }
 	this.board = new Board(this, small_num, big_num, scale);
 
-	var settlement = new Building(this.board, "city", -30, 0, "red");
-	this.scene.add(settlement.building);
+	var city = new Building(this.board, "city", -30, 0, "red");
+	this.scene.add(city.building);
 	// this.scene.add(this.drawRobber());
 
 	var road = this.board.buildRoad([7,3], [6,4]);
@@ -36,6 +36,8 @@ Game.prototype.shuffle = function(array) {
 
 var Board = function(game, small_num, big_num, scale) {
 	this.game = game;
+	this.boardVertices = this.createVertices(small_num, big_num);
+	console.log(this.boardVertices);
 	this.small_num = small_num;
 	this.big_num = big_num;
 	if(!!scale){
@@ -92,6 +94,43 @@ var Board = function(game, small_num, big_num, scale) {
 	}
 	this.resources = game.shuffle(src_arr);
 	this.spaces = this.drawBoard();
+};
+
+Board.prototype.createVertices = function(small_num, large_num, board) {
+    if(!board) {
+        board = [];
+        large_num++;
+        var first_or_last = true;
+    }
+
+    if(small_num>large_num){
+        return board;
+    }
+    board.push(this.createRow(small_num));
+
+    if(!first_or_last && (small_num!==large_num)){
+        board.push(this.createRow(small_num));
+    }
+
+    board = this.createVertices(small_num+1, large_num, board);
+    board.push(this.createRow(small_num));
+    if(!first_or_last  && (small_num!==large_num)){
+        board.push(this.createRow(small_num));
+    }
+    this.gameIsInitialized = true;
+    return board;
+
+};
+
+Board.prototype.createRow = function(num_elements) {
+    var row = [];
+    for(var i=0; i<num_elements;i++) {
+        row.push({
+            building:null,
+            port: null
+        });
+    }
+    return row;
 };
 
 
@@ -312,31 +351,25 @@ Tile.prototype.drawChit = function(coordinates, color) {
 
 var Building = function(board, building_type, x, z, color){
 	this.board = board;
+	this.x = x;
+	this.z = z;
+	this.color = color;
+	this.building = null;
+
 	switch(building_type){
 		case "settlement":
-			this.building_type = building_type;
-			var shape = this.drawSettlement(x, z, color);
+			this.settlementShape();
 			break;
-		case "city":
-			this.building_type = building_type;	
-			shape = this.drawCity(x, z, color);
+		case "city":	
+			this.cityShape();
 			break;
 		default:
 			throw ("Invalid building type!");
 			break;
 	}
-
-	var building_geometry = new THREE.ExtrudeGeometry(shape, {amount:this.board.building_depth,
-																bevelEnabled:false
-																});
-
-	var material = new THREE.MeshLambertMaterial( { color: colorConversion(color), wireframe: false } );
-
-	this.building = new THREE.Mesh(building_geometry, material);
-	this.building.position.set( x, 0, z );
 };
 
-Building.prototype.drawSettlement = function(x, z, color) {
+Building.prototype.settlementShape = function() {
 	var scale = this.board.scale;
 	var pts = [];
 	pts.push(new THREE.Vector2(-5 * scale, 0));
@@ -348,10 +381,12 @@ Building.prototype.drawSettlement = function(x, z, color) {
 	pts.push(new THREE.Vector2(-5 * scale, 7 * scale));
 	pts.push(new THREE.Vector2(-5 * scale, 0));
 
-	return new THREE.Shape(pts);
+	var shape = new THREE.Shape(pts);
+	var geometry = this.makeGeometry(shape);
+	this.building = geometry;
 };
 
-Building.prototype.drawCity = function(x,z, color){
+Building.prototype.cityShape = function(){
 	var scale = this.board.scale;
 	var pts = [];
 	pts.push(new THREE.Vector2(-10 * scale, 0));
@@ -363,7 +398,22 @@ Building.prototype.drawCity = function(x,z, color){
 	pts.push(new THREE.Vector2(-10 * scale, 15 * scale));
 	pts.push(new THREE.Vector2(-10 * scale, 0));
 
-	return new THREE.Shape(pts);
+	var shape = new THREE.Shape(pts);
+	var geometry = this.makeGeometry(shape);
+	this.building = geometry;
+};
+
+Building.prototype.makeGeometry = function(shape){
+	var building_geometry = new THREE.ExtrudeGeometry(shape, {amount:this.board.building_depth,
+																bevelEnabled:false
+																});
+
+	var material = new THREE.MeshLambertMaterial( { color: colorConversion(this.color), wireframe: false } );
+
+	var building = new THREE.Mesh(building_geometry, material);
+	building.position.set( this.x, 0, this.z );
+	building.rotation.set(0, (Math.PI/6)*Math.floor(Math.random()*6), 0);
+	return building;
 };
 
 Board.prototype.drawRobber = function(){

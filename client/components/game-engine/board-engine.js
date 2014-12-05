@@ -59,9 +59,11 @@ GameBoard.prototype.createRow = function(num_elements) {
 GameBoard.prototype.placeSettlement = function(player, location) {
     var vertices = this.boardVertices;
     //board initialization place settlement, get board tiles, and if the location does not have the property owner OR there is not a settlement within one vertex, allow them to build
-
-    //check if owned
-    if (vertices[location[0]][location[1]].owner !== null){
+    var row = location[0], col = location[1];
+    if(!vertices[row][col]){
+        return {err: "This vertex does not exist!"};
+    }
+    else if (vertices[row][col].owner !== null){
         return {err:"This location is owned already!"};
     };
     //check if there is a settlement within one tile
@@ -80,11 +82,11 @@ GameBoard.prototype.placeSettlement = function(player, location) {
         nearestThreeVertices.shift();
     };
     // place settlement within initial setup phase
-    if ((vertices[location[0]][location[1]].owner === null && this.boardIsSetup === false) || 
-        (vertices[location[0]][location[1]].owner === null && player.rulesValidatedBuildableVertices.indexOf(location) !== -1))
+    if ((vertices[row][col].owner === null && this.boardIsSetup === false) || 
+        (vertices[row][col].owner === null && player.rulesValidatedBuildableVertices.indexOf(location) !== -1))
     {   
-        vertices[location[0]][location[1]].owner = player.playerID;
-        vertices[location[0]][location[1]].hasSettlementOrCity = 'settlement';
+        vertices[row][col].owner = player.playerID;
+        vertices[row][col].hasSettlementOrCity = 'settlement';
         player.constructionPool.settlements--;
         player.playerQualities.settlements++;
         //add one point to their score
@@ -98,7 +100,7 @@ GameBoard.prototype.placeSettlement = function(player, location) {
                 }
             }
             else {
-                var resourceToModify = vertices[location[0]][location[1]].port;
+                var resourceToModify = vertices[row][col].port;
                 for (var resource in player.tradingCosts) {
                     resourceToModify === resource ? player.tradingCosts[resource] = 2 : player.tradingCosts[resource] = player.tradingCosts[resource];
                 }
@@ -116,15 +118,16 @@ GameBoard.prototype.upgradeSettlementToCity = function(player, location) {
     //TO DO
     //change score
     //resources - but this should be checked on a different module?
+    var row = location[0], col = location[1];
     var vertices = this.boardVertices;
-    if (vertices[location[0]][location[1]].owner === null){
-            throw new Error ('No settlement to build on!');
+    if (vertices[row][col].owner === null){
+        return {err: 'No settlement to upgrade at this vertex!'};
     };
-    if (vertices[location[0]][location[1]].owner !== player.playerID){
-            throw new Error ('This isn\'t your settlement!');
+    if (vertices[row][col].owner !== player.playerID){
+        return {err: 'This isn\'t your settlement!'};
     };
-    if (vertices[location[0]][location[1]].owner === player.playerID) {
-        vertices[location[0]][location[1]].hasSettlementOrCity = 'city';
+    if (vertices[row][col].owner === player.playerID) {
+        vertices[row][col].hasSettlementOrCity = 'city';
         player.ownedProperties.settlements.forEach(function(item, index){
             if (item.settlementID = location){
                 player.ownedProperties.settlements.splice(index, 1);
@@ -136,9 +139,11 @@ GameBoard.prototype.upgradeSettlementToCity = function(player, location) {
         //remove city 'piece' from construction pool, add settlement piece
         player.constructionPool.settlements++;
         player.constructionPool.cities--;
-        player.ownedProperties.cities.push({settlementID: location})
-        currentGameData.child('players').set(JSON.stringify(game.players));
-        currentGameData.child('boardVertices').set(JSON.stringify(game.gameBoard.boardVertices));
+        player.ownedProperties.cities.push({settlementID: location});
+        return {
+            'players': JSON.stringify(this.game.players),
+            'boardVertices': JSON.stringify(this.boardVertices)
+        };
     }
 
 };

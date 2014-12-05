@@ -150,7 +150,7 @@ GameEngine.prototype.tradeResources = function(firstPlayer, firstResource, secon
 };
 
 GameEngine.prototype.buildSettlement = function(playerID, location) {
-  player = this.players[playerID];
+  var player = this.players[playerID];
   if (player.resources.wool < 1 || player.resources.grain < 1 || player.resources.lumber < 1 || player.resources.brick < 1) {
     return {err: "Not enough resources to build a settlement!"};
   }
@@ -163,8 +163,8 @@ GameEngine.prototype.buildSettlement = function(playerID, location) {
   }
 };
 
-GameEngine.prototype.buildRoad = function(player, location, direction) {
-  player = this.players[player];
+GameEngine.prototype.buildRoad = function(playerID, location, direction) {
+  var player = this.players[playerID];
   if (player.resources.lumber < 1 || player.resources.brick < 1) {
     return {err: "Not enough resources to build road!"};
   }
@@ -175,15 +175,15 @@ GameEngine.prototype.buildRoad = function(player, location, direction) {
   }
 };
 
-GameEngine.prototype.upgradeSettlementToCity = function(player, location) {
+GameEngine.prototype.upgradeSettlementToCity = function(playerID, location) {
+  var player = this.players[playerID];
   if (player.resources.grain < 2 || player.resources.ore < 3) {
-    throw new Error ('Not enough resources to build city!')
+    return {err: 'Not enough resources to build city!'};
   }
   else {
     player.resources.grain = player.resources.grain - 2;
     player.resources.ore = player.resources.ore - 3;
-    this.gameBoard.upgradeSettlementToCity(player, location); 
-    pushUpdates(player, 'upgradeSettlementToCity', location);
+    return this.gameBoard.upgradeSettlementToCity(player, location); 
   }
 };
 
@@ -230,6 +230,7 @@ GameEngine.prototype.findObjectDifferences = function(old_arr, new_arr){
                   all_changes[1].keys.unshift("vertical");
                   break;
               }
+              this.gameBoard.boardVertices = new_arr;
               return all_changes;
             }
           }
@@ -240,11 +241,13 @@ GameEngine.prototype.findObjectDifferences = function(old_arr, new_arr){
         }
         else if(old_obj[key]!=new_obj[key]) {
             found_change=true;
+            console.log(old_obj[key], new_obj[key])
             changes_obj.keys.push(key);
         }
       }
       if(found_change){
         all_changes.push(changes_obj);
+        this.gameBoard.boardVertices = new_arr;
         return all_changes;
       }
     }
