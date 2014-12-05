@@ -80,11 +80,20 @@ angular.module('settlersApp')
 			buildSettlement: function(player, location){
 				var updates = game.buildSettlement(player, location);
 				updateFireBase(updates);
-
 			},
 			addPlayer: function(){
 				var updates = game.addPlayer();
 				updateFireBase(updates);
+			},
+			restorePreviousSession: function(gameID) {
+				game = new GameEngine(3, 5);
+				//test data
+				gameID = 0;
+				gameDatabase = dataLink.child('games').child(gameID);
+				currentGameData = gameDatabase.child('data');
+				//
+				boardSync();
+				return game;
 			},
 			getGameID: function(){
 				return gameID;

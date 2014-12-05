@@ -19,11 +19,9 @@
             </div>
           </div>
         </div>
-</div>
-
+  </div>
 <div ng-if="!userIsLoggedIn">
-you should log in bro
-<button ng-click="facebookLoginFunction()">facebook login</button>
+  <button ng-click="loginOauth()">Login W/ Facebook</button>
 </div>
 
 <!-- <div id="board_preview_inputs">
@@ -32,7 +30,7 @@ you should log in bro
 	<button type="button" class="btn btn-success" ng-click="main_ctrl.makeBoard()">Preview Board</button>
 </div> -->
 <!--  -->
-<!-- 
+<!--
 <div id='messagesDiv'></div>
     <input type='text' id='nameInput' placeholder='Name'>
     <input type='text' id='messageInput' placeholder='Message'>
