@@ -359,19 +359,18 @@ GameBoard.prototype.createResources = function(small_num, large_num) {
     // Inserted first desert manually
     // Using modulus to insert each tile by index and loop back to zero index to fill in tiles that come before the desert
     for (i = desertRandomizer+1; i%num_tiles !==desertRandomizer; i++) {
-        console.log(resources.length);
-            var this_resource = resources.pop();
-            if(this_resource==='desert'){
-                var this_chit = 7;
-            }
-            else {
-                this_chit = numberChits.pop();
-            }
-            tempHexArray[i%num_tiles] = {
-                                            hex: i%num_tiles +1,
-                                            resource: this_resource,
-                                            chit: this_chit,
-                                        };
+        var this_resource = resources.pop();
+        if(this_resource==='desert'){
+            var this_chit = 7;
+        }
+        else {
+            this_chit = numberChits.pop();
+        }
+        tempHexArray[i%num_tiles] = {
+                                        hex: i%num_tiles +1,
+                                        resource: this_resource,
+                                        chit: this_chit,
+                                    };
     }
 
     // Restructure array of tiles into a multi-dimensional array with same dimensions as the board rendering
