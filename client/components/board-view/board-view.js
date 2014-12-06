@@ -36,14 +36,14 @@ angular.module('settlersApp')
 
   var animate = function() {
       light.position.copy(camera.position);
-      water.material.uniforms.time.value += 1.0 / 20.0;
+      water.material.uniforms.time.value += 1.0 / 30.0;
       renderer.render( scene, camera );
 
     setTimeout(function(){
       requestAnimationFrame(animate);
       controls.update();
 
-    }, 80);
+    }, 60);
   }
 
   // var render = function(){
