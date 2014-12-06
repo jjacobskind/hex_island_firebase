@@ -7,7 +7,7 @@
 <button ng-click="loadGameDataForUser()"> load an older game </button>
   <p ng-if="previousGameIDs">Your current game ids are as follows...</p>
   <ul >
-  <li ng-repeat="game in previousGameIDs">Load this game? <a ng-click="loadPreviousGame(game)">{{game}}</a></li>
+  <li ng-repeat="game in previousGameIDs">Load this game? <a ng-click="loadPreviousGame(game.gameID)">{{game.gameID}}</a></li>
   </ul>
 <button ng-click="joinCurrentGame()"> join another game </button> 
 </div>

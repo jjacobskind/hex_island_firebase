@@ -28,18 +28,22 @@ angular.module('settlersApp')
 		};
 
 		function boardSync(currentGameData) {
-			var deferred = $q.defer();
-			game = new GameEngine(3,5);
-		    currentGameData.once("value", function(snapshot) {
-		    var persistedData = snapshot.val();
-		    parseJSON(persistedData.players, function(data){game.players = data});
-		    parseJSON(persistedData.boardTiles, function(data){game.gameBoard.boardTiles = data});
-		    parseJSON(persistedData.boardVertices, function(data){game.gameBoard.boardVertices = data});
-		    console.log('data loaded')
-		    return deferred.promise;
-		  }, function (errorObject) {
-		    console.log("The read failed: " + errorObject.code);
-		  });
+			return $q(function(resolve, reject) {
+				game = new GameEngine(3,5);
+			    currentGameData.once("value", function(snapshot) {
+			    	var persistedData = snapshot.val();
+			    	parseJSON(persistedData.players, function(data){game.players = data});
+			    	parseJSON(persistedData.boardTiles, function(data){game.gameBoard.boardTiles = data});
+			    	parseJSON(persistedData.boardVertices, function(data){game.gameBoard.boardVertices = data});
+
+			    	console.log('data loaded');
+
+			    	resolve('success');
+			  }, function (errorObject) {
+			    	console.log("The read failed: " + errorObject.code);
+			    	reject('error');
+			  });
+			});
 		};
 
 		var updateFireBase = function(updates){
@@ -145,16 +149,57 @@ angular.module('settlersApp')
 				}
 			},
 			restorePreviousSession: function(gameID) {
-				gameDatabase = dataLink.child('games').child(gameID);
-				currentGameData = gameDatabase.child('data');
-				var syncData = boardSync(currentGameData);
-				return syncData
+					gameDatabase = dataLink.child('games').child(gameID);
+					currentGameData = gameDatabase.child('data');	
+					return boardSync(currentGameData);
+					//promise resolution once boardsync finishes
 			},
 			getGameID: function(){
 				return gameID;
 			},
 			getDataLink: function(){
 				return dataLink;
+			},
+			startGame: function () {
+				game.areAllPlayersAdded = true;
+				var updates = {};
+				for (var prop in game) {
+					if (prop !== 'gameBoard' && prop !== 'players') {
+						if (game.hasOwnProperty(prop)) {
+							updates[prop] = game[prop];
+						}
+					}
+				}
+				updateFireBase(updates);
+			},
+			startPlay: function() {
+				game.boardIsSetup = true;
+				var updates = {};
+				for (var prop in game) {
+					if (prop !== 'gameBoard' && prop !== 'players') {
+						if (game.hasOwnProperty(prop)) {
+							updates[prop] = game[prop];
+						}
+					}
+				}
+				updateFireBase(updates);
+			},
+			rollDice: function() {
+				//tell player they can build and trade after this is done
+				var diceRoll = game.roll();
+				game.distributeResources(diceRoll);
+				currentGameData.child('players').set(JSON.stringify(game.players));
+			},
+			endTurn: function () {
+				game.turn++;
+				for (var prop in game) {
+					if (prop !== 'gameBoard' && prop !== 'players') {
+						if (game.hasOwnProperty(prop)) {
+							updates[prop] = game[prop];
+						}
+					}
+				};
+				updateFireBase(updates);
 			}
 		}
 	});
