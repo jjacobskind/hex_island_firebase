@@ -3,17 +3,18 @@ function GameEngine(small_num, large_num) {
     this.turn = 0,
     this.gameBoard = new GameBoard(this, small_num, large_num),
     //are all players added to the game model, and are we ready to setup the board?
+    this.diceRolled = false;
+    this.diceNumber = null;
     this.areAllPlayersAdded = false;
     //true or false: is the stage where players add their first two settlements, and first two roads complete?
     this.boardIsSetup = false;
+    this.currentPlayer = 0;
     //have all players setup their first two settlements and first two roads?
-    this.hasGameStartedYet = false;
 }
 
 GameEngine.prototype.calculatePlayerTurn = function() {
-  var currentTurn = this.turn,
-      playerLength = this.players.length;
-  return currentTurn % playerLength;
+  var currentTurn = this.turn, playerLength = this.players.length;
+  this.currentPlayer = currentTurn % playerLength;
 }
 
 GameEngine.prototype.addPlayer = function() {
@@ -49,6 +50,7 @@ GameEngine.prototype.roll = function() {
     var firstRoll = Math.floor(Math.random() * 6) + 1,
         secondRoll = Math.floor(Math.random() * 6) + 1,
         sumDice = firstRoll + secondRoll;
+        this.diceNumber = sumDice;
         return sumDice;
 };
 
@@ -93,9 +95,13 @@ GameEngine.prototype.getNestedArrayIndex = function(search_arr, find_arr) {
 };
 
 GameEngine.prototype.distributeResources = function(sumDice) {
-  var rows = game.gameBoard.boardVertices;
+  var rows = this.gameBoard.boardVertices;
+  var players = this.players;
+  console.log(players);
+  console.log(sumDice)
   // if player's dice roll doesn't trigger robber fn
   if (sumDice !== 7) {
+      var resourceArray = [];
       var boardSnapShot = {};
       // loop through the game board
       for (i = 0; i < rows.length; i++) {
@@ -109,13 +115,12 @@ GameEngine.prototype.distributeResources = function(sumDice) {
             // distribute resources if player contains settlement on adjacent tiles
             rows[i][j].adjacent_tiles.forEach(function (item) {
               if (item.chit === sumDice) {
-                resourceArray.push({resourceCount: resourcesToDistribute, resource: item.resource});
+                resourceArray.push({resourceCount: resourcesToDistribute, resource: item.resource, player: rows[i][j].owner});
               }
             })
             if (resourceArray.length !== 0) {
               resourceArray.forEach(function(item){
-                var resources = player.resources;
-                console.log(item.resource)
+                var resources = players[+item.player].resources;
                 resources[item.resource] = resources[item.resource] + resourcesToDistribute;
               })
             }
@@ -123,6 +128,7 @@ GameEngine.prototype.distributeResources = function(sumDice) {
         }
       }
     }
+    console.log('finished distributing');
 };
 
 GameEngine.prototype.tradeResources = function(firstPlayer, firstResource, secondPlayer, secondResource) {

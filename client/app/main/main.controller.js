@@ -6,6 +6,7 @@ angular.module('settlersApp')
     self.small_num = 3;
     self.big_num = 5;
     var authData = undefined;
+    
     $scope.userIsLoggedIn = false;
     $scope.gameIsLoaded = false;
     $scope.previousGameIDs = undefined;
@@ -13,6 +14,7 @@ angular.module('settlersApp')
     $scope.currentUserData = authData;
     $scope.currentGameID = null;
     $scope.whatPlayerAmI = undefined;
+
     var dataLink = engineFactory.getDataLink();
 
     $scope.createNewGame = function() {

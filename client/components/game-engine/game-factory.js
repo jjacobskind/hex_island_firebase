@@ -159,6 +159,47 @@ angular.module('settlersApp')
 			},
 			getDataLink: function(){
 				return dataLink;
+			},
+			startGame: function () {
+				game.areAllPlayersAdded = true;
+				var updates = {};
+				for (var prop in game) {
+					if (prop !== 'gameBoard' && prop !== 'players') {
+						if (game.hasOwnProperty(prop)) {
+							updates[prop] = game[prop];
+						}
+					}
+				}
+				updateFireBase(updates);
+			},
+			startPlay: function() {
+				game.boardIsSetup = true;
+				var updates = {};
+				for (var prop in game) {
+					if (prop !== 'gameBoard' && prop !== 'players') {
+						if (game.hasOwnProperty(prop)) {
+							updates[prop] = game[prop];
+						}
+					}
+				}
+				updateFireBase(updates);
+			},
+			rollDice: function() {
+				//tell player they can build and trade after this is done
+				var diceRoll = game.roll();
+				game.distributeResources(diceRoll);
+				currentGameData.child('players').set(JSON.stringify(game.players));
+			},
+			endTurn: function () {
+				game.turn++;
+				for (var prop in game) {
+					if (prop !== 'gameBoard' && prop !== 'players') {
+						if (game.hasOwnProperty(prop)) {
+							updates[prop] = game[prop];
+						}
+					}
+				};
+				updateFireBase(updates);
 			}
 		}
 	});
