@@ -52,20 +52,21 @@ angular.module('settlersApp')
         });
     }
     $scope.loadPreviousGame = function(gameID, newPlayer) {
-        var deferred = $q.defer();
-        var promise = engineFactory.restorePreviousSession(gameID);
-        promise.then(function() {
+        var deferred = $q.defer()
+        
+        engineFactory.restorePreviousSession(gameID);
+        
+        .then(function(){
+            console.log('game loaded')
             $scope.gameIsLoaded = true;
-            return game;
-        });
-        promise.then(function(){
             if (newPlayer)
                 {   
                     console.log('adding player')
                     engineFactory.addPlayer();
                     console.log('added!')
                 };
-        })
+            $scope.$apply();
+        });
     };
     $scope.loginOauth = function() {
         dataLink.authWithOAuthPopup("facebook", function(error, auth) {
