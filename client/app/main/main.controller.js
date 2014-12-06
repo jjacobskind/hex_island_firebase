@@ -6,7 +6,7 @@ angular.module('settlersApp')
     self.small_num = 3;
     self.big_num = 5;
     var authData = undefined;
-    
+
     $scope.userIsLoggedIn = false;
     $scope.gameIsLoaded = false;
     $scope.previousGameIDs = undefined;
@@ -27,7 +27,10 @@ angular.module('settlersApp')
         dataLink.child('users').child(authData.uid).once('value', function (data) {
             var userData = data.val();
             if (!userData.currentGames) {
-                dataLink.child('users').child(authData.uid).child('currentGames').push(gameID);
+                var gameObject = {};
+                gameObject.gameID = gameID;
+                gameObject.playerNumber = 0
+                dataLink.child('users').child(authData.uid).child('currentGames').push(gameObject);
             }
             else {
                 $scope.previousGameIDs = userData.currentGames;
@@ -35,7 +38,10 @@ angular.module('settlersApp')
                 for (var game in $scope.previousGameIDs) {
                     gameArray.push($scope.previousGameIDs[game]);
                 }
-                gameArray.push(gameID);
+                var gameObject = {};
+                gameObject.gameID = gameID;
+                gameObject.playerNumber = 0
+                gameArray.push(gameObject);
                 dataLink.child('users').child(authData.uid).child('currentGames').set(gameArray)
             }
             $scope.game = game;
@@ -62,10 +68,20 @@ angular.module('settlersApp')
             $scope.gameIsLoaded = true;
             if (newPlayer)
                 {   
-                    console.log('adding player')
                     engineFactory.addPlayer();
-                    console.log('added!')
-                };
+                    $scope.whatPlayerAmI = engineFactory.getGame().players.length-1;
+                    var gameObject = {};
+                    gameObject.gameID = +gameID;
+                    gameObject.playerNumber = $scope.whatPlayerAmI;
+                    dataLink.child('users').child(authData.uid).child('currentGames').push(gameObject)
+                }
+            else {
+                for (var game in $scope.previousGameIDs){
+                    if ($scope.previousGameIDs[game].gameID === gameID) {
+                        $scope.whatPlayerAmI = $scope.previousGameIDs[game].playerNumber;
+                    }
+                }
+            }
         }, function onError() {
             console.log('error in loadPreviousGame')
         });
@@ -84,12 +100,6 @@ angular.module('settlersApp')
             });
     };
 
-    $scope.addPlayer = function() {
-        engineFactory.addPlayer();
-        var game = engineFactory.getGame();
-        console.log(game);
-    };
-
     //push new gameID to their profile, then pull players.length-1, assign them the user
 
     $scope.joinCurrentGame = function(){
@@ -106,7 +116,6 @@ angular.module('settlersApp')
                 return false;
             }
             else {
-                dataLink.child('users').child(authData.uid).child('currentGames').push(+id)
                 $scope.loadPreviousGame(id, 'newPlayer');
             }
         }); 
