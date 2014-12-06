@@ -358,7 +358,6 @@ GameBoard.prototype.createResources = function(small_num, large_num) {
 
     // Inserted first desert manually
     // Using modulus to insert each tile by index and loop back to zero index to fill in tiles that come before the desert
-    var lower = false;
     for (i = desertRandomizer+1; i<(desertRandomizer+num_tiles); i++) {
         var this_resource = resources.pop();
         if(this_resource==='desert'){
