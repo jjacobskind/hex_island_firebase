@@ -17,7 +17,7 @@ angular.module('settlersApp')
 
       var canvas_element = $("#board-canvas");
       controls = new THREE.OrbitControls( camera, renderer.domElement );
-      controls.addEventListener( 'change', render );
+      // controls.addEventListener( 'change', render );
       // controls.autoRotate=true;
       controls.noPan = true;
       controls.maxPolarAngle = Math.PI/2.5;
@@ -36,6 +36,7 @@ angular.module('settlersApp')
   var animate = function() {
       light.position.copy(camera.position);
       water.material.uniforms.time.value += 1.0 / 20.0;
+      renderer.render( scene, camera );
 
     setTimeout(function(){
       requestAnimationFrame(animate);
@@ -44,12 +45,11 @@ angular.module('settlersApp')
     }, 80);
   }
 
-  var render = function(){
+  // var render = function(){
 
-    
-    water.render();
-    renderer.render( scene, camera );
-  }
+  //   renderer.render( scene, camera );
+  //   water.render();
+  // }
 
   var createRenderer = function(){
     var renderer = new THREE.WebGLRenderer({antialias:true});
