@@ -28,18 +28,22 @@ angular.module('settlersApp')
 		};
 
 		function boardSync(currentGameData) {
-			game = new GameEngine(3,5);
-		    currentGameData.once("value", function(snapshot) {
-		    	var persistedData = snapshot.val();
-		    	parseJSON(persistedData.players, function(data){game.players = data});
-		    	parseJSON(persistedData.boardTiles, function(data){game.gameBoard.boardTiles = data});
-		    	parseJSON(persistedData.boardVertices, function(data){game.gameBoard.boardVertices = data});
-		    	
-		    	console.log('data loaded')
-		  }, function (errorObject) {
-		    	console.log("The read failed: " + errorObject.code);
-		    	return false;
-		  });
+			return $q(function(resolve, reject) {
+				game = new GameEngine(3,5);
+			    currentGameData.once("value", function(snapshot) {
+			    	var persistedData = snapshot.val();
+			    	parseJSON(persistedData.players, function(data){game.players = data});
+			    	parseJSON(persistedData.boardTiles, function(data){game.gameBoard.boardTiles = data});
+			    	parseJSON(persistedData.boardVertices, function(data){game.gameBoard.boardVertices = data});
+
+			    	console.log('data loaded');
+
+			    	resolve('success');
+			  }, function (errorObject) {
+			    	console.log("The read failed: " + errorObject.code);
+			    	reject('error');
+			  });
+			});
 		};
 
 		var updateFireBase = function(updates){
@@ -147,8 +151,8 @@ angular.module('settlersApp')
 			restorePreviousSession: function(gameID) {
 					gameDatabase = dataLink.child('games').child(gameID);
 					currentGameData = gameDatabase.child('data');	
-					boardSync(currentGameData);
-					return //promise resolution once boardsync finishes
+					return boardSync(currentGameData);
+					//promise resolution once boardsync finishes
 			},
 			getGameID: function(){
 				return gameID;
