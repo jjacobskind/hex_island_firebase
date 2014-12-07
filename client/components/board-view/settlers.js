@@ -349,10 +349,20 @@ Tile.prototype.drawChit = function(coordinates, color) {
 	texture.offset.x = (this.board.side_length/6) * texture.repeat.x;
 	texture.offset.y = (this.board.side_length/6) * texture.repeat.y;
 
-	var material = new THREE.MeshLambertMaterial({map: texture});
+	var number_material = new THREE.MeshLambertMaterial({map: texture});
+	var materials = [number_material, white_material];
 
 	var chip_geometry = new THREE.ExtrudeGeometry(this.board.chip_shape, {amount:1, bevelEnabled:false});
-	var num_chip = new THREE.Mesh(chip_geometry, material);
+
+	
+	for(var i=0; i<252; i++){
+		if(i===62){
+			i=124;
+		}
+		chip_geometry.faces[i].materialIndex = 1;
+	}
+
+	var num_chip = new THREE.Mesh(chip_geometry, new THREE.MeshFaceMaterial(materials));
 	num_chip.position.set(coordinates[0], 0.5, coordinates[1]);
 	num_chip.rotation.set(Math.PI/2, Math.PI, 0);
 
