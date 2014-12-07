@@ -343,10 +343,11 @@ Tile.prototype.drawTile = function(coordinates, color) {
 Tile.prototype.drawChit = function(coordinates, color) {
 	var white_material = new THREE.MeshLambertMaterial( { color: 0xffffff, wireframe: false} );
 
-	var texture = new THREE.ImageUtils.loadTexture( 'assets/images/1.png' );
-	texture.repeat.x = 1/10;
-	texture.repeat.y = 1/10;
-	texture.offset.x = 7.5 * .5 * texture.repeat.x;
+	var texture = new THREE.ImageUtils.loadTexture( 'assets/images/6.jpg' );
+	texture.repeat.x = 3/this.board.side_length;
+	texture.repeat.y = 3/this.board.side_length;
+	texture.offset.x = (this.board.side_length/6) * texture.repeat.x;
+	texture.offset.y = (this.board.side_length/6) * texture.repeat.y;
 
 	var material = new THREE.MeshLambertMaterial({map: texture});
 
