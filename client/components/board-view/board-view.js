@@ -21,7 +21,7 @@ angular.module('settlersApp')
       controls = new THREE.OrbitControls( camera, renderer.domElement );
       // controls.autoRotate=true;
       controls.noPan = true;
-      // controls.maxPolarAngle = Math.PI/2.5;
+      controls.maxPolarAngle = Math.PI/2.5;
 
       scene.add( new THREE.AmbientLight( 0x222222 ) );
 
