@@ -1,11 +1,11 @@
 'use strict';
 
 angular.module('settlersApp')
-	.factory('engineFactory', function(boardFactory){
+	.factory('engineFactory', function($q, boardFactory){
 		var game;
 
 		var gameID;
-		var dataLink;
+		var dataLink = new Firebase("https://flickering-heat-2888.firebaseio.com/");
 		var gameDatabase;
 		var currentGameData;
 
@@ -27,17 +27,23 @@ angular.module('settlersApp')
 		    console.log('the database and local board have been synched and refreshed')
 		};
 
-		function boardSync() {
-		    currentGameData.once("value", function(snapshot) {
-		    var persistedData = snapshot.val();
-		    parseJSON(persistedData.players, function(data){game.players = data});
-		    parseJSON(persistedData.boardTiles, function(data){game.gameBoard.boardTiles = data});
-		    parseJSON(persistedData.boardVertices, function(data){game.gameBoard.boardVertices = data});
-		    boardFactory.drawBoard();
-		    console.log('data loaded')
-		  }, function (errorObject) {
-		    console.log("The read failed: " + errorObject.code);
-		  });
+		function boardSync(currentGameData) {
+			return $q(function(resolve, reject) {
+				game = new GameEngine(3,5);
+			    currentGameData.once("value", function(snapshot) {
+			    	var persistedData = snapshot.val();
+			    	parseJSON(persistedData.players, function(data){game.players = data});
+			    	parseJSON(persistedData.boardTiles, function(data){game.gameBoard.boardTiles = data});
+			    	parseJSON(persistedData.boardVertices, function(data){game.gameBoard.boardVertices = data});
+
+			    	console.log('data loaded');
+
+			    	resolve('success');
+			  }, function (errorObject) {
+			    	console.log("The read failed: " + errorObject.code);
+			    	reject('error');
+			  });
+			});
 		};
 
 		var updateFireBase = function(updates){
@@ -55,7 +61,7 @@ angular.module('settlersApp')
 		return {
 			newGame: function(small_num, big_num){
 				game = new GameEngine(small_num, big_num);
-				gameID=567843;
+				gameID = Date.now();
 				dataLink = new Firebase("https://flickering-heat-2888.firebaseio.com/");
 				gameDatabase = dataLink.child('games').child(gameID);
 				currentGameData = gameDatabase.child('data');
@@ -134,7 +140,65 @@ angular.module('settlersApp')
 				}
 			},
 			addPlayer: function(){
+				console.log(game);
 				var updates = game.addPlayer();
+				if(updates.hasOwnProperty("err")){
+					console.log(updates.err);
+				} else {
+					updateFireBase(updates);
+				}
+			},
+			restorePreviousSession: function(gameID) {
+					gameDatabase = dataLink.child('games').child(gameID);
+					currentGameData = gameDatabase.child('data');	
+					return boardSync(currentGameData);
+					//promise resolution once boardsync finishes
+			},
+			getGameID: function(){
+				return gameID;
+			},
+			getDataLink: function(){
+				return dataLink;
+			},
+			startGame: function () {
+				game.areAllPlayersAdded = true;
+				var updates = {};
+				for (var prop in game) {
+					if (prop !== 'gameBoard' && prop !== 'players') {
+						if (game.hasOwnProperty(prop)) {
+							updates[prop] = game[prop];
+						}
+					}
+				}
+				updateFireBase(updates);
+			},
+			startPlay: function() {
+				game.boardIsSetup = true;
+				var updates = {};
+				for (var prop in game) {
+					if (prop !== 'gameBoard' && prop !== 'players') {
+						if (game.hasOwnProperty(prop)) {
+							updates[prop] = game[prop];
+						}
+					}
+				}
+				updateFireBase(updates);
+			},
+			rollDice: function() {
+				//tell player they can build and trade after this is done
+				var diceRoll = game.roll();
+				game.distributeResources(diceRoll);
+				currentGameData.child('players').set(JSON.stringify(game.players));
+			},
+			endTurn: function () {
+				game.turn++;
+				for (var prop in game) {
+					if (prop !== 'gameBoard' && prop !== 'players') {
+						if (game.hasOwnProperty(prop)) {
+							updates[prop] = game[prop];
+						}
+					}
+				};
 				updateFireBase(updates);
 			}
 		}

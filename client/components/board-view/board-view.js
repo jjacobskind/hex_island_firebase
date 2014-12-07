@@ -18,7 +18,6 @@ angular.module('settlersApp')
       camera.position.set( camera_x, 200, camera_z );
 
       var canvas_element = $("#board-canvas");
-
       controls = new THREE.OrbitControls( camera, renderer.domElement );
       // controls.autoRotate=true;
       controls.noPan = true;
