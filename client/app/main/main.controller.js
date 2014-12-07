@@ -7,8 +7,8 @@ angular.module('settlersApp')
     self.big_num = 5;
     var authData = undefined;
 
-    $scope.userIsLoggedIn = true;
-    $scope.gameIsLoaded = true;
+    $scope.userIsLoggedIn = false;
+    $scope.gameIsLoaded = false;
     $scope.previousGameIDs = undefined;
     $scope.userJoiningCurrentGame = false;
     $scope.currentUserData = authData;
