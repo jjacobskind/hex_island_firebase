@@ -362,7 +362,6 @@ Tile.prototype.drawChit = function(coordinates, color) {
 		chip_geometry.faces[i].materialIndex = 1;
 	}
 
-	console.log(chip_geometry.faces.length);
 	var num_chip = new THREE.Mesh(chip_geometry, new THREE.MeshFaceMaterial(materials));
 	num_chip.position.set(coordinates[0], 0.5, coordinates[1]);
 	num_chip.rotation.set(Math.PI/2, Math.PI, 0);
