@@ -5,38 +5,25 @@ var border_material = new THREE.MeshLambertMaterial( { color: 0xffffff, wirefram
 var tile_material = new THREE.MeshLambertMaterial( { color: 0xff8000, wireframe: false } );
 var materials = [ border_material, tile_material ];
 
-var Game = function(scene, small_num, big_num, scale) {
+var Game = function(scene, game, scale) {
 	this.scene = scene;
-	// if(typeof small_num !== number){
-	// 	small_num = 3;
-	// }
-	// if(typeof small_num !== number){
-	// 	big_num = 5;
-	// }
-	this.board = new Board(this, small_num, big_num, scale);
+	this.playerID = 0;  //need to update this later to reflect actual player index
 
-	// this.scene.add(this.drawRobber());
+	this.board = new Board(this, game.gameBoard.boardVertices, game.gameBoard.boardTiles, scale);
+
+	// this.scene.add(this.board.drawRobber());
 
 };
 
-Game.prototype.shuffle = function(array) {
-   for (var i = array.length - 1; i > 0; i--) {
-       var j = Math.floor(Math.random() * (i + 1));
-       var temp = array[i];
-       array[i] = array[j];
-       array[j] = temp;
-   }
-   return array;
-};
-
-
-var Board = function(game, small_num, big_num, scale) {
+var Board = function(game, vertices, tiles, scale) {
 	this.game = game;
-	this.boardVertices = this.createVertices(small_num, big_num);
-	console.log(this.boardVertices);
-	this.small_num = small_num;
-	this.big_num = big_num;
-	if(!!scale){
+	this.boardVertices = vertices;
+	this.small_num = tiles[0].length
+	this.big_num = tiles[Math.floor(tiles.length/2)].length;
+	if(!!scale && scale>10) {
+		this.scale=10;
+	} 
+	else if(!!scale){
 		this.scale = scale;
 	} else {
 		this.scale = 1;
@@ -75,88 +62,28 @@ var Board = function(game, small_num, big_num, scale) {
 
 	this.chip_shape = new THREE.Shape(circlePts);
 
-	var src_arr = [0xFFB13D, 0xFFB13D, 0xFFB13D, 0xFFB13D, 0x996600, 0x996600, 0x996600, 0x996600, 0xE0E0E0, 0xE0E0E0, 0xE0E0E0, 0xE0E0E0, 0x3D3D3D, 0x3D3D3D, 0x3D3D3D, 0xFF0000, 0xFF0000, 0xFF0000, 0xFFFFCC];
-	var sum=0;
-	var iterator = 1;
-	for(var i=small_num;i>=small_num;i+=iterator){
-		sum+=i;
-		if(i===big_num){
-			iterator=-1;
-		}
-	}
-	while(src_arr.length<sum){
-		src_arr = src_arr.concat(src_arr);
-	}
-	this.resources = game.shuffle(src_arr);
-	this.tiles = this.drawBoard();
+	this.tiles = this.drawBoard(tiles);
 };
 
-Board.prototype.createVertices = function(small_num, large_num, board) {
-    if(!board) {
-        board = [];
-        large_num++;
-        var first_or_last = true;
-    }
-
-    if(small_num>large_num){
-        return board;
-    }
-    board.push(this.createRow(small_num));
-
-    if(!first_or_last && (small_num!==large_num)){
-        board.push(this.createRow(small_num));
-    }
-
-    board = this.createVertices(small_num+1, large_num, board);
-    board.push(this.createRow(small_num));
-    if(!first_or_last  && (small_num!==large_num)){
-        board.push(this.createRow(small_num));
-    }
-    this.gameIsInitialized = true;
-    return board;
-
-};
-
-Board.prototype.createRow = function(num_elements) {
-    var row = [];
-    for(var i=0; i<num_elements;i++) {
-        row.push({
-            building:null,
-            port: null
-        });
-    }
-    return row;
-};
-
-
-Board.prototype.drawBoard = function() {
-	var small_num = this.small_num;
-	var big_num = this.big_num;
-	var num_rows = (2*(big_num-small_num)) + 1;
+Board.prototype.drawBoard = function(tiles) {
 	var outer_middle_distance = Math.sqrt(Math.pow(this.side_length*4,2) - Math.pow(0.5*this.side_length*4, 2));
 	var count =0;
-	var iterator=0;
-	var tiles = [];
-	for(var row=0; row<num_rows;row++){
-		var tile_row = [];
-		var num_cols = small_num + iterator;
-		if(row<Math.floor(num_rows/2)){
-			iterator++;
-		} else {
-			iterator--;
-		}
+	var board_tiles = [];
+	for(var row=0, num_rows=tiles.length; row<num_rows;row++){
+		var board_tile_row = [];
 
-
-		for(var col=0;col<num_cols; col++){
+		for(var col=0, num_cols=tiles[row].length;col<num_cols; col++){
 			var coordinates = this.indicesToCoordinates([row, col]);
-			var obj=new Tile(this, coordinates, this.resources.pop());
+			var obj=new Tile(this, coordinates, tiles[row][col].resource, tiles[row][col].chit);
 			this.game.scene.add(obj.tile);
-			this.game.scene.add(obj.chit);
-			tile_row.push(obj);
+			if(!!obj.chit){
+				this.game.scene.add(obj.chit);
+			}
+			board_tile_row.push(obj);
 		}
-		tiles.push(tile_row);
+		board_tiles.push(board_tile_row);
 	}
-	return tiles;
+	return board_tiles;
 };
 
 Board.prototype.indicesToCoordinates = function(indices){
@@ -304,7 +231,7 @@ Board.prototype.buildRoad = function(location1, location2){
 	pts.push(new THREE.Vector2(0, 0));
 	var shape = new THREE.Shape(pts);
 	var geometry = new THREE.ExtrudeGeometry(shape,{amount:depth, bevelEnabled:false});
-	var road = new THREE.Mesh(geometry, new THREE.MeshLambertMaterial({color: 0xbb0000, wireframe:false}));
+	var road = new THREE.Mesh(geometry, new THREE.MeshLambertMaterial({color: this.playerColor(), wireframe:false}));
 	var coords1 = this.verticesToCoordinates(location1);
 	var coords2 = this.verticesToCoordinates(location2);
 
@@ -323,16 +250,32 @@ Board.prototype.buildRoad = function(location1, location2){
 	return road;
 };
 
-var Tile = function(board, coordinates, color) {
+// Returns color associated with this player
+Board.prototype.playerColor = function(){
+	switch(this.game.playerID) {
+		case 0:
+			return 0xff0000;
+		case 1:
+			return 0x0000ff;
+		case 2:
+			return 0xffffff;
+		case 3:
+			return 0xf28100;
+	}
+};
+
+var Tile = function(board, coordinates, resource, number) {
 	this.board = board;
-	this.tile = this.drawTile(coordinates, color);
-	this.chit = this.drawChit(coordinates, color);
+	this.tile = this.drawTile(coordinates, resource);
+	if(resource!=="desert"){
+		this.chit = this.drawChit(coordinates, number);
+	}
 };
 
 
-Tile.prototype.drawTile = function(coordinates, color) {
+Tile.prototype.drawTile = function(coordinates, resource) {
 	var white_material = new THREE.MeshLambertMaterial( { color: 0xffffff, wireframe: false } );
-	var colored_material = new THREE.MeshLambertMaterial( { color: color, wireframe: false } );
+	var colored_material = new THREE.MeshLambertMaterial( { color: this.paintResource(resource), wireframe: false } );
 	var materials = new THREE.MeshFaceMaterial([white_material, colored_material]);
 	var tile = new THREE.Mesh( this.board.tile_geometry, materials );
 	tile.position.set( coordinates[0], 0, coordinates[1] );
@@ -340,10 +283,10 @@ Tile.prototype.drawTile = function(coordinates, color) {
 	return tile;
 };
 
-Tile.prototype.drawChit = function(coordinates, color) {
+Tile.prototype.drawChit = function(coordinates, chit_number) {
 	var white_material = new THREE.MeshLambertMaterial( { color: 0xffffff, wireframe: false} );
 
-	var texture = new THREE.ImageUtils.loadTexture( 'assets/images/6.jpg' );
+	var texture = new THREE.ImageUtils.loadTexture( 'assets/images/' + chit_number + '.jpg' );
 	texture.repeat.x = 3/this.board.side_length;
 	texture.repeat.y = 3/this.board.side_length;
 	texture.offset.x = (this.board.side_length/6) * texture.repeat.x;
@@ -354,7 +297,7 @@ Tile.prototype.drawChit = function(coordinates, color) {
 
 	var chip_geometry = new THREE.ExtrudeGeometry(this.board.chip_shape, {amount:1, bevelEnabled:false});
 
-	
+	// Applies white_material to all faces other than those facing upwards
 	for(var i=0; i<252; i++){
 		if(i===62){
 			i=124;
@@ -365,15 +308,32 @@ Tile.prototype.drawChit = function(coordinates, color) {
 	var num_chip = new THREE.Mesh(chip_geometry, new THREE.MeshFaceMaterial(materials));
 	num_chip.position.set(coordinates[0], 0.5, coordinates[1]);
 	num_chip.rotation.set(Math.PI/2, Math.PI, 0);
-
 	return num_chip;
 };
 
-var Building = function(board, building_type, x, z, color){
+// Returns tile texture based on the resource passed into it
+Tile.prototype.paintResource = function(resource){
+	switch(resource){
+		case "desert":
+			return 0xFFFFCC;
+		case "ore":
+			return 0x3D3D3D;
+		case "lumber":
+			return 0x996600;
+		case "wool":
+			return 0xE0E0E0;
+		case "brick":
+			return 0xFF0000;
+		case "grain":
+			return 0xFFB13D;
+	}
+};
+
+var Building = function(board, building_type, x, z){
 	this.board = board;
 	this.x = x;
 	this.z = z;
-	this.color = color;
+	this.color = this.board.playerColor();
 	this.building = null;
 
 	switch(building_type){
@@ -428,7 +388,7 @@ Building.prototype.makeGeometry = function(shape){
 																bevelEnabled:false
 																});
 
-	var material = new THREE.MeshLambertMaterial( { color: colorConversion(this.color), wireframe: false } );
+	var material = new THREE.MeshLambertMaterial( { color: this.color, wireframe: false } );
 
 	var building = new THREE.Mesh(building_geometry, material);
 	building.position.set( this.x, 0, this.z );
@@ -461,17 +421,4 @@ Board.prototype.drawRobber = function(){
 	lathe.rotation.set(Math.PI,Math.PI/2,0);
 	lathe.position.set(0,20,0);
 	return lathe;
-};
-
-function colorConversion(color_string){
-	switch(color_string){
-		case "red":
-			return 0xff0000;
-		case "blue":
-			return 0x0000ff;
-		case "white":
-			return 0xffffff;
-		case "orange":
-			return 0xf28100;
-	}
 };
