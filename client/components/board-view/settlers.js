@@ -50,7 +50,7 @@ var Board = function(game, small_num, big_num, scale) {
 		var a = i / numPts * Math.PI;
 		pts.push( new THREE.Vector2 ( Math.cos( a ) * this.side_length, Math.sin( a ) * this.side_length ) );
 	}
-	this.hex = new THREE.Shape( pts );
+	var hex = new THREE.Shape( pts );
 
 	// Set extrude settings to be applied to hex tile shape
 	this.extrudeSettings = {
@@ -63,6 +63,7 @@ var Board = function(game, small_num, big_num, scale) {
 		bevelSize       : 4 * this.scale,
 		bevelSegments   : 1,
 	};
+	this.tile_geometry = new THREE.ExtrudeGeometry( hex, this.extrudeSettings );
 
 	// Create geometry for number chits
 	var circlePts = [];
@@ -72,9 +73,7 @@ var Board = function(game, small_num, big_num, scale) {
 		circlePts.push(new THREE.Vector2(Math.cos(a)* this.side_length / 4, Math.sin(a)* this.side_length /4));
 	}
 
-	this.chip_geometry = new THREE.ExtrudeGeometry(new THREE.Shape(circlePts), {amount:1,
-																			bevelEnabled:false
-																			});
+	this.chip_shape = new THREE.Shape(circlePts);
 
 	var src_arr = [0xFFB13D, 0xFFB13D, 0xFFB13D, 0xFFB13D, 0x996600, 0x996600, 0x996600, 0x996600, 0xE0E0E0, 0xE0E0E0, 0xE0E0E0, 0xE0E0E0, 0x3D3D3D, 0x3D3D3D, 0x3D3D3D, 0xFF0000, 0xFF0000, 0xFF0000, 0xFFFFCC];
 	var sum=0;
@@ -89,7 +88,7 @@ var Board = function(game, small_num, big_num, scale) {
 		src_arr = src_arr.concat(src_arr);
 	}
 	this.resources = game.shuffle(src_arr);
-	this.spaces = this.drawBoard();
+	this.tiles = this.drawBoard();
 };
 
 Board.prototype.createVertices = function(small_num, large_num, board) {
@@ -137,7 +136,9 @@ Board.prototype.drawBoard = function() {
 	var outer_middle_distance = Math.sqrt(Math.pow(this.side_length*4,2) - Math.pow(0.5*this.side_length*4, 2));
 	var count =0;
 	var iterator=0;
+	var tiles = [];
 	for(var row=0; row<num_rows;row++){
+		var tile_row = [];
 		var num_cols = small_num + iterator;
 		if(row<Math.floor(num_rows/2)){
 			iterator++;
@@ -151,8 +152,11 @@ Board.prototype.drawBoard = function() {
 			var obj=new Tile(this, coordinates, this.resources.pop());
 			this.game.scene.add(obj.tile);
 			this.game.scene.add(obj.chit);
+			tile_row.push(obj);
 		}
+		tiles.push(tile_row);
 	}
+	return tiles;
 };
 
 Board.prototype.indicesToCoordinates = function(indices){
@@ -327,11 +331,10 @@ var Tile = function(board, coordinates, color) {
 
 
 Tile.prototype.drawTile = function(coordinates, color) {
-	var tile_geometry = new THREE.ExtrudeGeometry( this.board.hex, this.board.extrudeSettings );
 	var white_material = new THREE.MeshLambertMaterial( { color: 0xffffff, wireframe: false } );
 	var colored_material = new THREE.MeshLambertMaterial( { color: color, wireframe: false } );
 	var materials = new THREE.MeshFaceMaterial([white_material, colored_material]);
-	var tile = new THREE.Mesh( tile_geometry, materials );
+	var tile = new THREE.Mesh( this.board.tile_geometry, materials );
 	tile.position.set( coordinates[0], 0, coordinates[1] );
 	tile.rotation.set(Math.PI/2, 0, Math.PI/6);
 	return tile;
@@ -339,9 +342,19 @@ Tile.prototype.drawTile = function(coordinates, color) {
 
 Tile.prototype.drawChit = function(coordinates, color) {
 	var white_material = new THREE.MeshLambertMaterial( { color: 0xffffff, wireframe: false} );
-	var num_chip = new THREE.Mesh(this.board.chip_geometry, white_material);
-	num_chip.rotation.set(Math.PI/2, 0, 0);
-	num_chip.position.set( coordinates[0], 2, coordinates[1] );
+
+	var texture = new THREE.ImageUtils.loadTexture( 'assets/images/1.png' );
+	texture.repeat.x = 1/10;
+	texture.repeat.y = 1/10;
+	texture.offset.x = 7.5 * .5 * texture.repeat.x;
+
+	var material = new THREE.MeshLambertMaterial({map: texture});
+
+	var chip_geometry = new THREE.ExtrudeGeometry(this.board.chip_shape, {amount:1, bevelEnabled:false});
+	var num_chip = new THREE.Mesh(chip_geometry, material);
+	num_chip.position.set(coordinates[0], 0.5, coordinates[1]);
+	num_chip.rotation.set(Math.PI/2, Math.PI, 0);
+
 	return num_chip;
 };
 

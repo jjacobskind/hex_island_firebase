@@ -33,6 +33,7 @@ angular.module('settlersApp')
 		    parseJSON(persistedData.players, function(data){game.players = data});
 		    parseJSON(persistedData.boardTiles, function(data){game.gameBoard.boardTiles = data});
 		    parseJSON(persistedData.boardVertices, function(data){game.gameBoard.boardVertices = data});
+		    boardFactory.drawBoard();
 		    console.log('data loaded')
 		  }, function (errorObject) {
 		    console.log("The read failed: " + errorObject.code);
