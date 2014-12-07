@@ -13,14 +13,15 @@ angular.module('settlersApp')
 
 
       camera = new THREE.PerspectiveCamera( 45, canvas_width / canvas_height, 1, 700 );
-      camera.position.set( 0, 200, -300 );
+      var camera_x = 0;
+      var camera_z = -300;
+      camera.position.set( camera_x, 200, camera_z );
 
       var canvas_element = $("#board-canvas");
       controls = new THREE.OrbitControls( camera, renderer.domElement );
-      // controls.addEventListener( 'change', render );
       // controls.autoRotate=true;
       controls.noPan = true;
-      controls.maxPolarAngle = Math.PI/2.5;
+      // controls.maxPolarAngle = Math.PI/2.5;
 
       scene.add( new THREE.AmbientLight( 0x222222 ) );
 
@@ -31,6 +32,22 @@ angular.module('settlersApp')
       scene.add( renderWater() );
 
       game = new Game(scene, small_num, big_num);
+
+      controls.addEventListener( 'change', function()
+{        var num_rows = game.board.tiles.length;
+
+        var angle = Math.atan(camera.position.x/camera.position.z);
+        if(camera.position.z>0){
+          angle+= Math.PI;
+        }
+
+        for(var row=0; row<num_rows; row++){
+          var num_cols = game.board.tiles[row].length;
+          for(var col=0; col<num_cols; col++){
+            game.board.tiles[row][col].chit.rotation.set(Math.PI/2, Math.PI, angle);
+          }
+        }
+      });
   }
 
   var animate = function() {
@@ -44,12 +61,6 @@ angular.module('settlersApp')
 
     }, 60);
   }
-
-  // var render = function(){
-
-  //   renderer.render( scene, camera );
-  //   water.render();
-  // }
 
   var createRenderer = function(){
     var renderer = new THREE.WebGLRenderer({antialias:true});
