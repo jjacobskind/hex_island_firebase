@@ -4,6 +4,7 @@ angular.module('settlersApp')
   .factory('boardFactory', function() {
 
     var camera, scene, renderer, controls, light, water, game_board;
+
     var canvas_width = $(window).width();
     var canvas_height = 500;
 
@@ -17,7 +18,7 @@ angular.module('settlersApp')
       var camera_z = -300;
       camera.position.set( camera_x, 200, camera_z );
 
-      var canvas_element = $("#board-canvas");
+      
       controls = new THREE.OrbitControls( camera, renderer.domElement );
       // controls.autoRotate=true;
       controls.noPan = true;
@@ -135,6 +136,8 @@ angular.module('settlersApp')
     },
     insert: function() {
       $("#board_container").prepend( renderer.domElement );
+      $("#board-canvas").addClass( 'full' );
+
       $('#board-canvas').on('mousewheel', function(e) {
           e.preventDefault();
           e.stopPropagation();
