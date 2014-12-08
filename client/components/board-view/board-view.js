@@ -22,7 +22,7 @@ angular.module('settlersApp')
       controls = new THREE.OrbitControls( camera, renderer.domElement );
       // controls.autoRotate=true;
       controls.noPan = true;
-      controls.maxPolarAngle = Math.PI/2.5;
+      // controls.maxPolarAngle = Math.PI/2.5;
 
       scene.add( new THREE.AmbientLight( 0x222222 ) );
 
@@ -132,6 +132,9 @@ angular.module('settlersApp')
 
   return {
     drawGame: function(game) {
+      game.gameBoard.boardVertices[0][2].owner = 2;
+      game.gameBoard.boardVertices[0][2].hasSettlementOrCity = "settlement";
+
       init(game);
     },
     insert: function() {
@@ -153,23 +156,23 @@ angular.module('settlersApp')
     },
     placeSettlement: function(playerID, location){
       var row=location[0], col=location[1];
-      if(!game.board.boardVertices[row][col].building){
-        var coords = game.board.verticesToCoordinates(location);
-        coords[1]-=game.board.building_depth/1.5;
-        var settlement = new Building(game.board, "settlement", coords[0], coords[1], "red");
-        game.board.boardVertices[row][col].building=settlement;
+      if(!game_board.board.boardVertices[row][col].building){
+        var coords = game_board.board.verticesToCoordinates(location);
+        coords[1]-=game_board.board.building_depth/1.5;
+        var settlement = new Building(game_board.board, "settlement", playerID, coords[0], coords[1]);
+        game_board.board.boardVertices[row][col].building=settlement;
         scene.add(settlement.building);
       }
     },
     upgradeSettlementToCity: function(playerID, location){
       var row=location[0], col=location[1];
-      var vertex_building = game.board.boardVertices[row][col].building;
+      var vertex_building = game_board.board.boardVertices[row][col].building;
       scene.remove(vertex_building.building);
       vertex_building.cityShape();
       scene.add(vertex_building.building);
     },
     getGame: function(){
-      return game;
+      return game_board;
     }
   };
 })
