@@ -340,36 +340,34 @@ GameBoard.prototype.createResources = function(small_num, large_num) {
 
     var resource_bank = this.game.shuffle(['grain', 'lumber', 'wool', 'brick', 'ore'])
     i=0;
-    // resources length should be one less than num_tiles, since first desert is not in resources array
-    while(resources.length < num_tiles-1){
+
+    resources.unshift("desert");
+    while(resources.length < num_tiles){
         resources.push(resource_bank[i%5]);
         i++;
     }
     numberChits = numberChits.reverse();
     resources = this.game.shuffle(resources);
     var tempHexArray = [];
-    var desertRandomizer = Math.floor((Math.random() * num_tiles)+1);
-    tempHexArray[desertRandomizer] = {
-                                        hex: desertRandomizer + 1,
-                                        resource: 'desert',
-                                        chit: 7,
-                                        robber: false,
-                                    };
+    var desertRandomizer = Math.ceil((Math.random() * num_tiles));
 
     // Inserted first desert manually
     // Using modulus to insert each tile by index and loop back to zero index to fill in tiles that come before the desert
-    for (i = desertRandomizer+1; i<(desertRandomizer+num_tiles); i++) {
+    for (i = desertRandomizer; i<(desertRandomizer+num_tiles); i++) {
         var this_resource = resources.pop();
         if(this_resource==='desert'){
             var this_chit = 7;
+            var robber = true;
         }
         else {
             this_chit = numberChits.pop();
+            robber = false;
         }
         tempHexArray[i%num_tiles] = {
                                         hex: i%num_tiles +1,
                                         resource: this_resource,
                                         chit: this_chit,
+                                        robber: robber
                                     };
     }
 
