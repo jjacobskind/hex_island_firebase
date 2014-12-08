@@ -9,13 +9,13 @@ var Game = function(scene, game, scale) {
 	this.scene = scene;
 	this.playerID = 0;  //need to update this later to reflect actual player index
 
-	this.board = new Board(this, game.gameBoard.boardVertices, game.gameBoard.boardTiles, scale);
+	this.board = new Board(this, game.gameBoard.getRoadDestination, game.gameBoard.boardVertices, game.gameBoard.boardTiles, scale);
 
 	// this.scene.add(this.board.drawRobber());
 
 };
 
-var Board = function(game, vertices, tiles, scale) {
+var Board = function(game, getRoadDestination, vertices, tiles, scale) {
 	this.game = game;
 	this.boardVertices=vertices; 
 	this.small_num = tiles[0].length
@@ -63,7 +63,7 @@ var Board = function(game, vertices, tiles, scale) {
 	this.chip_shape = new THREE.Shape(circlePts);
 
 	this.tiles = this.drawBoard(tiles);
-	this.populateBoard(vertices);
+	this.populateBoard(getRoadDestination);
 };
 
 Board.prototype.drawBoard = function(tiles) {
@@ -221,7 +221,7 @@ Board.prototype.verticesToCoordinates = function(location){
 	return [x_coord, z_offset];
 };
 
-Board.prototype.buildRoad = function(location1, location2){
+Board.prototype.buildRoad = function(playerID, location1, location2){
 	var edge = 5 * this.scale;
 	var depth = this.side_length*0.7;
 	var pts = [new THREE.Vector2(0, 0)];
@@ -232,7 +232,7 @@ Board.prototype.buildRoad = function(location1, location2){
 	pts.push(new THREE.Vector2(0, 0));
 	var shape = new THREE.Shape(pts);
 	var geometry = new THREE.ExtrudeGeometry(shape,{amount:depth, bevelEnabled:false});
-	var road = new THREE.Mesh(geometry, new THREE.MeshLambertMaterial({color: this.playerColor(this.game.playerID), wireframe:false}));
+	var road = new THREE.Mesh(geometry, new THREE.MeshLambertMaterial({color: this.playerColor(playerID), wireframe:false}));
 	var coords1 = this.verticesToCoordinates(location1);
 	var coords2 = this.verticesToCoordinates(location2);
 
@@ -252,18 +252,30 @@ Board.prototype.buildRoad = function(location1, location2){
 };
 
 //Draws roads and buildings on board for game in progress
-Board.prototype.populateBoard = function() {
+Board.prototype.populateBoard = function(getRoadDestination) {
 	var vertices=[];
 	for(var row=0, num_rows=this.boardVertices.length; row < num_rows; row++) {
 		var vertices_row=[];
 		for(var col=0, num_cols=this.boardVertices[row].length; col < num_cols; col++){
 			var obj = {};
 			var settlement_or_city = this.boardVertices[row][col].hasSettlementOrCity;
+			var owner = this.boardVertices[row][col].owner
 			if(!!settlement_or_city){
 				var coords = this.verticesToCoordinates([row, col]);
-				obj.building = new Building(this, settlement_or_city, this.boardVertices[row][col].owner, coords[0], coords[1]);
+				obj.building = new Building(this, settlement_or_city, owner, coords[0], coords[1]);
 				this.game.scene.add(obj.building.building);
-				console.log(obj.building.building);
+			}
+			for(var key in this.boardVertices[row][col].connections){
+				if(!!this.boardVertices[row][col].connections[key]){
+					obj[key] = this.boardVertices[row][col].connections[key];
+					var destination = getRoadDestination.call(this, [row, col], key);
+					if(!!destination && (row<destination[0] || col<destination[1])){
+						obj.connections = {};
+						owner = this.boardVertices[row][col].connections[key];
+						obj.connections[key] = this.buildRoad(owner, [row, col], destination);
+						this.game.scene.add(obj.connections[key]);
+					}
+				}
 			}
 			vertices_row.push(obj);
 		}

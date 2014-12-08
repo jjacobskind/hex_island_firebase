@@ -131,6 +131,7 @@ angular.module('settlersApp')
 
   return {
     drawGame: function(game) {
+
       init(game);
     },
     insert: function() {
