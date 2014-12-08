@@ -1,7 +1,7 @@
 'use strict';
 
 angular.module('settlersApp')
-  .controller('MainCtrl', function ($scope, boardFactory, engineFactory, $q) {
+  .controller('MainCtrl', function ($scope, boardFactory, engineFactory, $q, $rootScope) {
     var self = this;
     self.small_num = 3;
     self.big_num = 5;
@@ -86,6 +86,7 @@ angular.module('settlersApp')
         })
         .then(function(){
             var game = engineFactory.getGame();
+            $rootScope.playerData = game.players[$scope.whatPlayerAmI];
             $scope.playerData = game.players[$scope.whatPlayerAmI];
             $scope.gameIsLoaded = true;
         })

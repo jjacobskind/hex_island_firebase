@@ -173,14 +173,25 @@ angular.module('settlersApp')
     }
   };
 })
-.controller('BoardCtrl', function(boardFactory, engineFactory, $scope, $compile){
+.controller('BoardCtrl', function(boardFactory, engineFactory, $scope, $compile, $rootScope, $timeout){
   boardFactory.insert();
   $compile($('#board_container'))($scope);
   $scope.whatPlayerAmI = 0;
-  $scope.playerData = engineFactory.getGame().players[0];
+  $rootScope.playerData = engineFactory.getGame().players[$scope.whatPlayerAmI];
+  $scope.playerData = $rootScope.playerData;
+
   $scope.rollDice = function(){
-    engineFactory.rollDice()
+    engineFactory.rollDice();
+    $scope.currentRoll = engineFactory.getGame().diceNumber;
   };
+
+  $scope.currentRoll = engineFactory.currentDiceRoll();
+
+  $rootScope.$watch('playerData', function(){
+    $rootScope.playerData = engineFactory.getGame().players[$scope.whatPlayerAmI];
+    console.log('alert')
+  });
+
 }) 
 .directive('board', function() {
     return {

@@ -50,7 +50,8 @@ GameEngine.prototype.roll = function() {
     var firstRoll = Math.floor(Math.random() * 6) + 1,
         secondRoll = Math.floor(Math.random() * 6) + 1,
         sumDice = firstRoll + secondRoll;
-        this.diceNumber = sumDice;
+        this.diceNumber = +sumDice;
+        this.diceRolled = true;
         return sumDice;
 };
 
