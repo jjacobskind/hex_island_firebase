@@ -1,7 +1,7 @@
 'use strict';
 
 angular.module('settlersApp')
-  .controller('MainCtrl', function ($scope, $rootScope, boardFactory, engineFactory, $q) {
+  .controller('MainCtrl', function ($scope, boardFactory, engineFactory, $q) {
     var self = this;
     self.small_num = 3;
     self.big_num = 5;

@@ -172,7 +172,7 @@ angular.module('settlersApp')
     }
   };
 })
-.controller('BoardCtrl', function(boardFactory, engineFactory, $scope, $rootScope, $compile){
+.controller('BoardCtrl', function(boardFactory, engineFactory, $scope, $compile){
   boardFactory.insert();
   var game = engineFactory.getGame();
   $compile($('#board_container'))($scope);
