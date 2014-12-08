@@ -121,7 +121,10 @@ GameEngine.prototype.distributeResources = function(sumDice) {
             if (resourceArray.length !== 0) {
               resourceArray.forEach(function(item){
                 var resources = players[+item.player].resources;
+                console.log(resources);
+                console.log(item);
                 resources[item.resource] = resources[item.resource] + resourcesToDistribute;
+                console.log(resources[item.resource])
               })
             }
           }

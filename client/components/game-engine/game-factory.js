@@ -63,7 +63,6 @@ angular.module('settlersApp')
 				game = new GameEngine(small_num, big_num);
 				boardFactory.drawGame(game);
 				gameID = Date.now();
-				dataLink = new Firebase("https://flickering-heat-2888.firebaseio.com/");
 				gameDatabase = dataLink.child('games').child(gameID);
 				currentGameData = gameDatabase.child('data');
 
@@ -192,6 +191,7 @@ angular.module('settlersApp')
 				var diceRoll = game.roll();
 				game.distributeResources(diceRoll);
 				currentGameData.child('players').set(JSON.stringify(game.players));
+				return diceRoll;
 			},
 			endTurn: function () {
 				game.turn++;
