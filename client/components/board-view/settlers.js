@@ -63,7 +63,7 @@ var Board = function(game, getRoadDestination, vertices, tiles, scale) {
 	this.chip_shape = new THREE.Shape(circlePts);
 
 	this.tiles = this.drawBoard(tiles);
-	this.populateBoard(getRoadDestination);
+	this.populateBoard(getRoadDestination, tiles);
 };
 
 Board.prototype.drawBoard = function(tiles) {
@@ -237,8 +237,22 @@ Board.prototype.buildRoad = function(playerID, location1, location2){
 	var coords2 = this.verticesToCoordinates(location2);
 
 	// Set road angle
-	var x_diff = coords2[0] - coords1[0];
-	var angle = Math.asin(x_diff/(this.side_length + this.extrudeSettings.bevelSize));
+	if(coords1[0]<coords2[0]) {		//If road is going left
+		if(location1[0] % 2 === 0){		//If row # is even
+			var angle = Math.PI * 2 /3;
+		} else {
+			angle = Math.PI /3;
+		}
+	}
+	else if(coords1[0]>coords2[0]) {	//If road is going right
+		if(location1[0] % 2 === 0){
+			angle = Math.PI /3;
+		} else {
+			angle = Math.PI * 2 /3;
+		}
+	} else {							//If road is vertical
+		angle = 0;
+	}
 	road.rotation.set(0, angle, 0);
 
 	// Set road position
@@ -252,7 +266,7 @@ Board.prototype.buildRoad = function(playerID, location1, location2){
 };
 
 //Draws roads and buildings on board for game in progress
-Board.prototype.populateBoard = function(getRoadDestination) {
+Board.prototype.populateBoard = function(getRoadDestination, tiles) {
 	var vertices=[];
 	for(var row=0, num_rows=this.boardVertices.length; row < num_rows; row++) {
 		var vertices_row=[];
@@ -266,7 +280,7 @@ Board.prototype.populateBoard = function(getRoadDestination) {
 				this.game.scene.add(obj.building.building);
 			}
 			for(var key in this.boardVertices[row][col].connections){
-				if(!!this.boardVertices[row][col].connections[key]){
+				if(this.boardVertices[row][col].connections[key] !== null){
 					obj[key] = this.boardVertices[row][col].connections[key];
 					var destination = getRoadDestination.call(this, [row, col], key);
 					if(!!destination && (row<destination[0] || col<destination[1])){
@@ -276,6 +290,10 @@ Board.prototype.populateBoard = function(getRoadDestination) {
 						this.game.scene.add(obj.connections[key]);
 					}
 				}
+			}
+
+			if(!!tiles[row] && !!tiles[row][col] && tiles[row][col].robber === true){
+				this.drawRobber([row, col]);
 			}
 			vertices_row.push(obj);
 		}
@@ -430,29 +448,37 @@ Building.prototype.makeGeometry = function(shape){
 	return building;
 };
 
-Board.prototype.drawRobber = function(){
+Board.prototype.drawRobber = function(location){
 	var points = [];
-	var neck_width;
-	for ( var i = 0; i < 30; i++ ) {
+	var prev_width;
+	var side_length = this.side_length;
+	points_length = 35;
+	for ( var i = 0; i < points_length; i++ ) {
 		if(i<3){
-			points.push(new THREE.Vector3( l/5, 0, i ) );
+			points.push(new THREE.Vector3( side_length/5, 0, i ) );
 		}
 		else if (i>=3 && i<=4){
-			points.push(new THREE.Vector3( l/5 - (i-2), 0, i ) );
+			points.push(new THREE.Vector3( side_length/5 - (i-2), 0, i ) );
 		}
 		else if (i>=5 && i<=20){
-			points.push(new THREE.Vector3( l/5 + Math.sin((i-5)/10*Math.PI), 0, i*1.2 ) );
-			neck_width = l/5 + Math.sin((i-5)/10*Math.PI);
+			points.push(new THREE.Vector3( side_length/5 + Math.sin((i-5)/10*Math.PI), 0, i*1.2 ) );
 		}
 		else if (i>=21 && i<30){
-			points.push(new THREE.Vector3( l/5 + Math.cos((i-21)/10*Math.PI), 0, i*1.2 ) );
+			points.push(new THREE.Vector3( side_length/5 + Math.cos((i-21)/10*Math.PI), 0, i*1.2 ) );
+			prev_width = side_length/5 + Math.cos((i-21)/10*Math.PI);
 		}
+		// else if(i>=31 && i<points_length){
+		// 	var percent = (points_length-i)/points_length;
+		// 	points.push(new THREE.Vector3(prev_width - (Math.sin(Math.PI * percent *prev_width), 0, i*1.2)));
+		// }
 	}
 
 	var geometry = new THREE.LatheGeometry( points);
 	var material = new THREE.MeshLambertMaterial( { color: 0x111111 } );
-	var lathe = new THREE.Mesh( geometry, material );
-	lathe.rotation.set(Math.PI,Math.PI/2,0);
-	lathe.position.set(0,20,0);
-	return lathe;
+	var robber = new THREE.Mesh( geometry, material );
+	var coords = this.indicesToCoordinates(location);
+	robber.rotation.set(Math.PI/-2,0,0);
+	robber.position.set(coords[0],0,coords[1]);
+	this.game.scene.add(robber);
+	return robber;
 };

@@ -4,6 +4,7 @@ angular.module('settlersApp')
   .factory('boardFactory', function() {
 
     var camera, scene, renderer, controls, light, water, game_board;
+
     var canvas_width = $(window).width();
     var canvas_height = 500;
 
@@ -17,7 +18,7 @@ angular.module('settlersApp')
       var camera_z = -300;
       camera.position.set( camera_x, 200, camera_z );
 
-      var canvas_element = $("#board-canvas");
+      
       controls = new THREE.OrbitControls( camera, renderer.domElement );
       // controls.autoRotate=true;
       controls.noPan = true;
@@ -131,11 +132,12 @@ angular.module('settlersApp')
 
   return {
     drawGame: function(game) {
-
       init(game);
     },
     insert: function() {
       $("#board_container").prepend( renderer.domElement );
+      $("#board-canvas").addClass( 'full' );
+
       $('#board-canvas').on('mousewheel', function(e) {
           e.preventDefault();
           e.stopPropagation();
@@ -151,30 +153,28 @@ angular.module('settlersApp')
     },
     placeSettlement: function(playerID, location){
       var row=location[0], col=location[1];
-
-      if(!game.board.boardVertices[row][col].building){
-        var coords = game.board.verticesToCoordinates(location);
-        coords[1]-=game.board.building_depth/1.5;
-        var settlement = new Building(game.board, "settlement", coords[0], coords[1], "red");
-        game.board.boardVertices[row][col].building=settlement;
+      if(!game_board.board.boardVertices[row][col].building){
+        var coords = game_board.board.verticesToCoordinates(location);
+        coords[1]-=game_board.board.building_depth/1.5;
+        var settlement = new Building(game_board.board, "settlement", playerID, coords[0], coords[1]);
+        game_board.board.boardVertices[row][col].building=settlement;
         scene.add(settlement.building);
       }
     },
     upgradeSettlementToCity: function(playerID, location){
       var row=location[0], col=location[1];
-      var vertex_building = game.board.boardVertices[row][col].building;
+      var vertex_building = game_board.board.boardVertices[row][col].building;
       scene.remove(vertex_building.building);
       vertex_building.cityShape();
       scene.add(vertex_building.building);
     },
     getGame: function(){
-      return game;
+      return game_board;
     }
   };
 })
 .controller('BoardCtrl', function(boardFactory, engineFactory, $scope, $compile){
   boardFactory.insert();
-  var game = engineFactory.getGame();
   $compile($('#board_container'))($scope);
   $scope.whatPlayerAmI = 0;
   $scope.playerData = engineFactory.getGame().players[0];
