@@ -3,11 +3,11 @@
 angular.module('settlersApp')
   .factory('boardFactory', function() {
 
-    var camera, scene, renderer, controls, light, water, game;
+    var camera, scene, renderer, controls, light, water, game_board;
     var canvas_width = $(window).width();
     var canvas_height = 500;
 
-    var init = function(small_num, big_num) {
+    var init = function(game) {
 
       scene = new THREE.Scene();
 
@@ -31,20 +31,21 @@ angular.module('settlersApp')
 
       scene.add( renderWater() );
 
-      game = new Game(scene, small_num, big_num);
+      game_board = new Game(scene, game);
 
-      controls.addEventListener( 'change', function()
-{        var num_rows = game.board.tiles.length;
-
+      controls.addEventListener( 'change', function() {        
+        var num_rows = game_board.board.tiles.length;
         var angle = Math.atan(camera.position.x/camera.position.z);
         if(camera.position.z>0){
           angle+= Math.PI;
         }
 
         for(var row=0; row<num_rows; row++){
-          var num_cols = game.board.tiles[row].length;
+          var num_cols = game_board.board.tiles[row].length;
           for(var col=0; col<num_cols; col++){
-            game.board.tiles[row][col].chit.rotation.set(Math.PI/2, Math.PI, angle);
+            if(!!game_board.board.tiles[row][col].chit){
+              game_board.board.tiles[row][col].chit.rotation.set(Math.PI/2, Math.PI, angle);
+            }
           }
         }
       });
@@ -91,7 +92,7 @@ angular.module('settlersApp')
       var pos = camera.position.clone().add( dir.multiplyScalar( distance ) );
       pos.x*= -1;
       // console.log(pos.x, pos.z);
-      console.log(game.board.coordinatesToVertices([pos.x, pos.z]));
+      console.log(game_board.board.coordinatesToVertices([pos.x, pos.z]));
     });
     return renderer;
   };
@@ -128,18 +129,17 @@ angular.module('settlersApp')
     renderer.setSize($(window).width(), canvas_height);
   });
 
-  init(3, 5);
-  animate();
-  // setInterval(animate, 85);
-
   return {
+    drawGame: function(game) {
+      init(game);
+    },
     insert: function() {
       $("#board_container").prepend( renderer.domElement );
       $('#board-canvas').on('mousewheel', function(e) {
-          if (e.target.id == 'el') return;
           e.preventDefault();
           e.stopPropagation();
       });
+      animate();
     },
     newBoard: function(small_num, big_num){
       renderer.delete;
@@ -149,7 +149,6 @@ angular.module('settlersApp')
       animate();
     },
     placeSettlement: function(playerID, location){
-      // Need to refactor this so we can keep track of things built on board
       var row=location[0], col=location[1];
       if(!game.board.boardVertices[row][col].building){
         var coords = game.board.verticesToCoordinates(location);
