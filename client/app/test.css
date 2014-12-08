@@ -69,10 +69,10 @@
                 width: 200px;
                 height: 130px;
             }
-   .diceHolder a.dicon img {
+   .diceHolder span.dicon img {
                 margin-top: -30px;
             }
-   .diceHolder a.num {
+   .diceHolder span.num {
 
                 font-family: "FontAwesome";
                 color: rgb(37,37,37);
@@ -96,7 +96,7 @@
                 left: 60px;
                 border:5px solid #e1e1e1;
             }
-            .diceHolder a.dicon {
+            .diceHolder span.dicon {
                  font-family: "FontAwesome";
                  color: rgb(37,37,37);
                  text-shadow: 0px 1px 1px rgba(250,250,250,0.1);
@@ -122,7 +122,7 @@
                  border-left-color:#ede8c2;
                  border-bottom-color:#ede8c2;*/
              }
-             .diceHolder a.dicon:before{
+             .diceHolder span.dicon:before{
                                 /* gradient border */
                 content:'';
                 position:absolute;
@@ -140,7 +140,7 @@
                     background: linear-gradient(135deg, #f5f2dc 0%,#6b5729 100%);
              }
 
-            .diceHolder a:before {
+            .diceHolder span:before {
                 content: "";
                 width: 80px;
                 height: 80px;
@@ -155,23 +155,75 @@
                             inset 0px 1px 2px rgba(0, 0, 0, 0.5);
 
             }
-           .diceHolder a:active {
-                box-shadow: 0px 0px 0px 0px rgb(34,34,34), /* 1st Shadow */
-                            0px 3px 7px 0px rgb(17,17,17), /* 2nd Shadow */
-                            inset 0px 1px 1px 0px rgba(250, 250, 250, .2), /* 3rd Shadow */ 
-                            inset 0px -10px 35px 5px rgba(0, 0, 0, .5); /* 4th Shadow */
-                background-color: rgb(83,87,93);
-                top: 3px;
-            }
-          .diceHolder  a:active:before, .buttonHolder a:target:before {
-                top: -5px;
-                background-color: rgb(26,27,29);
-                box-shadow: 0px 1px 0px 0px rgba(250,250,250,0.1), 
-                            inset 0px 1px 2px rgba(0, 0, 0, 0.5);
-            }
-            
             
    /* end die roll view */
+
+  /* begin button holder view */
+    .buttonHolder {
+      width:430px;
+      height:100px;
+      position:absolute;
+      top:42px;
+      right:0;
+
+    }
+    .buttonHolder a.tlk, .buttonHolder a.bld, .buttonHolder a.trd, .buttonHolder a.end {
+    font-family: "FontAwesome";
+    color: rgb(37,37,37);
+    text-shadow: 0px 1px 1px rgba(250,250,250,0.1);
+    font-size: 54pt;
+    display: block;
+    position: absolute;
+    text-decoration: none;
+    background-color: #fff;
+    /* background-color: rgb(83,87,93); */
+    box-shadow: 0px 3px 0px 0px rgb(34,34,34), 0px 5px 7px 0px rgb(17,17,17), inset 0px -12px 35px 0px rgba(0, 0, 0, .5);
+    width: 80px;
+    height: 80px;
+    border: 0;
+    text-align: center;
+    line-height: 117px;
+
+    border: 5px solid #e1e1e1;
+    }
+    .buttonHolder a.tlk {
+          top: 0px;
+          left: 10px;
+          width: 60px;
+          height: 60px;
+          border-radius:50%;
+    }
+    .buttonHolder a.tlk img{
+          margin-top:-70px;
+    }
+
+    .buttonHolder a.bld {
+      top: 10px;
+      left: 80px;
+    }
+    .buttonHolder a.bld img{
+      margin-top:-51px;
+    }
+
+    .buttonHolder a.trd {
+      top: 10px;
+      left: 170px;
+    }
+    .buttonHolder img {
+      margin-top:-52px;
+    }
+
+    .buttonHolder a.end {
+      top: 10px;
+      left: 260px;
+    }
+
+    .buttonHolder a:active {
+    box-shadow: 0px 0px 0px 0px rgb(34,34,34), /* 1st Shadow */ 0px 3px 7px 0px rgb(17,17,17), /* 2nd Shadow */ inset 0px 1px 1px 0px rgba(250, 250, 250, .2), /* 3rd Shadow */ inset 0px -10px 35px 5px rgba(0, 0, 0, .5);
+    background-color: rgb(83,87,93);
+    }
+
+  /* end button holder view  */
 
     /* begin player display */
     .app {
