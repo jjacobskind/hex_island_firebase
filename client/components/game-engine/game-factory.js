@@ -37,7 +37,6 @@ angular.module('settlersApp')
 			    	parseJSON(persistedData.boardVertices, function(data){game.gameBoard.boardVertices = data});
 			    	parseJSON(persistedData.turn, function(data){game.turn = data});
 			    	parseJSON(persistedData.currentPlayer, function(data){game.currentPlayer = data});
-			    	parseJSON(persistedData.diceRolled, function(data){game.diceRolled = data});
 			    	boardFactory.drawGame(game);
 			    	console.log('data loaded');
 

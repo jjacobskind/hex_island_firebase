@@ -50,8 +50,7 @@ GameEngine.prototype.roll = function() {
     var firstRoll = Math.floor(Math.random() * 6) + 1,
         secondRoll = Math.floor(Math.random() * 6) + 1,
         sumDice = firstRoll + secondRoll;
-        this.diceNumber = +sumDice;
-        this.diceRolled = true;
+        this.diceNumber = sumDice;
         return sumDice;
 };
 
@@ -136,18 +135,9 @@ GameEngine.prototype.distributeResources = function(sumDice) {
 };
 
 GameEngine.prototype.tradeResources = function(firstPlayer, firstResource, secondPlayer, secondResource) {
-  // arguments should be formatted as follows [game.players[x], 'resource', number to shift],
-  // example: game.tradeResources(game.players[0], {brick: 1}, game.players[1], {wool: 2});
-  // in a situation where
-  // player0 is giving 2 wool to player2 for 1 brick
-  // player0 will decrease 1 brick, and increase 1 wool
-  // player1 will increase 1 brick, and decrease 1 wool
-  // game.tradeResources(game.players[0], {brick: 1}, game.players[1], {wool: 1, grain: 1});
-  // player0 will increase 1 grain and 1 wool and decrease 1 brick
-  // player1 will increase 1 brick and decrease 1 wool and 1 grain
 
-  var playerOne = firstPlayer;
-  var playerTwo = secondPlayer;
+  var playerOne = game.players[firstPlayer];
+  var playerTwo = game.players[secondPlayer];
   for (var resource in firstResource) {
     playerOne.resources[resource] = playerOne.resources[resource] - firstResource[resource];
     playerTwo.resources[resource] = playerTwo.resources[resource] + firstResource[resource];

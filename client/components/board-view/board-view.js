@@ -177,12 +177,29 @@ angular.module('settlersApp')
   boardFactory.insert();
   $compile($('#board_container'))($scope);
   $scope.whatPlayerAmI = 0;
-  $scope.currentTurn = null;
+  $scope.currentTurn = engineFactory.getGame().turn;
   $rootScope.playerData = engineFactory.getGame().players[$scope.whatPlayerAmI];
   $scope.playerData = $rootScope.playerData;
+  $scope.playerHasRolled = false;
+  $scope.currentPlayer = engineFactory.getGame().currentPlayer;
+  
+  $scope.nextTurn = function(){
+    if ($scope.playerHasRolled === false && 
+      $scope.currentPlayer === $scope.whatPlayerAmI){
+          engineFactory.endTurn();
+          $scope.playerHasRolled = false;
+          $scope.currentPlayer = engineFactory.getGame().currentPlayer;
+        }
+  }
 
   $scope.rollDice = function(){
-    engineFactory.rollDice();
+    if ($scope.playerHasRolled === false && 
+      $scope.currentPlayer === $scope.whatPlayerAmI)
+      {
+        $scope.playerHasRolled = true;
+        engineFactory.rollDice();
+      }
+
     $scope.currentRoll = engineFactory.getGame().diceNumber;
   };
 
@@ -190,7 +207,8 @@ angular.module('settlersApp')
 
   engineFactory.getDataLink().child('games').child($rootScope.currentGameID).child('data').on("child_changed", function(data) {
     if (data.key() == 'turn') {
-      $scope.currentTurn = data.val()
+      $scope.currentTurn = data.val();
+      $scope.$apply();
     };
   });
 

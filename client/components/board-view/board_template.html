@@ -27,9 +27,9 @@
 	<!-- end HUD -->	
 	<div class="diceHolder">
 		<span href="#" id="button" class="dicon">
-			<img src="assets/svg/diceOpt.svg" height="40px" />
+			<a ng-click="rollDice()"><img src="assets/svg/diceOpt.svg" height="40px" /></a>
 		</span>
-		<span href="#" id="button" class="num">{{rollData}}</span>
+		<span href="#" id="button" class="num">{{currentRoll}}</span>
 	</div>
 	<!-- end dice roll view -->
 	
@@ -38,7 +38,7 @@
 	  <a href="#" id="button" class="tlk"><img src="assets/svg/chatboxOpt.svg" height="30px"></a>
 	  <a href="#" id="button" class="bld"><img src="assets/svg/hammerOpt.svg" height="60px"></a>
 	  <a href="#" id="button" class="trd"><img src="assets/svg/swapOpt.svg" height="60px"></a>
-	  <a href="#" id="button" class="end"><img src="assets/svg/ffwdOpt.svg" height="60px"></a>
+	  <a ng-click="nextTurn()" id="button" class="end"><img src="assets/svg/ffwdOpt.svg" height="60px"></a>
 	</div>
 	<!-- end button holder -->
 
