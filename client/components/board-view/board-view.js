@@ -136,7 +136,6 @@ angular.module('settlersApp')
     insert: function() {
       $("#board_container").prepend( renderer.domElement );
       $('#board-canvas').on('mousewheel', function(e) {
-          if (e.target.id == 'el') return;
           e.preventDefault();
           e.stopPropagation();
       });

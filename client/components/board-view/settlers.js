@@ -17,7 +17,7 @@ var Game = function(scene, game, scale) {
 
 var Board = function(game, vertices, tiles, scale) {
 	this.game = game;
-	this.boardVertices = vertices;
+	this.boardVertices=vertices; 
 	this.small_num = tiles[0].length
 	this.big_num = tiles[Math.floor(tiles.length/2)].length;
 	if(!!scale && scale>10) {
@@ -63,6 +63,7 @@ var Board = function(game, vertices, tiles, scale) {
 	this.chip_shape = new THREE.Shape(circlePts);
 
 	this.tiles = this.drawBoard(tiles);
+	this.populateBoard(vertices);
 };
 
 Board.prototype.drawBoard = function(tiles) {
@@ -231,7 +232,7 @@ Board.prototype.buildRoad = function(location1, location2){
 	pts.push(new THREE.Vector2(0, 0));
 	var shape = new THREE.Shape(pts);
 	var geometry = new THREE.ExtrudeGeometry(shape,{amount:depth, bevelEnabled:false});
-	var road = new THREE.Mesh(geometry, new THREE.MeshLambertMaterial({color: this.playerColor(), wireframe:false}));
+	var road = new THREE.Mesh(geometry, new THREE.MeshLambertMaterial({color: this.playerColor(this.game.playerID), wireframe:false}));
 	var coords1 = this.verticesToCoordinates(location1);
 	var coords2 = this.verticesToCoordinates(location2);
 
@@ -250,9 +251,30 @@ Board.prototype.buildRoad = function(location1, location2){
 	return road;
 };
 
+//Draws roads and buildings on board for game in progress
+Board.prototype.populateBoard = function() {
+	var vertices=[];
+	for(var row=0, num_rows=this.boardVertices.length; row < num_rows; row++) {
+		var vertices_row=[];
+		for(var col=0, num_cols=this.boardVertices[row].length; col < num_cols; col++){
+			var obj = {};
+			var settlement_or_city = this.boardVertices[row][col].hasSettlementOrCity;
+			if(!!settlement_or_city){
+				var coords = this.verticesToCoordinates([row, col]);
+				obj.building = new Building(this, settlement_or_city, this.boardVertices[row][col].owner, coords[0], coords[1]);
+				this.game.scene.add(obj.building.building);
+				console.log(obj.building.building);
+			}
+			vertices_row.push(obj);
+		}
+		vertices.push(vertices_row);
+	}
+	this.boardVertices = vertices;
+};
+
 // Returns color associated with this player
-Board.prototype.playerColor = function(){
-	switch(this.game.playerID) {
+Board.prototype.playerColor = function(playerID){
+	switch(playerID) {
 		case 0:
 			return 0xff0000;
 		case 1:
@@ -329,11 +351,11 @@ Tile.prototype.paintResource = function(resource){
 	}
 };
 
-var Building = function(board, building_type, x, z){
+var Building = function(board, building_type, owner, x, z){
 	this.board = board;
 	this.x = x;
 	this.z = z;
-	this.color = this.board.playerColor();
+	this.color = this.board.playerColor(owner);
 	this.building = null;
 
 	switch(building_type){
