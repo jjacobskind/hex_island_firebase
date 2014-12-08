@@ -237,8 +237,22 @@ Board.prototype.buildRoad = function(playerID, location1, location2){
 	var coords2 = this.verticesToCoordinates(location2);
 
 	// Set road angle
-	var x_diff = coords2[0] - coords1[0];
-	var angle = Math.asin(x_diff/(this.side_length + this.extrudeSettings.bevelSize));
+	if(coords1[0]<coords2[0]) {		//If road is going left
+		if(location1[0] % 2 === 0){		//If row # is even
+			var angle = Math.PI * 2 /3;
+		} else {
+			angle = Math.PI /3;
+		}
+	}
+	else if(coords1[0]>coords2[0]) {	//If road is going right
+		if(location1[0] % 2 === 0){
+			angle = Math.PI /3;
+		} else {
+			angle = Math.PI * 2 /3;
+		}
+	} else {							//If road is vertical
+		angle = 0;
+	}
 	road.rotation.set(0, angle, 0);
 
 	// Set road position
@@ -266,7 +280,7 @@ Board.prototype.populateBoard = function(getRoadDestination) {
 				this.game.scene.add(obj.building.building);
 			}
 			for(var key in this.boardVertices[row][col].connections){
-				if(!!this.boardVertices[row][col].connections[key]){
+				if(this.boardVertices[row][col].connections[key] !== null){
 					obj[key] = this.boardVertices[row][col].connections[key];
 					var destination = getRoadDestination.call(this, [row, col], key);
 					if(!!destination && (row<destination[0] || col<destination[1])){
