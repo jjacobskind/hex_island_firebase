@@ -1,7 +1,7 @@
 'use strict';
 
 angular.module('settlersApp')
-	.factory('engineFactory', function($q, boardFactory){
+	.factory('engineFactory', function($q, boardFactory, $rootScope){
 		var game;
 
 		var gameID;
@@ -35,6 +35,8 @@ angular.module('settlersApp')
 			    	parseJSON(persistedData.players, function(data){game.players = data});
 			    	parseJSON(persistedData.boardTiles, function(data){game.gameBoard.boardTiles = data});
 			    	parseJSON(persistedData.boardVertices, function(data){game.gameBoard.boardVertices = data});
+			    	parseJSON(persistedData.turn, function(data){game.turn = data});
+			    	parseJSON(persistedData.currentPlayer, function(data){game.currentPlayer = data});
 			    	boardFactory.drawGame(game);
 			    	console.log('data loaded');
 
@@ -65,9 +67,6 @@ angular.module('settlersApp')
 				gameID = Date.now();
 				gameDatabase = dataLink.child('games').child(gameID);
 				currentGameData = gameDatabase.child('data');
-
-
-
 				currentGameData.on("child_changed", function(childSnapshot) {
 				  var dataToSanitize = childSnapshot.val();
 				  var keyName = childSnapshot.key();
@@ -105,6 +104,7 @@ angular.module('settlersApp')
 				  	}
 				  }
 				});
+				$rootScope.playerData = game.players[0];
 				syncDatabase(game);
 				return game;	
 			},
@@ -153,6 +153,24 @@ angular.module('settlersApp')
 			restorePreviousSession: function(gameID) {
 					gameDatabase = dataLink.child('games').child(gameID);
 					currentGameData = gameDatabase.child('data');	
+					currentGameData.on("child_changed", function(childSnapshot) {
+					  var dataToSanitize = childSnapshot.val();
+					  console.log('time to sync')
+					  var keyName = childSnapshot.key();
+					  switch (keyName) {
+					    case "players":
+					      var callback = function(data) {game.players = data};
+					      break;
+					    case "boardTiles":
+					      callback = function(data) {game.gameBoard.boardTiles = data};
+					      break;
+					    case "boardVertices":
+					      callback = function(data) { return game.findObjectDifferences(game.gameBoard.boardVertices, data)};//function(data) {game.gameBoard.boardVertices = data};
+					      break;
+					    default:
+					      callback = function(data) {throw new Error ('incident occurred with this data: ', data)};
+					      break;
+					  }});
 					return boardSync(currentGameData);
 					//promise resolution once boardsync finishes
 			},
@@ -186,15 +204,27 @@ angular.module('settlersApp')
 				}
 				updateFireBase(updates);
 			},
+			currentDiceRoll: function(){
+				console.log(game)
+				return game.diceNumber;
+			},
 			rollDice: function() {
 				//tell player they can build and trade after this is done
 				var diceRoll = game.roll();
 				game.distributeResources(diceRoll);
-				currentGameData.child('players').set(JSON.stringify(game.players));
+				var onComplete = function() {
+					game.players[$rootScope.playerData.playerID] = $rootScope.playerData;
+					$rootScope.$digest();
+				};
+				currentGameData.child('players').set(JSON.stringify(game.players), onComplete);
 				return diceRoll;
 			},
 			endTurn: function () {
 				game.turn++;
+				game.calculatePlayerTurn();
+				game.diceRolled = false;
+				game.diceNumber = null;
+				var updates = {};
 				for (var prop in game) {
 					if (prop !== 'gameBoard' && prop !== 'players') {
 						if (game.hasOwnProperty(prop)) {

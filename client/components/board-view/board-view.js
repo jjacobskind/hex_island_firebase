@@ -173,14 +173,45 @@ angular.module('settlersApp')
     }
   };
 })
-.controller('BoardCtrl', function(boardFactory, engineFactory, $scope, $compile){
+.controller('BoardCtrl', function(boardFactory, engineFactory, $scope, $compile, $rootScope, $timeout){
   boardFactory.insert();
   $compile($('#board_container'))($scope);
   $scope.whatPlayerAmI = 0;
-  $scope.playerData = engineFactory.getGame().players[0];
+  $scope.currentTurn = engineFactory.getGame().turn;
+  $rootScope.playerData = engineFactory.getGame().players[$scope.whatPlayerAmI];
+  $scope.playerData = $rootScope.playerData;
+  $scope.playerHasRolled = false;
+  $scope.currentPlayer = engineFactory.getGame().currentPlayer;
+  
+  $scope.nextTurn = function(){
+    if ($scope.playerHasRolled === false && 
+      $scope.currentPlayer === $scope.whatPlayerAmI){
+          engineFactory.endTurn();
+          $scope.playerHasRolled = false;
+          $scope.currentPlayer = engineFactory.getGame().currentPlayer;
+        }
+  }
+
   $scope.rollDice = function(){
-    engineFactory.rollDice()
+    if ($scope.playerHasRolled === false && 
+      $scope.currentPlayer === $scope.whatPlayerAmI)
+      {
+        $scope.playerHasRolled = true;
+        engineFactory.rollDice();
+      }
+
+    $scope.currentRoll = engineFactory.getGame().diceNumber;
   };
+
+  $scope.currentRoll = engineFactory.currentDiceRoll();
+
+  engineFactory.getDataLink().child('games').child($rootScope.currentGameID).child('data').on("child_changed", function(data) {
+    if (data.key() == 'turn') {
+      $scope.currentTurn = data.val();
+      $scope.$apply();
+    };
+  });
+
 }) 
 .directive('board', function() {
     return {
