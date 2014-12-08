@@ -177,6 +177,7 @@ angular.module('settlersApp')
   boardFactory.insert();
   $compile($('#board_container'))($scope);
   $scope.whatPlayerAmI = 0;
+  $scope.currentTurn = null;
   $rootScope.playerData = engineFactory.getGame().players[$scope.whatPlayerAmI];
   $scope.playerData = $rootScope.playerData;
 
@@ -187,9 +188,10 @@ angular.module('settlersApp')
 
   $scope.currentRoll = engineFactory.currentDiceRoll();
 
-  $rootScope.$watch('playerData', function(){
-    $rootScope.playerData = engineFactory.getGame().players[$scope.whatPlayerAmI];
-    console.log('alert')
+  engineFactory.getDataLink().child('games').child($rootScope.currentGameID).child('data').on("child_changed", function(data) {
+    if (data.key() == 'turn') {
+      $scope.currentTurn = data.val()
+    };
   });
 
 }) 

@@ -12,7 +12,7 @@ angular.module('settlersApp')
     $scope.previousGameIDs = undefined;
     $scope.userJoiningCurrentGame = false;
     $scope.currentUserData = authData;
-    $scope.currentGameID = null;
+    $rootScope.currentGameID = null;
     $scope.whatPlayerAmI = undefined;
     $scope.playerData = null;
 
@@ -64,6 +64,7 @@ angular.module('settlersApp')
             console.log('game loaded')
             var game = engineFactory.getGame();
             $scope.gameIsLoaded = true;
+            $rootScope.currentGameID = gameID;
             boardFactory.drawGame(game);
             if (newPlayer)
                 {   
@@ -120,6 +121,7 @@ angular.module('settlersApp')
             }
             else {
                 $scope.loadPreviousGame(id, 'newPlayer');
+                $rootScope.currentGameID = gameID;
             }
         }); 
         dataLink.child('games').child(id).child('users').push(authData.uid); 
