@@ -1,166 +1,8 @@
 /* fonts */
-/*  @font-face 
-  {
-    font-family: 'Minecrafter';
-    src: url('assets/fonts/Minecrafter.woff'); /* support for all modern browsers */
-  }*/
-
   body {
     font-family: 'Muli', sans-serif;
     color:#fff;
   }
-
-  /* Title page */
-
-    .frontpgBG {
-      min-height:100%;
-      background-image: url("http://www.mrwallpaper.com/wallpapers/Cute-Puppy-Kitten.jpg");
-    }
-
-      html, body{
-        /*font-family: 'Muli', sans-serif;*/
-        font-family: 'Muli';
-        text-shadow:none;
-      }
-
-      .site-wrapper-inner {
-      vertical-align: middle;
-      }
-
-      .site-wrapper-inner {
-      display: table-cell;
-      vertical-align: top;
-      }
-
-      .cover-container {
-      margin-right: auto;
-      margin-left: auto;
-      }
-
-      @media (min-width: 992px)
-      .masthead, .mastfoot, .cover-container {
-      width: 700px;
-      }
-
-      @media (min-width: 768px)
-      .masthead, .mastfoot, .cover-container {
-      width: 100%;
-      }
-
-      .mastfoot{
-        text-align: center;
-      }
-
-      h1.gameTitle{
-        font-size: 130px;
-        font-weight: 200;
-        text-align: center;
-        text-shadow: 0 1px 3px rgba(0,0,0,1);
-        margin-bottom: 100px;
-      }
-
-
-      .login{
-        position: absolute;
-        top: calc(50% - 75px);
-        left: calc(50% - 50px);
-        height: 150px;
-        width: 350px;
-        padding: 10px;
-        z-index: 2;
-      }
-
-      .login input[type=text]{
-        width: 250px;
-        height: 30px;
-        background: transparent;
-        border: 1px solid rgba(255,255,255,0.6);
-        border-radius: 2px;
-        color: #fff;
-        font-family: 'Exo', sans-serif;
-        font-size: 16px;
-        font-weight: 400;
-        padding: 4px;
-      }
-
-      .login input[type=password]{
-        width: 250px;
-        height: 30px;
-        background: transparent;
-        border: 1px solid rgba(255,255,255,0.6);
-        border-radius: 2px;
-        color: #fff;
-        font-family: 'Exo', sans-serif;
-        font-size: 16px;
-        font-weight: 400;
-        padding: 4px;
-        margin-top: 10px;
-      }
-
-      .login input[type=button]{
-        width: 260px;
-        height: 35px;
-        background: #fff;
-        border: 1px solid #fff;
-        cursor: pointer;
-        border-radius: 2px;
-        color: #a18d6c;
-        /*font-family: 'Exo', sans-serif;*/
-        font-family: 'Muli', sans-serif;
-        font-size: 16px;
-        font-weight: 400;
-        padding: 6px;
-        margin-top: 10px;
-      }
-
-      .lead a.loginBtn{
-        text-decoration: none;
-        width: 260px;
-        height: 35px;
-        background: #fff;
-  /*      border: 1px solid #fff;*/
-        cursor: pointer;
-        border-radius: 2px;
-        color: #a18d6c;
-        /*font-family: 'Exo', sans-serif;*/
-        /*font-family: 'Muli', sans-serif;*/
-        font-family: 'Minecrafter';
-        font-size: 16px;
-        font-weight: 400;
-        padding: 14px 30px;
-        margin-top: 10px;
-      }
-
-
-      .lead a.loginBtn:hover{
-        opacity: 0.8;
-      }
-
-      .lead a.loginBtn:active{
-        opacity: 0.6;
-      }
-
-      .lead a.loginBtn:focus{
-        outline: none;
-        border: 1px solid rgba(255,255,255,0.9);
-      }
-
-      .lead input[type=password]:focus{
-        outline: none;
-        border: 1px solid rgba(255,255,255,0.9);
-      }
-
-      .lead input[type=button]:focus{
-        outline: none;
-      }
-
-      ::-webkit-input-placeholder{
-         color: rgba(255,255,255,0.6);
-      }
-
-      ::-moz-input-placeholder{
-         color: rgba(255,255,255,0.6);
-      }
 
    /* Heads up display */
     #board_container{
@@ -169,7 +11,7 @@
         height:500px;
         overflow:hidden;
     }
-
+    
     canvas {
       width:100%;
       height:100%;
@@ -321,7 +163,7 @@
                 background-color: rgb(83,87,93);
                 top: 3px;
             }
-          .diceHolder  a:active:before {
+          .diceHolder  a:active:before, .buttonHolder a:target:before {
                 top: -5px;
                 background-color: rgb(26,27,29);
                 box-shadow: 0px 1px 0px 0px rgba(250,250,250,0.1), 
@@ -362,69 +204,6 @@
     }
 
     /* end player display */
-
-    /* begin button holder */
-    .buttonHolder {
-      width:430px;
-      height:100px;
-      position:absolute;
-      top:42px;
-      right:0;
-
-    }
-    .buttonHolder a.tlk, .buttonHolder a.bld, .buttonHolder a.trd, .buttonHolder a.end {
-    font-family: "FontAwesome";
-    color: rgb(37,37,37);
-    text-shadow: 0px 1px 1px rgba(250,250,250,0.1);
-    font-size: 54pt;
-    display: block;
-    position: absolute;
-    text-decoration: none;
-    background-color: #fff;
-    /* background-color: rgb(83,87,93); */
-    box-shadow: 0px 3px 0px 0px rgb(34,34,34), 0px 5px 7px 0px rgb(17,17,17), inset 0px -12px 35px 0px rgba(0, 0, 0, .5);
-    width: 80px;
-    height: 80px;
-    border: 0;
-    text-align: center;
-    line-height: 117px;
-
-    border: 5px solid #e1e1e1;
-    }
-    .buttonHolder a.tlk {
-          top: 0px;
-          left: 10px;
-          width: 60px;
-          height: 60px;
-          border-radius:50%;
-    }
-    .buttonHolder a.tlk img{
-          margin-top:-70px;
-    }
-
-    .buttonHolder a.bld {
-      top: 10px;
-      left: 80px;
-    }
-    .buttonHolder a.bld img{
-      margin-top:-51px;
-    }
-
-    .buttonHolder a.trd {
-      top: 10px;
-      left: 170px;
-    }
-    .buttonHolder img {
-      margin-top:-52px;
-    }
-
-    .buttonHolder a.end {
-      top: 10px;
-      left: 260px;
-    }
-    /* end button holder */
-
-
     /* test buttons*/
     :before, :after {
       -webkit-box-sizing: border-box;
