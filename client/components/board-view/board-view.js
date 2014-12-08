@@ -132,8 +132,6 @@ angular.module('settlersApp')
 
   return {
     drawGame: function(game) {
-      game.gameBoard.boardVertices[0][2].owner = 2;
-      game.gameBoard.boardVertices[0][2].hasSettlementOrCity = "settlement";
 
       init(game);
     },

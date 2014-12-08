@@ -35,7 +35,7 @@ angular.module('settlersApp')
 			    	parseJSON(persistedData.players, function(data){game.players = data});
 			    	parseJSON(persistedData.boardTiles, function(data){game.gameBoard.boardTiles = data});
 			    	parseJSON(persistedData.boardVertices, function(data){game.gameBoard.boardVertices = data});
-
+			    	boardFactory.drawGame(game);
 			    	console.log('data loaded');
 
 			    	resolve('success');

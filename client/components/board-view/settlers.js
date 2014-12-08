@@ -110,7 +110,7 @@ Board.prototype.indicesToCoordinates = function(indices){
 	x_pos=(col-half_col) * this.side_length * 2;
 	var z_pos = (row-middle_row) * this.side_length * 2;
 	z_pos-=(row-middle_row)*10*this.scale;
-	return [x_pos, z_pos];
+	return [-x_pos, -z_pos];
 };
 
 Board.prototype.coordinatesToVertices = function(coordinates){
