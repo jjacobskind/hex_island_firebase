@@ -1,7 +1,7 @@
 'use strict';
 
 angular.module('settlersApp')
-  .controller('MainCtrl', function ($scope, boardFactory, engineFactory, $q) {
+  .controller('MainCtrl', function ($scope, $rootScope, boardFactory, engineFactory, $q) {
     var self = this;
     self.small_num = 3;
     self.big_num = 5;
@@ -14,6 +14,7 @@ angular.module('settlersApp')
     $scope.currentUserData = authData;
     $scope.currentGameID = null;
     $scope.whatPlayerAmI = undefined;
+    $scope.playerData = null;
 
     var dataLink = engineFactory.getDataLink();
 
@@ -43,14 +44,10 @@ angular.module('settlersApp')
                 gameObject.playerNumber = 0
                 gameArray.push(gameObject);
                 dataLink.child('users').child(authData.uid).child('currentGames').set(gameArray)
-            }
-            $scope.game = game;
-            $scope.currentGameID = gameID;
-            engineFactory.addPlayer();
-            $scope.gameIsLoaded = true;
-            $scope.whatPlayerAmI = 0;
-            $scope.$digest();
-        })
+            }            $scope.currentGameID = gameID;
+        });
+        engineFactory.addPlayer();
+        $scope.gameIsLoaded = true;
     };
     $scope.loadGameDataForUser = function(){
         dataLink.child('users').child(authData.uid).once('value', function (databaseData) {
@@ -65,7 +62,9 @@ angular.module('settlersApp')
         engineFactory.restorePreviousSession(gameID)
         .then(function onSuccess(){
             console.log('game loaded')
+            var game = engineFactory.getGame();
             $scope.gameIsLoaded = true;
+            boardFactory.drawGame(game);
             if (newPlayer)
                 {   
                     engineFactory.addPlayer();
@@ -73,7 +72,7 @@ angular.module('settlersApp')
                     var gameObject = {};
                     gameObject.gameID = +gameID;
                     gameObject.playerNumber = $scope.whatPlayerAmI;
-                    dataLink.child('users').child(authData.uid).child('currentGames').push(gameObject)
+                    dataLink.child('users').child(authData.uid).child('currentGames').push(gameObject);
                 }
             else {
                 for (var game in $scope.previousGameIDs){
@@ -84,7 +83,12 @@ angular.module('settlersApp')
             }
         }, function onError() {
             console.log('error in loadPreviousGame')
-        });
+        })
+        .then(function(){
+            var game = engineFactory.getGame();
+            $scope.playerData = game.players[$scope.whatPlayerAmI];
+            $scope.gameIsLoaded = true;
+        })
     };
     $scope.loginOauth = function() {
         dataLink.authWithOAuthPopup("facebook", function(error, auth) {
@@ -99,8 +103,6 @@ angular.module('settlersApp')
               }
             });
     };
-
-    //push new gameID to their profile, then pull players.length-1, assign them the user
 
     $scope.joinCurrentGame = function(){
         $scope.userJoiningCurrentGame = true;

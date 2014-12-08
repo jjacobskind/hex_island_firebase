@@ -151,6 +151,7 @@ angular.module('settlersApp')
     },
     placeSettlement: function(playerID, location){
       var row=location[0], col=location[1];
+
       if(!game.board.boardVertices[row][col].building){
         var coords = game.board.verticesToCoordinates(location);
         coords[1]-=game.board.building_depth/1.5;
@@ -171,14 +172,21 @@ angular.module('settlersApp')
     }
   };
 })
-.controller('BoardCtrl', function(boardFactory){
+.controller('BoardCtrl', function(boardFactory, engineFactory, $scope, $rootScope, $compile){
   boardFactory.insert();
+  var game = engineFactory.getGame();
+  $compile($('#board_container'))($scope);
+  $scope.whatPlayerAmI = 0;
+  $scope.playerData = engineFactory.getGame().players[0];
+  $scope.rollDice = function(){
+    engineFactory.rollDice()
+  };
 }) 
 .directive('board', function() {
     return {
       restrict: 'E',
       templateUrl: 'components/board-view/board_template.html',
-      controller: 'BoardCtrl',
-      scope:true 
+      controller: 'BoardCtrl as board_ctrl',
+      scope: true
     };
   });
