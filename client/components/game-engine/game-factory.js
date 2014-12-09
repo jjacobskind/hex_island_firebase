@@ -129,12 +129,17 @@ angular.module('settlersApp')
 			},
 			_refreshDatabase: _refreshDatabase, 
 			buildSettlement: function(player, location){
+				var settlement_exists = (game.gameBoard.boardVertices[location[0]][location[1]].hasSettlementOrCity === "settlement")
 				var updates = game.buildSettlement(player, location);
 				if(updates.hasOwnProperty("err")){
 					console.log(updates.err);
 				}
 				else {
-					boardFactory.placeSettlement(player, location);
+					if(!settlement_exists){
+						boardFactory.placeSettlement(player, location);
+					} else {
+						boardFactory.upgradeSettlementToCity(player, location);
+					}
 					updateFireBase(updates);
 				}
 			},
