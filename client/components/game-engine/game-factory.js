@@ -18,7 +18,6 @@ angular.module('settlersApp')
 		function firebaseEventListener(){
 			//this will be applied on the new game and the existing game
 			currentGameData.on("child_changed", function(childSnapshot) {
-					console.log("Listener firing!");
 				  var dataToSanitize = childSnapshot.val();
 				  var keyName = childSnapshot.key();
 				  switch (keyName) {
