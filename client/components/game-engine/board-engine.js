@@ -630,3 +630,21 @@ GameBoard.prototype.getDevelopmentCard = function(player) {
     }
     currentGameData.child('players').set(JSON.stringify(game.players));
 };
+
+GameBoard.prototype.moveRobber = function(location) {
+    var old_location;
+    for(var row=0, num_rows=this.boardTiles.length; row<num_rows; row++){
+        for(var col=0, num_cols=this.boardTiles[row].length; col<num_cols; col++){
+            if(this.boardTiles[row][col].robber===true){
+                old_location = [row, col];
+            }
+        }
+    }
+
+    if(old_location!==location){
+        var old_row = old_location[0], old_col=old_location[1];
+        this.boardTiles[old_row][old_col].robber=false;
+        this.boardTiles[location[0]][location[1]].robber=true;
+        return {'boardTiles': JSON.stringify(this.boardTiles)};
+    }
+};

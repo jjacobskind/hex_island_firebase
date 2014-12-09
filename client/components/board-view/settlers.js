@@ -73,6 +73,10 @@ Board.prototype.drawBoard = function(tiles) {
 		var board_tile_row = [];
 
 		for(var col=0, num_cols=tiles[row].length;col<num_cols; col++){
+			if(tiles.robber===true){
+				console.log("here");
+				this.drawRobber([row, col]);
+			}
 			var coordinates = this.indicesToCoordinates([row, col]);
 			var obj=new Tile(this, coordinates, tiles[row][col].resource, tiles[row][col].chit);
 			this.game.scene.add(obj.tile);
@@ -492,7 +496,7 @@ Board.prototype.drawRobber = function(location){
 
 };
 
-Board.prototype.getTile = function(coords){
+Board.prototype.getTile = function(coords, cb){
 	var x=-coords[0], z=coords[1];
 	var side_length = this.side_length + this.extrudeSettings.bevelSize;
 	for(var row=0, num_rows=this.tiles.length; row<num_rows; row++){
@@ -511,7 +515,8 @@ Board.prototype.getTile = function(coords){
 				}
 
 				if(dist_from_center < horizontal_range*2){
-					return [row, col];
+					cb([row, col]);
+					return null;
 				}
 			}
 		}
@@ -521,13 +526,9 @@ Board.prototype.getTile = function(coords){
 
 // Function to move the robber
 // Refactor this later on to provide for multiple robbers,using a two-click process to select the correct robber and select the destination
-Board.prototype.moveRobber = function(coords){
-	var tile_indices = this.getTile(coords);
-	if(!tile_indices){
-		return;
-	}
-	var tile_center = this.indicesToCoordinates(tile_indices);
-	if(this.robbers.length=1){
+Board.prototype.moveRobber = function(destination){
+	var tile_center = this.indicesToCoordinates(destination);
+	if(this.robbers.length===1){
 		this.robbers[0].position.set(tile_center[0], 0, tile_center[1]);
 	}
 	return null;

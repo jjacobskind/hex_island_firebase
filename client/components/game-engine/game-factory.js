@@ -76,7 +76,7 @@ angular.module('settlersApp')
 				      var callback = function(data) {game.players = data};
 				      break;
 				    case "boardTiles":
-				      callback = function(data) {game.gameBoard.boardTiles = data};
+				      callback = function(data) {return game.findObjectDifferences(game.gameBoard.boardTiles, data)};
 				      break;
 				    case "boardVertices":
 				      callback = function(data) { return game.findObjectDifferences(game.gameBoard.boardVertices, data)};//function(data) {game.gameBoard.boardVertices = data};
@@ -139,6 +139,15 @@ angular.module('settlersApp')
 				} else {
 					var destination = game.gameBoard.getRoadDestination(location, direction);
 					drawRoad(location, destination);
+					updateFireBase(updates);
+				}
+			},
+			moveRobber: function(destination){
+				var updates = game.gameBoard.moveRobber.call(game.gameBoard, destination);
+				if(updates.hasOwnProperty("err")){
+					console.log(updates.err);
+				} else {
+					boardFactory.moveRobber(destination);
 					updateFireBase(updates);
 				}
 			},
