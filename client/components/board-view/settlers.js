@@ -11,14 +11,13 @@ var Game = function(scene, game, scale) {
 
 	this.board = new Board(this, game.gameBoard.getRoadDestination, game.gameBoard.boardVertices, game.gameBoard.boardTiles, scale);
 
-	// this.scene.add(this.board.drawRobber());
-
 };
 
 var Board = function(game, getRoadDestination, vertices, tiles, scale) {
 	this.game = game;
 	this.boardVertices=vertices; 
-	this.small_num = tiles[0].length
+	this.robbers = [];
+	this.small_num = tiles[0].length;
 	this.big_num = tiles[Math.floor(tiles.length/2)].length;
 	if(!!scale && scale>10) {
 		this.scale=10;
@@ -112,6 +111,14 @@ Board.prototype.indicesToCoordinates = function(indices){
 	z_pos-=(row-middle_row)*10*this.scale;
 	return [-x_pos, -z_pos];
 };
+
+// Board.prototype.coordinatesToIndices = function(coordinates) {
+// 	var x=coordinates[0], z=coordinates[1];
+// 	var small_num = this.small_num;
+// 	var big_num = this.big_num;
+// 	var num_rows = (big_num-small_num)*2 +1;
+	
+// };
 
 Board.prototype.coordinatesToVertices = function(coordinates){
 	var small_num = this.small_num;
@@ -467,11 +474,12 @@ Board.prototype.drawRobber = function(location){
 			points.push(new THREE.Vector3( side_length/5 + Math.cos((i-21)/10*Math.PI), 0, i*1.2 ) );
 			prev_width = side_length/5 + Math.cos((i-21)/10*Math.PI);
 		}
-		// else if(i>=31 && i<points_length){
-		// 	var percent = (points_length-i)/points_length;
-		// 	points.push(new THREE.Vector3(prev_width - (Math.sin(Math.PI * percent *prev_width), 0, i*1.2)));
-		// }
+		else if(i>=31 && i<points_length){
+			var percent = (i-30)/(points_length-30);
+			points.push(new THREE.Vector3(prev_width-(prev_width*Math.sin(percent*Math.PI/2)), 0, i));
+		}
 	}
+	points.push(new THREE.Vector3(0, 0, i));
 
 	var geometry = new THREE.LatheGeometry( points);
 	var material = new THREE.MeshLambertMaterial( { color: 0x111111 } );
@@ -480,5 +488,47 @@ Board.prototype.drawRobber = function(location){
 	robber.rotation.set(Math.PI/-2,0,0);
 	robber.position.set(coords[0],0,coords[1]);
 	this.game.scene.add(robber);
-	return robber;
+	this.robbers.push(robber);
+
+};
+
+Board.prototype.getTile = function(coords){
+	var x=-coords[0], z=coords[1];
+	var side_length = this.side_length + this.extrudeSettings.bevelSize;
+	for(var row=0, num_rows=this.tiles.length; row<num_rows; row++){
+		for(var col=0, num_cols=this.tiles[row].length; col<num_cols; col++){
+			var tile_center = this.indicesToCoordinates([row, col]);
+			var dist_from_tip = side_length - Math.abs(tile_center[1]-z);
+			if(dist_from_tip<side_length){		//Checking if z coordinate is within the highest/lowest tip of tile
+				var dist_from_center = Math.abs(tile_center[0]-x);
+
+				// Set meximum x offset portion of tile can have from its center for a given vertical coordinate
+				var horizontal_range = Math.tan(Math.PI/6) * dist_from_tip;
+
+				// Limit horizontal range for the center "rectangle" portion of tile
+				if(horizontal_range> side_length*Math.sin(Math.PI/6)) {
+					horizontal_range = side_length*Math.sin(Math.PI/6);
+				}
+
+				if(dist_from_center < horizontal_range*2){
+					return [row, col];
+				}
+			}
+		}
+	}
+	return null;
+};
+
+// Function to move the robber
+// Refactor this later on to provide for multiple robbers,using a two-click process to select the correct robber and select the destination
+Board.prototype.moveRobber = function(coords){
+	var tile_indices = this.getTile(coords);
+	if(!tile_indices){
+		return;
+	}
+	var tile_center = this.indicesToCoordinates(tile_indices);
+	if(this.robbers.length=1){
+		this.robbers[0].position.set(tile_center[0], 0, tile_center[1]);
+	}
+	return null;
 };

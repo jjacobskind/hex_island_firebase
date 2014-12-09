@@ -3,7 +3,7 @@
 angular.module('settlersApp')
   .factory('boardFactory', function() {
 
-    var camera, scene, renderer, controls, light, water, game_board;
+    var camera, scene, renderer, controls, light, water, game_board, someAction;
 
     var canvas_width = $(window).width();
     var canvas_height = 500;
@@ -92,8 +92,10 @@ angular.module('settlersApp')
 
       var pos = camera.position.clone().add( dir.multiplyScalar( distance ) );
       pos.x*= -1;
-      // console.log(pos.x, pos.z);
-      console.log(game_board.board.coordinatesToVertices([pos.x, pos.z]));
+      var click_coordinates = [pos.x, pos.z];
+      if(!!someAction){
+        someAction = someAction.call(game_board.board, click_coordinates);
+      }
     });
     return renderer;
   };
@@ -143,6 +145,9 @@ angular.module('settlersApp')
           e.stopPropagation();
       });
       animate();
+    },
+    moveRobber: function(){
+      someAction = game_board.board.moveRobber;
     },
     newBoard: function(small_num, big_num){
       renderer.delete;
