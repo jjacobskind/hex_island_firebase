@@ -6,7 +6,7 @@ angular.module('settlersApp')
     var camera, scene, renderer, controls, light, water, game_board, someAction;
 
     var canvas_width = $(window).width();
-    var canvas_height = 500;
+    var canvas_height = 800;
 
     var init = function(game) {
 
