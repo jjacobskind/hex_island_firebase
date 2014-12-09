@@ -392,10 +392,11 @@ Tile.prototype.paintResource = function(resource){
 	}
 };
 
-var Building = function(board, building_type, owner, x, z){
+var Building = function(board, building_type, owner, location){
 	this.board = board;
-	this.x = x;
-	this.z = z;
+	var coords = this.board.verticesToCoordinates(location);
+	this.x = coords[0];
+	this.z = coords[1];
 	this.color = this.board.playerColor(owner);
 	this.building = null;
 
@@ -454,8 +455,9 @@ Building.prototype.makeGeometry = function(shape){
 	var material = new THREE.MeshLambertMaterial( { color: this.color, wireframe: false } );
 
 	var building = new THREE.Mesh(building_geometry, material);
+	var rotation_angle = (Math.PI/6)*Math.floor(Math.random()*6);
 	building.position.set( this.x, 0, this.z );
-	building.rotation.set(0, (Math.PI/6)*Math.floor(Math.random()*6), 0);
+	// building.rotation.set(0, rotation_angle, 0);
 	return building;
 };
 
@@ -522,6 +524,25 @@ Board.prototype.getTile = function(coords, cb){
 		}
 	}
 	return null;
+};
+
+Board.prototype.getVertex = function(coords, cb){
+	var x=-coords[0], z=coords[1];
+	var radius = 15 * this.scale;
+	for(var row=0, num_rows=this.boardVertices.length; row<num_rows; row++){
+		for(var col=0, num_cols=this.boardVertices[row].length; col<num_cols; col++){
+			var vertex_coords = this.verticesToCoordinates([row, col]);
+			var x_diff = vertex_coords[0]-x;
+			var z_diff = vertex_coords[1]-z;
+			var distance_from_vertex = Math.sqrt(Math.pow(x_diff, 2) + Math.pow(z_diff, 2));
+			if(distance_from_vertex<radius){
+				cb(this.game.playerID, [row, col]);
+				// return null;
+			}
+		}
+	}
+	// return null;
+	return this.getVertex;
 };
 
 // Function to move the robber

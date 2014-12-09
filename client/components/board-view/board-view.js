@@ -34,8 +34,8 @@ angular.module('settlersApp')
 
       game_board = new Game(scene, game);
 
-      someAction = game_board.board.getTile;
-      updateEngine = angular.element(document.body).injector().get('engineFactory').moveRobber;
+      someAction = game_board.board.getVertex;
+      updateEngine = angular.element(document.body).injector().get('engineFactory').buildSettlement;
 
       controls.addEventListener( 'change', function() {        
         var num_rows = game_board.board.tiles.length;
@@ -171,9 +171,7 @@ angular.module('settlersApp')
     placeSettlement: function(playerID, location){
       var row=location[0], col=location[1];
       if(!game_board.board.boardVertices[row][col].building){
-        var coords = game_board.board.verticesToCoordinates(location);
-        coords[1]-=game_board.board.building_depth/1.5;
-        var settlement = new Building(game_board.board, "settlement", playerID, coords[0], coords[1]);
+        var settlement = new Building(game_board.board, "settlement", playerID, location);
         game_board.board.boardVertices[row][col].building=settlement;
         scene.add(settlement.building);
       }
