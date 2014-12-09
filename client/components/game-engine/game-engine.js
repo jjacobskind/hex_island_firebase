@@ -202,7 +202,6 @@ GameEngine.prototype.buyDevelopmentCard = function(player) {
 // Iterates through two 2-dimensional arrays of objects, identifies which object is different
 // Returns the indices of the changed object, as well as which of its properties have changed
 GameEngine.prototype.findObjectDifferences = function(old_arr, new_arr){
-  console.log("yo");
   var found_change = false;
   var all_changes=[];
   var robber_changes=0;
@@ -243,20 +242,20 @@ GameEngine.prototype.findObjectDifferences = function(old_arr, new_arr){
         }
         else if(old_obj[key]!==new_obj[key]) {
             found_change=true;
-            console.log(old_obj, new_obj);
+            changes_obj.owner = new_obj.owner;
             changes_obj.keys.push(key);
 
             // Don't want to return until we've found the change to robber's old tile AND change to robber's new tile
-            if(key==="robber" && robber_changes===0){
-              robber_changes++;
-              found_change=false;
-            }
+            // if(key==="robber" && robber_changes===0){
+            //   robber_changes++;
+            //   found_change=false;
+            // }
         }
       }
       if(found_change){
         all_changes.push(changes_obj);
         console.log(all_changes);
-        old_arr = new_arr;
+        this.gameBoard.boardVertices = new_arr;
         return all_changes;
       }
     }

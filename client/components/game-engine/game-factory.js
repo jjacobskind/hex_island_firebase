@@ -18,9 +18,9 @@ angular.module('settlersApp')
 		function firebaseEventListener(){
 			//this will be applied on the new game and the existing game
 			currentGameData.on("child_changed", function(childSnapshot) {
+					console.log("Listener firing!");
 				  var dataToSanitize = childSnapshot.val();
 				  var keyName = childSnapshot.key();
-				  console.log(childSnapshot.key(), childSnapshot.val())
 				  switch (keyName) {
 				    case "players":
 				      var callback = function(data) {
@@ -30,14 +30,12 @@ angular.module('settlersApp')
 				      break;
 				    case "boardTiles":
 				      callback = function(data) {
-				      	console.log(game.gameBoard.boardTiles);
-				      	game.gameBoard.boardTiles = data
+				      	// game.gameBoard.boardTiles = data
 				      };
 				      break;
 				    case "boardVertices":
-				      callback = function(data) { 
-				      console.log(game.gameBoard.boardVertices)	
-				      return game.findObjectDifferences(game.gameBoard.boardVertices, data)};//function(data) {game.gameBoard.boardVertices = data};
+				      callback = function(data) { 	
+				      return game.findObjectDifferences(game.gameBoard.boardVertices, data)};
 				      break;
 				    default:
 				      callback = function(data) {throw new Error ('incident occurred with this data: ', data)};
@@ -86,12 +84,11 @@ angular.module('settlersApp')
 			    	parseJSON(persistedData.boardTiles, function(data){game.gameBoard.boardTiles = data});
 			    	parseJSON(persistedData.boardVertices, function(data){game.gameBoard.boardVertices = data});
 			    	if (persistedData.turn) {
-			    		parseJSON(persistedData.turn, function(data){game.turn = data});
-			    	}
-			    	if (persistedData.currentPlayer){
-			    	parseJSON(persistedData.currentPlayer, function(data){game.currentPlayer = data});	
-			    	}
-			    	
+	                    parseJSON(persistedData.turn, function(data){game.turn = data});
+	                }
+	                if (persistedData.currentPlayer){
+		                parseJSON(persistedData.currentPlayer, function(data){game.currentPlayer = data});    
+	                }
 			    	boardFactory.drawGame(game);
 			    	console.log('data loaded');
 

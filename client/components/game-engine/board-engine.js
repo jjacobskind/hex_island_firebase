@@ -73,11 +73,9 @@ GameBoard.prototype.placeSettlement = function(player, location) {
     nearestThreeVertices.push(this.getRoadDestination(location, 'right'));
     while (nearestThreeVertices.length !== 0) {
         var thisVertex = nearestThreeVertices[0];
-        if (thisVertex !== null) {
-            if (vertices[thisVertex[0]][thisVertex[1]].owner !== null)
-            {
-                return {err: "Cannot build next to another settlement!"};
-            }
+        if (!!thisVertex && vertices[thisVertex[0]][thisVertex[1]].owner !== null) {
+            console.log("adjacent settlement!");
+            return {err: "Cannot build next to another settlement!"};
         }
         nearestThreeVertices.shift();
     };
