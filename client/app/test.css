@@ -84,6 +84,11 @@ background: none;
   margin-top:25px;
 }
 
+.spaced{
+  margin-top:45px;
+  font-size: 21px;
+}
+
 a.loginBtn {
   text-decoration: none;
   color:#fff;
