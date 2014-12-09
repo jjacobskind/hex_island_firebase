@@ -3,7 +3,7 @@
 angular.module('settlersApp')
   .factory('boardFactory', function() {
 
-    var camera, scene, renderer, controls, light, water, game_board, someAction;
+    var camera, scene, renderer, controls, light, water, game_board, someAction, updateEngine;
 
     var canvas_width = $(window).width();
     var canvas_height = 800;
@@ -33,6 +33,9 @@ angular.module('settlersApp')
       scene.add( renderWater() );
 
       game_board = new Game(scene, game);
+
+      someAction = game_board.board.getTile;
+      updateEngine = angular.element(document.body).injector().get('engineFactory').moveRobber;
 
       controls.addEventListener( 'change', function() {        
         var num_rows = game_board.board.tiles.length;
@@ -94,7 +97,7 @@ angular.module('settlersApp')
       pos.x*= -1;
       var click_coordinates = [pos.x, pos.z];
       if(!!someAction){
-        someAction = someAction.call(game_board.board, click_coordinates);
+        someAction = someAction.call(game_board.board, click_coordinates, updateEngine);
       }
     });
     return renderer;
@@ -146,8 +149,17 @@ angular.module('settlersApp')
       });
       animate();
     },
-    moveRobber: function(){
-      someAction = game_board.board.moveRobber;
+    set_someAction: function(action){
+      switch(action){
+        case "robber":
+          someAction = game_board.board.getTile;
+          updateEngine = angular.element(document.body).injector().get('engineFactory').moveRobber; 
+      }
+    },
+    moveRobber: function(destination){
+      game_board.board.moveRobber(destination);
+      someAction = null;
+      updateEngine = null;
     },
     newBoard: function(small_num, big_num){
       renderer.delete;

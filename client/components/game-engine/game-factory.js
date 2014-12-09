@@ -15,6 +15,54 @@ angular.module('settlersApp')
 		    return tempArr;
 		};
 
+		function firebaseEventListener(){
+			//this will be applied on the new game and the existing game
+			currentGameData.on("child_changed", function(childSnapshot) {
+					console.log("Listener firing!");
+				  var dataToSanitize = childSnapshot.val();
+				  var keyName = childSnapshot.key();
+				  switch (keyName) {
+				    case "players":
+				      var callback = function(data) {
+				      	console.log(game.players);
+				      	game.players = data;
+				      };
+				      break;
+				    case "boardTiles":
+				      callback = function(data) {
+				      	// game.gameBoard.boardTiles = data
+				      };
+				      break;
+				    case "boardVertices":
+				      callback = function(data) { 	
+				      return game.findObjectDifferences(game.gameBoard.boardVertices, data)};
+				      break;
+				    default:
+				      callback = function(data) {throw new Error ('incident occurred with this data: ', data)};
+				      break;
+				  };
+				  var change = parseJSON(dataToSanitize, callback);
+				  if(!change){
+				  	return null;
+				  }
+				  var coords1 = [change[0].row, change[0].col];
+				  if(change.length===2){
+				  	var coords2 = [change[1].row, change[1].col];
+				  	drawRoad(coords1, coords2);
+				  } else if(change.length===1){
+				  	console.log(change[0]);
+				  	if(change[0].keys.indexOf("owner")!==-1) {
+				  		boardFactory.placeSettlement(change[0].owner, coords1);
+				  	}
+				  	else if(change[0].keys.indexOf("hasSettlementOrCity")!==-1) {
+				  		console.log(change[0]);
+				  		var owner = game.gameBoard.boardVertices[coords1[0]][coords1[1]].owner;
+				  		boardFactory.upgradeSettlementToCity(owner, coords1);
+				  	}
+				}
+			});
+		};
+
 		function syncDatabase(game) {
 		    currentGameData.child('players').set(JSON.stringify(game.players));
 		    currentGameData.child('boardTiles').set(JSON.stringify(game.gameBoard.boardTiles));
@@ -35,8 +83,12 @@ angular.module('settlersApp')
 			    	parseJSON(persistedData.players, function(data){game.players = data});
 			    	parseJSON(persistedData.boardTiles, function(data){game.gameBoard.boardTiles = data});
 			    	parseJSON(persistedData.boardVertices, function(data){game.gameBoard.boardVertices = data});
-			    	parseJSON(persistedData.turn, function(data){game.turn = data});
-			    	parseJSON(persistedData.currentPlayer, function(data){game.currentPlayer = data});
+			    	if (persistedData.turn) {
+	                    parseJSON(persistedData.turn, function(data){game.turn = data});
+	                }
+	                if (persistedData.currentPlayer){
+		                parseJSON(persistedData.currentPlayer, function(data){game.currentPlayer = data});    
+	                }
 			    	boardFactory.drawGame(game);
 			    	console.log('data loaded');
 
@@ -67,43 +119,8 @@ angular.module('settlersApp')
 				gameID = Date.now();
 				gameDatabase = dataLink.child('games').child(gameID);
 				currentGameData = gameDatabase.child('data');
-				currentGameData.on("child_changed", function(childSnapshot) {
-				  var dataToSanitize = childSnapshot.val();
-				  var keyName = childSnapshot.key();
-				  switch (keyName) {
-				    case "players":
-				      var callback = function(data) {game.players = data};
-				      break;
-				    case "boardTiles":
-				      callback = function(data) {game.gameBoard.boardTiles = data};
-				      break;
-				    case "boardVertices":
-				      callback = function(data) { return game.findObjectDifferences(game.gameBoard.boardVertices, data)};//function(data) {game.gameBoard.boardVertices = data};
-				      break;
-				    default:
-				      callback = function(data) {throw new Error ('incident occurred with this data: ', data)};
-				      break;
-				  };
-				  var change = parseJSON(dataToSanitize, callback);
-				  if(!change){
-				  	return null;
-				  }
-				  var coords1 = [change[0].row, change[0].col];
-				  if(change.length===2){
-				  	var coords2 = [change[1].row, change[1].col];
-				  	drawRoad(coords1, coords2);
-				  } else if(change.length===1){
-				  	console.log(change[0]);
-				  	if(change[0].keys.indexOf("owner")!==-1) {
-				  		boardFactory.placeSettlement(change[0].owner, coords1);
-				  	}
-				  	else if(change[0].keys.indexOf("hasSettlementOrCity")!==-1) {
-				  		console.log(change[0]);
-				  		var owner = game.gameBoard.boardVertices[coords1[0]][coords1[1]].owner;
-				  		boardFactory.upgradeSettlementToCity(owner, coords1);
-				  	}
-				  }
-				});
+				firebaseEventListener();
+				$rootScope.currentGameID = gameID;
 				$rootScope.playerData = game.players[0];
 				syncDatabase(game);
 				return game;	
@@ -142,6 +159,15 @@ angular.module('settlersApp')
 					updateFireBase(updates);
 				}
 			},
+			moveRobber: function(destination){
+				var updates = game.gameBoard.moveRobber.call(game.gameBoard, destination);
+				if(updates.hasOwnProperty("err")){
+					console.log(updates.err);
+				} else {
+					boardFactory.moveRobber(destination);
+					updateFireBase(updates);
+				}
+			},
 			addPlayer: function(){
 				var updates = game.addPlayer();
 				if(updates.hasOwnProperty("err")){
@@ -153,24 +179,7 @@ angular.module('settlersApp')
 			restorePreviousSession: function(gameID) {
 					gameDatabase = dataLink.child('games').child(gameID);
 					currentGameData = gameDatabase.child('data');	
-					currentGameData.on("child_changed", function(childSnapshot) {
-					  var dataToSanitize = childSnapshot.val();
-					  console.log('time to sync')
-					  var keyName = childSnapshot.key();
-					  switch (keyName) {
-					    case "players":
-					      var callback = function(data) {game.players = data};
-					      break;
-					    case "boardTiles":
-					      callback = function(data) {game.gameBoard.boardTiles = data};
-					      break;
-					    case "boardVertices":
-					      callback = function(data) { return game.findObjectDifferences(game.gameBoard.boardVertices, data)};//function(data) {game.gameBoard.boardVertices = data};
-					      break;
-					    default:
-					      callback = function(data) {throw new Error ('incident occurred with this data: ', data)};
-					      break;
-					  }});
+					firebaseEventListener();
 					return boardSync(currentGameData);
 					//promise resolution once boardsync finishes
 			},
