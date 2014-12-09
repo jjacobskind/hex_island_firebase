@@ -65,6 +65,7 @@ angular.module('settlersApp')
             var game = engineFactory.getGame();
             $scope.gameIsLoaded = true;
             $rootScope.currentGameID = gameID;
+            $rootScope.currentGameID = gameID;
             boardFactory.drawGame(game);
             if (newPlayer)
                 {   
