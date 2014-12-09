@@ -27,8 +27,24 @@
           </div>
         </div>
   </div>
-<div ng-if="!userIsLoggedIn">
-  <button ng-click="loginOauth()">Login W/ Facebook</button>
+<div ng-if="!userIsLoggedIn" class="test">
+  <div class="site-wrapper-inner">
+  <div class="inner cover">
+    <h1 class="cover-heading gameTitle">CASTAN</h1>
+    <p class="lead">
+      <a ng-click="loginOauth()" class="loginBtn" href="">LOGIN WITH FACEBOOK</a>
+      <!-- <button ng-click="loginOauth()">Login w/ Facebook</button> -->
+    </p>
+
+    <div class="mastfoot">
+      <div class="inner">
+        <span>A MEAN stack translation of <a href="http://www.catan.com/">Settlers of Catan &copy; </a></span>
+        <span> | Team Castan - class 110 <a href="http://www.fullstackacademy.com/">@Fullstack Academy</a>.</span>
+      </div>
+    </div>
+
+  </div>
+</div>
 </div>
 
 <div ng-if="userJoiningCurrentGame">
