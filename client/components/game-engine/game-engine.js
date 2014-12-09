@@ -151,7 +151,10 @@ GameEngine.prototype.tradeResources = function(firstPlayer, firstResource, secon
 
 GameEngine.prototype.buildSettlement = function(playerID, location) {
   var player = this.players[playerID];
-  if (player.resources.wool < 1 || player.resources.grain < 1 || player.resources.lumber < 1 || player.resources.brick < 1) {
+  if(this.gameBoard.boardVertices[location[0]][location[1]].hasSettlementOrCity === "settlement"){
+    return this.upgradeSettlementToCity(playerID, location);
+  }
+  else if (player.resources.wool < 1 || player.resources.grain < 1 || player.resources.lumber < 1 || player.resources.brick < 1) {
     return {err: "Not enough resources to build a settlement!"};
   }
   else {

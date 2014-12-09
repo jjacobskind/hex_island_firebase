@@ -228,7 +228,7 @@ Board.prototype.verticesToCoordinates = function(location){
 		z_offset += direction * intervals[i%2];
 		i++;
 	}
-
+	console.log(x_coord, z_offset);
 	return [x_coord, z_offset];
 };
 
@@ -286,8 +286,7 @@ Board.prototype.populateBoard = function(getRoadDestination, tiles) {
 			var settlement_or_city = this.boardVertices[row][col].hasSettlementOrCity;
 			var owner = this.boardVertices[row][col].owner
 			if(!!settlement_or_city){
-				var coords = this.verticesToCoordinates([row, col]);
-				obj.building = new Building(this, settlement_or_city, owner, coords[0], coords[1]);
+				obj.building = new Building(this, settlement_or_city, owner, [row, col]);
 				this.game.scene.add(obj.building.building);
 			}
 			for(var key in this.boardVertices[row][col].connections){
@@ -448,7 +447,8 @@ Building.prototype.cityShape = function(){
 };
 
 Building.prototype.makeGeometry = function(shape){
-	var building_geometry = new THREE.ExtrudeGeometry(shape, {amount:this.board.building_depth,
+	var depth = this.board.building_depth;
+	var building_geometry = new THREE.ExtrudeGeometry(shape, {amount:depth,
 																bevelEnabled:false
 																});
 
@@ -456,7 +456,7 @@ Building.prototype.makeGeometry = function(shape){
 
 	var building = new THREE.Mesh(building_geometry, material);
 	var rotation_angle = (Math.PI/6)*Math.floor(Math.random()*6);
-	building.position.set( this.x, 0, this.z );
+	building.position.set( this.x, 0, this.z - (depth/2) );
 	// building.rotation.set(0, rotation_angle, 0);
 	return building;
 };
