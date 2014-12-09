@@ -1,4 +1,4 @@
-<div id="board_container">
+<div id="board_container" ng-style="RouteData.get('bodyStyle')">
 	<div class="hud-masthead">
 		<div class="container">
 			<nav class="blog-nav">
@@ -96,10 +96,11 @@
 	 		</div></div>
 	<!--end playerBoard-->
 
+
+	<div ng-view></div>
 </div>
 <!-- end board_container -->
-
-<!--<div class="container">
+<!-- <div class="container">
   <div class="bs-example">
     <div class="btn-toolbar" role="toolbar">
       <button type="button" class="btn btn-default">
@@ -110,4 +111,5 @@
       </button>
     </div>
   </div>
-</div>-->
+<<<<<<< HEAD
+</div> -->
