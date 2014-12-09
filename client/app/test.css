@@ -167,7 +167,7 @@ padding: 30px;
     #board_container{
         position:relative;
         width:100%;
-        height:500px;
+        height:800px;
         overflow:hidden;
     }
     
