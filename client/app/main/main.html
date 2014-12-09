@@ -2,14 +2,28 @@
 <h3 ng-if='currentUserData.facebook && !gameIsLoaded'>Welcome to Catan, {{currentUserData.facebook.displayName}}.</h3>
 <img ng-if='currentUserData.facebook' ng-src="{{currentUserData.facebook.cachedUserProfile.picture.data.url}}" style="float:right; height:50px;"></img>
 
-<div ng-if="!gameIsLoaded && userIsLoggedIn">
-<button ng-click="createNewGame()"> create a new game </button>
-<button ng-click="loadGameDataForUser()"> load an older game </button>
-  <p ng-if="previousGameIDs">Your current game ids are as follows...</p>
-  <ul >
-  <li ng-repeat="game in previousGameIDs">Load this game? <a ng-click="loadPreviousGame(game.gameID)">{{game.gameID}}</a></li>
-  </ul>
-<button ng-click="joinCurrentGame()"> join another game </button> 
+<div class="site-wrapper-inner">
+  <div class="inner cover">
+    <h1 class="cover-heading gameTitle">CASTAN</h1>
+
+    <p class="spaced">
+      <a ng-click="createNewGame()" class="loginBtn" href="">CREATE A NEW GAME</a>
+    </p>
+    <p class="spaced">
+      <a ng-click="loadGameDataForUser()" class="loginBtn" href="">LOAD AN OLDER GAME</a>
+    </p>
+    <p class="spaced  ">
+      <a ng-click="joinCurrentGame()" class="loginBtn" href="">JOIN ANOTHER GAME</a>
+    </p>
+    
+    <p ng-if="previousGameIDs">Your current game ids are as follows...</p>
+    <ul >
+    <li ng-repeat="game in previousGameIDs">Load this game? <a ng-click="loadPreviousGame(game.gameID)">{{game.gameID}}</a></li>
+    	
+    </ul>
+<!--<button ng-click="joinCurrentGame()"> join another game </button>--> 
+  </div>	
+</div>
 </div>
 
 <div ng-if="userIsLoggedIn && gameIsLoaded">
