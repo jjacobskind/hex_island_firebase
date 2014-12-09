@@ -228,7 +228,6 @@ Board.prototype.verticesToCoordinates = function(location){
 		z_offset += direction * intervals[i%2];
 		i++;
 	}
-	console.log(x_coord, z_offset);
 	return [x_coord, z_offset];
 };
 
@@ -537,12 +536,11 @@ Board.prototype.getVertex = function(coords, cb){
 			var distance_from_vertex = Math.sqrt(Math.pow(x_diff, 2) + Math.pow(z_diff, 2));
 			if(distance_from_vertex<radius){
 				cb(this.game.playerID, [row, col]);
-				// return null;
+				return null;
 			}
 		}
 	}
-	// return null;
-	return this.getVertex;
+	return null;
 };
 
 // Function to move the robber

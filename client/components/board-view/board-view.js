@@ -34,9 +34,6 @@ angular.module('settlersApp')
 
       game_board = new Game(scene, game);
 
-      someAction = game_board.board.getVertex;
-      updateEngine = angular.element(document.body).injector().get('engineFactory').buildSettlement;
-
       controls.addEventListener( 'change', function() {        
         var num_rows = game_board.board.tiles.length;
         var angle = Math.atan(camera.position.x/camera.position.z);
@@ -151,6 +148,16 @@ angular.module('settlersApp')
     },
     set_someAction: function(action){
       switch(action){
+        case "road":
+        case "building":
+          if(someAction === game_board.board.getVertex){
+            someAction = null;
+            updateEngine = null;
+          } else {
+            someAction = game_board.board.getVertex;
+            updateEngine = angular.element(document.body).injector().get('engineFactory').buildSettlement;
+          }
+          break;
         case "robber":
           someAction = game_board.board.getTile;
           updateEngine = angular.element(document.body).injector().get('engineFactory').moveRobber; 
@@ -189,6 +196,8 @@ angular.module('settlersApp')
   };
 })
 .controller('BoardCtrl', function(boardFactory, engineFactory, $scope, $compile, $rootScope, $timeout){
+  var self = this;
+  self.setMode = boardFactory.set_someAction;
   boardFactory.insert();
   $compile($('#board_container'))($scope);
   $scope.whatPlayerAmI = 0;
