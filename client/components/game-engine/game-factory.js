@@ -17,6 +17,7 @@ angular.module('settlersApp')
 
 		function firebaseEventListener(){
 			//this will be applied on the new game and the existing game
+			console.log('event listener added');
 			currentGameData.on("child_changed", function(childSnapshot) {
 				  var dataToSanitize = childSnapshot.val();
 				  var keyName = childSnapshot.key();
@@ -24,23 +25,27 @@ angular.module('settlersApp')
 				  switch (keyName) {
 				    case "players":
 				      var callback = function(data) {
-				      	console.log(game.players);
 				      	game.players = data;
 				      };
 				      break;
 				    case "boardTiles":
 				      callback = function(data) {
-				      	console.log(game.gameBoard.boardTiles);
 				      	game.gameBoard.boardTiles = data
 				      };
 				      break;
 				    case "boardVertices":
 				      callback = function(data) { 
-				      console.log(game.gameBoard.boardVertices)	
-				      return game.findObjectDifferences(game.gameBoard.boardVertices, data)};//function(data) {game.gameBoard.boardVertices = data};
+				      game.findObjectDifferences(game.gameBoard.boardVertices, data)};//function(data) {game.gameBoard.boardVertices = data};
 				      break;
-				    default:
-				      callback = function(data) {throw new Error ('incident occurred with this data: ', data)};
+				    case "turn":
+				      callback = function(data){
+				      	console.log(data);
+				      };
+				      break;
+				    case "currentPlayer":
+				      callback = function(data){
+				      	console.log(data);
+				      };
 				      break;
 				  };
 				  var change = parseJSON(dataToSanitize, callback);
@@ -69,6 +74,8 @@ angular.module('settlersApp')
 		    currentGameData.child('players').set(JSON.stringify(game.players));
 		    currentGameData.child('boardTiles').set(JSON.stringify(game.gameBoard.boardTiles));
 		    currentGameData.child('boardVertices').set(JSON.stringify(game.gameBoard.boardVertices));
+		    currentGameData.child('turn').set(game.turn);
+		    currentGameData.child('currentPlayer').set(game.currentPlayer);
 		};
 
 		var _refreshDatabase = function(){
@@ -169,6 +176,7 @@ angular.module('settlersApp')
 				} else {
 					updateFireBase(updates);
 				}
+				return game.players[game.players.length];
 			},
 			restorePreviousSession: function(gameID) {
 					gameDatabase = dataLink.child('games').child(gameID);
@@ -223,6 +231,9 @@ angular.module('settlersApp')
 				return diceRoll;
 			},
 			endTurn: function () {
+				var deferAction = $q.defer();
+				
+				function modifyData () {
 				game.turn++;
 				game.calculatePlayerTurn();
 				game.diceRolled = false;
@@ -235,7 +246,13 @@ angular.module('settlersApp')
 						}
 					}
 				};
-				updateFireBase(updates);
+				updateFireBase(updates)
+				deferAction.resolve(updates);
+				};
+
+				modifyData();
+
+				return deferAction.promise;
 			}
 		}
 	});

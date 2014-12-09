@@ -47,6 +47,7 @@ angular.module('settlersApp')
             }            $scope.currentGameID = gameID;
         });
         engineFactory.addPlayer();
+        $rootScope.whatPlayerAmI = 0;
         $scope.gameIsLoaded = true;
     };
     $scope.loadGameDataForUser = function(){
@@ -63,14 +64,15 @@ angular.module('settlersApp')
         .then(function onSuccess(){
             console.log('game loaded')
             var game = engineFactory.getGame();
+            console.log(game);
             $scope.gameIsLoaded = true;
             $rootScope.currentGameID = gameID;
-            $rootScope.currentGameID = gameID;
+            $scope.whatPlayerAmI = game.players.length;
+            $rootScope.whatPlayerAmI = game.players.length;
             boardFactory.drawGame(game);
             if (newPlayer)
                 {   
-                    engineFactory.addPlayer();
-                    $scope.whatPlayerAmI = engineFactory.getGame().players.length-1;
+                    var player = engineFactory.addPlayer();
                     var gameObject = {};
                     gameObject.gameID = +gameID;
                     gameObject.playerNumber = $scope.whatPlayerAmI;
@@ -83,11 +85,16 @@ angular.module('settlersApp')
                     }
                 }
             }
+            return game;
         }, function onError() {
             console.log('error in loadPreviousGame')
         })
-        .then(function(){
+        .then(function(game){
+            $rootScope.$apply();
             var game = engineFactory.getGame();
+            return game;
+        })
+        .then(function (game) {
             $rootScope.playerData = game.players[$scope.whatPlayerAmI];
             $scope.playerData = game.players[$scope.whatPlayerAmI];
             $scope.gameIsLoaded = true;
