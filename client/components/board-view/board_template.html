@@ -17,7 +17,7 @@
 				<span href="#" class="blog-nav-item">{{playerData.resources.grain}}</span>
 			</div>
 			<div class="hudARight">
-				<span href="#" class="blog-nav-item">TURN: 12</span> | 
+				<span href="#" class="blog-nav-item">TURN: {{currentTurn}} </span> | 
 				<span href="#" class="blog-nav-item">LONGEST ROAD: 2</span>
 			</div>
 			<div class="cb"></div>
@@ -26,12 +26,21 @@
 	</div>
 	<!-- end HUD -->	
 	<div class="diceHolder">
-		<a href="#" id="button" class="dicon">
-			<img src="assets/svg/diceOpt.svg" height="40px" />
-		</a>
-		<a href="#" id="button" class="num">{{rollData}}</a>
+		<span href="#" id="button" class="dicon">
+			<a ng-click="rollDice()"><img src="assets/svg/diceOpt.svg" height="40px" /></a>
+		</span>
+		<span href="#" id="button" class="num">{{currentRoll}}</span>
 	</div>
 	<!-- end dice roll view -->
+	
+	<div class="buttonHolder">
+	  <!--version 2-->
+	  <a href="#" id="button" class="tlk"><img src="assets/svg/chatboxOpt.svg" height="30px"></a>
+	  <a href="#" id="button" class="bld"><img src="assets/svg/hammerOpt.svg" height="60px"></a>
+	  <a href="#" id="button" class="trd"><img src="assets/svg/swapOpt.svg" height="60px"></a>
+	  <a ng-click="nextTurn()" id="button" class="end"><img src="assets/svg/ffwdOpt.svg" height="60px"></a>
+	</div>
+	<!-- end button holder -->
 
 <!-- 	<div id="chatWindow">
 		<div class='textScreen'></div>
