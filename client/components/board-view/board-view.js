@@ -184,8 +184,7 @@ angular.module('settlersApp')
   $scope.currentPlayer = engineFactory.getGame().currentPlayer;
   
   $scope.nextTurn = function(){
-    if ($scope.playerHasRolled === false && 
-      $scope.currentPlayer === $scope.whatPlayerAmI){
+    if ($scope.currentPlayer === $scope.whatPlayerAmI){
           engineFactory.endTurn();
           $scope.playerHasRolled = false;
           $scope.currentPlayer = engineFactory.getGame().currentPlayer;
