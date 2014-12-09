@@ -35,13 +35,8 @@ angular.module('settlersApp')
 			    	parseJSON(persistedData.players, function(data){game.players = data});
 			    	parseJSON(persistedData.boardTiles, function(data){game.gameBoard.boardTiles = data});
 			    	parseJSON(persistedData.boardVertices, function(data){game.gameBoard.boardVertices = data});
-			    	if (persistedData.turn) {
-			    		parseJSON(persistedData.turn, function(data){game.turn = data});
-			    	}
-			    	if (persistedData.currentPlayer){
-			    	parseJSON(persistedData.currentPlayer, function(data){game.currentPlayer = data});	
-			    	}
-			    	
+			    	parseJSON(persistedData.turn, function(data){game.turn = data});
+			    	parseJSON(persistedData.currentPlayer, function(data){game.currentPlayer = data});
 			    	boardFactory.drawGame(game);
 			    	console.log('data loaded');
 
@@ -109,7 +104,6 @@ angular.module('settlersApp')
 				  	}
 				  }
 				});
-				$rootScope.currentGameID = gameID;
 				$rootScope.playerData = game.players[0];
 				syncDatabase(game);
 				return game;	
@@ -176,7 +170,6 @@ angular.module('settlersApp')
 					    default:
 					      callback = function(data) {throw new Error ('incident occurred with this data: ', data)};
 					      break;
-					      console.log('got this far')
 					  }});
 					return boardSync(currentGameData);
 					//promise resolution once boardsync finishes
