@@ -21,7 +21,6 @@ angular.module('settlersApp')
 			currentGameData.on("child_changed", function(childSnapshot) {
 				  var dataToSanitize = childSnapshot.val();
 				  var keyName = childSnapshot.key();
-				  console.log(childSnapshot.key(), childSnapshot.val())
 				  switch (keyName) {
 				    case "players":
 				      var callback = function(data) {
@@ -34,8 +33,9 @@ angular.module('settlersApp')
 				      };
 				      break;
 				    case "boardVertices":
-				      callback = function(data) { 
-				      game.findObjectDifferences(game.gameBoard.boardVertices, data)};//function(data) {game.gameBoard.boardVertices = data};
+				      callback = function(data) { 	
+				      return game.findObjectDifferences(game.gameBoard.boardVertices, data)
+				  	  };
 				      break;
 				    case "turn":
 				      callback = function(data){
@@ -93,12 +93,11 @@ angular.module('settlersApp')
 			    	parseJSON(persistedData.boardTiles, function(data){game.gameBoard.boardTiles = data});
 			    	parseJSON(persistedData.boardVertices, function(data){game.gameBoard.boardVertices = data});
 			    	if (persistedData.turn) {
-			    		parseJSON(persistedData.turn, function(data){game.turn = data});
-			    	}
-			    	if (persistedData.currentPlayer){
-			    	parseJSON(persistedData.currentPlayer, function(data){game.currentPlayer = data});	
-			    	}
-			    	
+	                    parseJSON(persistedData.turn, function(data){game.turn = data});
+	                }
+	                if (persistedData.currentPlayer){
+		                parseJSON(persistedData.currentPlayer, function(data){game.currentPlayer = data});    
+	                }
 			    	boardFactory.drawGame(game);
 			    	console.log('data loaded');
 
@@ -166,6 +165,15 @@ angular.module('settlersApp')
 				} else {
 					var destination = game.gameBoard.getRoadDestination(location, direction);
 					drawRoad(location, destination);
+					updateFireBase(updates);
+				}
+			},
+			moveRobber: function(destination){
+				var updates = game.gameBoard.moveRobber.call(game.gameBoard, destination);
+				if(updates.hasOwnProperty("err")){
+					console.log(updates.err);
+				} else {
+					boardFactory.moveRobber(destination);
 					updateFireBase(updates);
 				}
 			},

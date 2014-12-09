@@ -73,6 +73,10 @@ Board.prototype.drawBoard = function(tiles) {
 		var board_tile_row = [];
 
 		for(var col=0, num_cols=tiles[row].length;col<num_cols; col++){
+			if(tiles.robber===true){
+				console.log("here");
+				this.drawRobber([row, col]);
+			}
 			var coordinates = this.indicesToCoordinates([row, col]);
 			var obj=new Tile(this, coordinates, tiles[row][col].resource, tiles[row][col].chit);
 			this.game.scene.add(obj.tile);
@@ -388,10 +392,11 @@ Tile.prototype.paintResource = function(resource){
 	}
 };
 
-var Building = function(board, building_type, owner, x, z){
+var Building = function(board, building_type, owner, location){
 	this.board = board;
-	this.x = x;
-	this.z = z;
+	var coords = this.board.verticesToCoordinates(location);
+	this.x = coords[0];
+	this.z = coords[1];
 	this.color = this.board.playerColor(owner);
 	this.building = null;
 
@@ -450,8 +455,9 @@ Building.prototype.makeGeometry = function(shape){
 	var material = new THREE.MeshLambertMaterial( { color: this.color, wireframe: false } );
 
 	var building = new THREE.Mesh(building_geometry, material);
+	var rotation_angle = (Math.PI/6)*Math.floor(Math.random()*6);
 	building.position.set( this.x, 0, this.z );
-	building.rotation.set(0, (Math.PI/6)*Math.floor(Math.random()*6), 0);
+	// building.rotation.set(0, rotation_angle, 0);
 	return building;
 };
 
@@ -492,7 +498,7 @@ Board.prototype.drawRobber = function(location){
 
 };
 
-Board.prototype.getTile = function(coords){
+Board.prototype.getTile = function(coords, cb){
 	var x=-coords[0], z=coords[1];
 	var side_length = this.side_length + this.extrudeSettings.bevelSize;
 	for(var row=0, num_rows=this.tiles.length; row<num_rows; row++){
@@ -511,7 +517,8 @@ Board.prototype.getTile = function(coords){
 				}
 
 				if(dist_from_center < horizontal_range*2){
-					return [row, col];
+					cb([row, col]);
+					return null;
 				}
 			}
 		}
@@ -519,15 +526,30 @@ Board.prototype.getTile = function(coords){
 	return null;
 };
 
+Board.prototype.getVertex = function(coords, cb){
+	var x=-coords[0], z=coords[1];
+	var radius = 15 * this.scale;
+	for(var row=0, num_rows=this.boardVertices.length; row<num_rows; row++){
+		for(var col=0, num_cols=this.boardVertices[row].length; col<num_cols; col++){
+			var vertex_coords = this.verticesToCoordinates([row, col]);
+			var x_diff = vertex_coords[0]-x;
+			var z_diff = vertex_coords[1]-z;
+			var distance_from_vertex = Math.sqrt(Math.pow(x_diff, 2) + Math.pow(z_diff, 2));
+			if(distance_from_vertex<radius){
+				cb(this.game.playerID, [row, col]);
+				// return null;
+			}
+		}
+	}
+	// return null;
+	return this.getVertex;
+};
+
 // Function to move the robber
 // Refactor this later on to provide for multiple robbers,using a two-click process to select the correct robber and select the destination
-Board.prototype.moveRobber = function(coords){
-	var tile_indices = this.getTile(coords);
-	if(!tile_indices){
-		return;
-	}
-	var tile_center = this.indicesToCoordinates(tile_indices);
-	if(this.robbers.length=1){
+Board.prototype.moveRobber = function(destination){
+	var tile_center = this.indicesToCoordinates(destination);
+	if(this.robbers.length===1){
 		this.robbers[0].position.set(tile_center[0], 0, tile_center[1]);
 	}
 	return null;

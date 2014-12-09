@@ -204,6 +204,7 @@ GameEngine.prototype.buyDevelopmentCard = function(player) {
 GameEngine.prototype.findObjectDifferences = function(old_arr, new_arr){
   var found_change = false;
   var all_changes=[];
+  var robber_changes=0;
   for(var row=0, num_rows=old_arr.length; row<num_rows; row++){
     for(var col=0, num_cols=old_arr[row].length; col<num_cols; col++) {
       var old_obj=old_arr[row][col];
@@ -236,17 +237,24 @@ GameEngine.prototype.findObjectDifferences = function(old_arr, new_arr){
           }
         }
         else if(key==='adjacent_tiles'){
-          // changes+=2;
+          // might need this to tell if robber is blocking an adjacent tile
 
         }
         else if(old_obj[key]!==new_obj[key]) {
             found_change=true;
-            console.log(old_obj, new_obj)
+            changes_obj.owner = new_obj.owner;
             changes_obj.keys.push(key);
+
+            // Don't want to return until we've found the change to robber's old tile AND change to robber's new tile
+            // if(key==="robber" && robber_changes===0){
+            //   robber_changes++;
+            //   found_change=false;
+            // }
         }
       }
       if(found_change){
         all_changes.push(changes_obj);
+        console.log(all_changes);
         this.gameBoard.boardVertices = new_arr;
         return all_changes;
       }
