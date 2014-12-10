@@ -9,7 +9,7 @@ angular.module('settlersApp')
     var camera, scene, renderer, controls, light, water, game_board, someAction, updateEngine;
 
     var canvas_width = $(window).width();
-    var canvas_height = 800;
+    var canvas_height = 700;
 
     var init = function(game) {
 
@@ -240,14 +240,14 @@ angular.module('settlersApp')
     }  
   };
   $scope.rollDice = function(){
-    if ($scope.playerHasRolled === false && $rootScope.currentPlayer === $rootScope.whatPlayerAmI)
-      {
-        $scope.playerHasRolled = true;
-        engineFactory.rollDice();
-      }
-    
-    $rootScope.currentRoll = engineFactory.getGame().diceNumber;
-  };
+     if ($scope.playerHasRolled === false && $rootScope.currentPlayer === $rootScope.whatPlayerAmI)
+       {
+         $scope.playerHasRolled = true;
+         engineFactory.rollDice();
+       }
+     
+     $rootScope.currentRoll = engineFactory.getGame().diceNumber;
+   };
 
   $scope.isItMyTurn = function(){
     if ($rootScope.currentPlayer === $rootScope.whatPlayerAmI){
