@@ -218,48 +218,49 @@ angular.module('settlersApp')
   self.setMode = boardFactory.set_someAction;
   boardFactory.insert();
   $compile($('#board_container'))($scope);
-  $scope.whatPlayerAmI = 0;
-  $scope.currentTurn = engineFactory.getGame().turn;
-  $rootScope.playerData = engineFactory.getGame().players[$scope.whatPlayerAmI];
-  $scope.playerData = $rootScope.playerData;
+  $rootScope.currentTurn = engineFactory.getGame().turn;
   $scope.playerHasRolled = false;
-  $scope.currentPlayer = engineFactory.getGame().currentPlayer;
+  $rootScope.currentPlayer = engineFactory.getGame().currentPlayer;
   
   $scope.nextTurn = function(){
-    if ($scope.playerHasRolled === false && 
-      $scope.currentPlayer === $scope.whatPlayerAmI){
-          engineFactory.endTurn();
-          $scope.playerHasRolled = false;
-          $scope.currentPlayer = engineFactory.getGame().currentPlayer;
-        }
-  }
-
+    if (
+      ($scope.playerHasRolled === true
+     && $rootScope.whatPlayerAmI === $scope.currentPlayer) ||
+      ($rootScope.currentTurn < (engineFactory.getGame().players.length * 2) && 
+            $rootScope.whatPlayerAmI === $scope.currentPlayer))
+    {
+      engineFactory.endTurn()
+      $scope.playerHasRolled = false;
+      $rootScope.currentPlayer = engineFactory.getGame().currentPlayer;
+      $rootScope.currentTurn = engineFactory.getGame().turn;
+    }  
+  };
   $scope.rollDice = function(){
-    if ($scope.playerHasRolled === false && 
-      $scope.currentPlayer === $scope.whatPlayerAmI)
+    if ($scope.playerHasRolled === false && $rootScope.currentPlayer === $rootScope.whatPlayerAmI)
       {
         $scope.playerHasRolled = true;
         engineFactory.rollDice();
       }
-
-    $scope.currentRoll = engineFactory.getGame().diceNumber;
+    
+    $rootScope.currentRoll = engineFactory.getGame().diceNumber;
   };
 
-  $scope.currentRoll = engineFactory.currentDiceRoll();
+  $scope.isItMyTurn = function(){
+    if ($rootScope.currentPlayer === $rootScope.whatPlayerAmI){
+      return true;
+    }
+    else {
+      return false;
+    }
+  }
 
-  engineFactory.getDataLink().child('games').child($rootScope.currentGameID).child('data').on("child_changed", function(data) {
-    if (data.key() == 'turn') {
-      $scope.currentTurn = data.val();
-      $scope.$apply();
-    };
-  });
+  $rootScope.currentRoll = engineFactory.currentDiceRoll();
 
 }) 
 .directive('board', function() {
     return {
       restrict: 'E',
       templateUrl: 'components/board-view/board_template.html',
-      controller: 'BoardCtrl as board_ctrl',
-      scope: true
+      controller: 'BoardCtrl as board_ctrl'
     };
   });

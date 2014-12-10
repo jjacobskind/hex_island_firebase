@@ -1,7 +1,7 @@
 <!--<div ng-include="'components/navbar/navbar.html'"></div>-->
 <h3 ng-if='currentUserData.facebook && !gameIsLoaded'>Welcome to Catan, {{currentUserData.facebook.displayName}}.</h3>
 <!--<img ng-if='currentUserData.facebook' ng-src="{{currentUserData.facebook.cachedUserProfile.picture.data.url}}" style="float:right; height:50px;"></img>-->
-<div ng-if"!gameIsLoaded && userIsLoggedIn" class="test">
+<div ng-if="!gameIsLoaded && userIsLoggedIn" class="test">
   <div class="site-wrapper-inner">
     <div class="inner cover">
       <h1 class="cover-heading gameTitle">CASTAN</h1>
@@ -41,6 +41,7 @@
             </div>
           </div>
     </div>
+
   <div ng-if="!userIsLoggedIn" class="test">
     <div class="site-wrapper-inner">
     <div class="inner cover">
@@ -74,6 +75,11 @@
         </p>
     </div>
   </div>
+
+
+
+
+
 
 <div>
 
