@@ -1,7 +1,10 @@
 'use strict';
 
 angular.module('settlersApp')
-  .factory('boardFactory', function() {
+  .factory('boardFactory', function($state, authFactory) {
+    if(!authFactory.getAuthData()) {
+      $state.go('main');
+    }
 
     var camera, scene, renderer, controls, light, water, game_board, someAction, updateEngine;
 
@@ -214,6 +217,7 @@ angular.module('settlersApp')
   };
 })
 .controller('BoardCtrl', function(boardFactory, engineFactory, $scope, $compile, $rootScope, $timeout){
+
   var self = this;
   self.setMode = boardFactory.set_someAction;
   boardFactory.insert();

@@ -13,6 +13,13 @@
     
   }
 
+/**************************************/
+/*styling for game loading list*/
+  #game_list {
+    list-style:none;
+  }
+
+/**************************************/
   .navbar {
     margin:0;
   }
