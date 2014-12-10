@@ -13,6 +13,9 @@ function GameEngine(small_num, large_num) {
 }
 
 GameEngine.prototype.calculatePlayerTurn = function() {
+  if (this.turn >= (this.players.length * 2) + 1) {
+    this.boardIsSetup = true;
+  }
   var currentTurn = this.turn, playerLength = this.players.length;
   this.currentPlayer = currentTurn % playerLength;
 }
@@ -124,8 +127,6 @@ GameEngine.prototype.distributeResources = function(sumDice) {
         if (resourceArray.length !== 0) {
               resourceArray.forEach(function(item){
                 var resources = players[+item.player].resources;
-                console.log(resources);
-                console.log(item);
                 resources[item.resource] = resources[item.resource] + resourcesToDistribute;
                 console.log(resources[item.resource])
         })
@@ -154,17 +155,36 @@ GameEngine.prototype.buildSettlement = function(playerID, location) {
   if(this.gameBoard.boardVertices[location[0]][location[1]].hasSettlementOrCity === "settlement"){
     return this.upgradeSettlementToCity(playerID, location);
   }
-  else if ((player.resources.wool < 1 || player.resources.grain < 1 || player.resources.lumber < 1 || player.resources.brick < 1) && (this.turn > (this.players.length * 2))) {
+  else if ((player.resources.wool < 1 || player.resources.grain < 1 || player.resources.lumber < 1 || player.resources.brick < 1) && (this.turn > (this.players.length * 2) -1 )) {
     return {err: "Not enough resources to build a settlement!"};
   }
+  else if (this.boardIsSetup === false) {
+    if ((this.turn < this.players.length) && player.playerQualities.settlements === 0) {
+      return this.gameBoard.placeSettlement(player, location);
+    }
+    else if ((this.turn >= this.players.length) && this.turn < (this.players.length * 2) && player.playerQualities.settlements === 1) {
+      
+      var itemsToDistribute = this.gameBoard.boardVertices[location[0]][location[1]].adjacent_tiles;
+      
+      itemsToDistribute.forEach(function(item){
+        player.resources[item.resource]++
+      });
+
+      return this.gameBoard.placeSettlement(player, location);
+    }
+    else {
+      console.log(this.turn, this.players.length)
+      return {err: "Cannot build another settlement during setup!"};
+    }
+  }
   else {
-    if (this.turn > this.players.length * 2) {
+    if (this.turn >= (this.players.length * 2)) {
       player.resources.wool--;
       player.resources.grain--;
       player.resources.lumber--;
       player.resources.brick--;
+      return this.gameBoard.placeSettlement(player, location)
     }
-    return this.gameBoard.placeSettlement(player, location);
   }
 };
 
@@ -173,6 +193,17 @@ GameEngine.prototype.buildRoad = function(playerID, location, direction) {
   if ((player.resources.lumber < 1 || player.resources.brick < 1) && 
     (this.turn > (this.players.length * 2))) {
     return {err: "Not enough resources to build road!"};
+  }
+  else if (this.boardIsSetup === false) {
+    if ((this.turn < this.players.length) && player.playerQualities.roadSegments === 0) {
+      return this.gameBoard.constructRoad(player,location,direction);
+    }
+    else if ((this.turn < (this.players.length * 2)) && player.playerQualities.roadSegments === 1) {
+      return this.gameBoard.constructRoad(player,location,direction);
+    }
+    else {
+      return {err: "Cannot build another road during setup!"};
+    }
   }
   else {
     if (this.turn > this.players.length * 2) {
