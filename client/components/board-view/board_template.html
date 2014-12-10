@@ -4,20 +4,20 @@
 			<nav class="blog-nav">
 			<div class="hudALeft">
 				<img src="assets/svg/brickOpt.svg" height="25px" />
-				<span href="#" class="blog-nav-item">{{playerData.resources.brick}}</span>
+				<span href="#" class="blog-nav-item">{{$root.playerData.resources.brick}}</span>
 				<img src="assets/svg/grainOpt.svg" height="25px" />
-				<span href="#" class="blog-nav-item">{{playerData.resources.grain}}</span>
+				<span href="#" class="blog-nav-item">{{$root.playerData.resources.grain}}</span>
 				<img src="assets/svg/lumberOpt.svg" height="25px" />
-				<span href="#" class="blog-nav-item">{{playerData.resources.lumber}}</span>
+				<span href="#" class="blog-nav-item">{{$root.playerData.resources.lumber}}</span>
 				<img src="assets/svg/oreOpt.svg" height="25px" />
-				<span href="#" class="blog-nav-item">{{playerData.resources.ore}}</span>
+				<span href="#" class="blog-nav-item">{{$root.playerData.resources.ore}}</span>
 				<img src="assets/svg/woolOpt.svg" height="25px" />
-				<span href="#" class="blog-nav-item">{{playerData.resources.wool}}</span>
+				<span href="#" class="blog-nav-item">{{$root.playerData.resources.wool}}</span>
 				<img src="assets/svg/starOpt.svg" height="22px" />
-				<span href="#" class="blog-nav-item">{{playerData.playerQualities.privatePoints}}</span>
+				<span href="#" class="blog-nav-item">{{$root.playerData.playerQualities.privatePoints}}</span>
 			</div>
 			<div class="hudARight">
-				<span href="#" class="blog-nav-item">TURN: {{currentTurn}} </span> | 
+				<span href="#" class="blog-nav-item">TURN: {{$root.currentTurn}} </span> | 
 				<span href="#" class="blog-nav-item">LONGEST ROAD: 2</span>
 			</div>
 			<div class="cb"></div>
@@ -33,7 +33,7 @@
 	</div>
 	<!-- end dice roll view -->
 	
-	<div class="buttonHolder">
+	<div class="buttonHolder" ng-if="isItMyTurn() === true">
 	  <!--version 2-->
 	  <a href="#" id="button" class="tlk"><img src="assets/svg/chatboxOpt.svg" height="30px"></a>
 	  <a ng-click="board_ctrl.setMode('building')" id="button" class="bld"><img src="assets/svg/hammerOpt.svg" height="60px"></a>

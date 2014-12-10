@@ -7,7 +7,7 @@ var materials = [ border_material, tile_material ];
 
 var Game = function(scene, game, scale) {
 	this.scene = scene;
-	this.playerID = 0;  //need to update this later to reflect actual player index
+	this.playerID = game.currentPlayer;  //need to update this later to reflect actual player index
 
 	this.board = new Board(this, game.gameBoard.getRoadDestination, game.gameBoard.boardVertices, game.gameBoard.boardTiles, scale);
 
@@ -19,6 +19,7 @@ var Board = function(game, getRoadDestination, vertices, tiles, scale) {
 	this.robbers = [];
 	this.small_num = tiles[0].length;
 	this.big_num = tiles[Math.floor(tiles.length/2)].length;
+	this.getRoadDestination = getRoadDestination;
 	if(!!scale && scale>10) {
 		this.scale=10;
 	} 
@@ -87,7 +88,69 @@ Board.prototype.drawBoard = function(tiles) {
 		}
 		board_tiles.push(board_tile_row);
 	}
+
+	// DRAW PORTS
+
+	// compile array of all outer vertices
+	var outer_vertices = [];
+	var cur_vertex = [0,0];
+	while(!!cur_vertex){
+		outer_vertices.push(cur_vertex);
+		cur_vertex = this.getRoadDestination(cur_vertex, "right");
+	}
+	var left_vertices =[];
+	num_rows = this.boardVertices.length;
+	for(row=2;row<num_rows;row++){
+		col = this.boardVertices[row].length-1;
+		outer_vertices.push([row, col]);
+		left_vertices.push([row, 0]);
+	}
+	left_vertices.pop();
+	left_vertices = left_vertices.reverse();
+	cur_vertex = [--row, col];
+	outer_vertices.pop();
+
+	while(!!cur_vertex){
+		outer_vertices.push(cur_vertex);
+		cur_vertex = this.getRoadDestination(cur_vertex, "left");
+	}
+	outer_vertices.pop();
+	outer_vertices = outer_vertices.concat(left_vertices);
+	outer_vertices.push([1, 0]);
+
+	for(i=0, len=outer_vertices.length; i<len; i++) {
+		var row=outer_vertices[i][0], col = outer_vertices[i][1];
+		if(i<len-1){
+			var row_next= outer_vertices[i+1][0], col_next= outer_vertices[i+1][1];
+		}
+		if(!!this.boardVertices[row][col].port && (i===0 || i===len-1 || !!this.boardVertices[row_next][col_next].port)) {
+			if(!this.boardVertices[row_next][col_next].port){
+				this.drawPort(outer_vertices[i], undefined);
+			} else {
+				this.drawPort(outer_vertices[i], outer_vertices[++i]);
+			}
+		}
+	}
 	return board_tiles;
+};
+
+Board.prototype.drawPort = function(location1, location2){
+	if(!!location1 && !!location2){
+		var coords1 = this.verticesToCoordinates(location1);
+		var coords2 = this.verticesToCoordinates(location2);
+	} else if(location1!==[1, 0]) {
+		coords1 = this.verticesToCoordinates([1, 0]);
+		coords2 = this.verticesToCoordinates([0, 0]);
+	}
+	var x_avg = (coords1[0] + coords2[0])/2;
+	var z_avg = (coords1[1] + coords2[1])/2;
+
+	var white_material = new THREE.MeshLambertMaterial( { color: 0xffffff, wireframe: false} );
+	var port_geometry = new THREE.ExtrudeGeometry(this.chip_shape, {amount:5, bevelEnabled:false});
+	var port = new THREE.Mesh(port_geometry, white_material);
+	port.position.set(x_avg, 1, z_avg);
+	port.rotation.set(Math.PI/2, 0, 0);
+	this.game.scene.add(port);
 };
 
 Board.prototype.indicesToCoordinates = function(indices){
@@ -231,7 +294,11 @@ Board.prototype.verticesToCoordinates = function(location){
 	return [x_coord, z_offset];
 };
 
-Board.prototype.buildRoad = function(playerID, location1, location2){
+Board.prototype.buildRoad = function(location1, location2, playerID){
+	if(!playerID){
+		playerID = this.game.playerID;
+	}
+	console.log(location1, location2);
 	var edge = 5 * this.scale;
 	var depth = this.side_length*0.7;
 	var pts = [new THREE.Vector2(0, 0)];
@@ -295,7 +362,7 @@ Board.prototype.populateBoard = function(getRoadDestination, tiles) {
 					if(!!destination && (row<destination[0] || col<destination[1])){
 						obj.connections = {};
 						owner = this.boardVertices[row][col].connections[key];
-						obj.connections[key] = this.buildRoad(owner, [row, col], destination);
+						obj.connections[key] = this.buildRoad([row, col], destination, owner);
 						this.game.scene.add(obj.connections[key]);
 					}
 				}
@@ -542,6 +609,73 @@ Board.prototype.getVertex = function(coords, cb){
 		}
 	}
 	return null;
+};
+
+Board.prototype.getRoad = function(coords, cb){
+	var x=-coords[0], z=coords[1];
+	var bevel_width = this.extrudeSettings.bevelSize;
+	var road_width = bevel_width * 2;
+	var road_length = this.side_length + (this.extrudeSettings.bevelSize*2);
+	var vertex1, vertex2;
+	for(var row=0, num_rows=this.boardVertices.length; !vertex1 && row<num_rows; row++){
+		for(var col=0, num_cols=this.boardVertices[row].length; !vertex1 && col<num_cols; col++){
+			var vertex_coords = this.verticesToCoordinates([row, col]);
+			var x_diff = vertex_coords[0]-x;
+			var z_diff = vertex_coords[1]-z;
+			var distance_from_vertex = Math.sqrt(Math.pow(x_diff, 2) + Math.pow(z_diff, 2));
+			if(distance_from_vertex<road_length){
+				vertex1 = [row, col];
+
+			}
+		}
+	}
+
+	if(!vertex1){
+		return null;
+	}
+
+	// Determine whether the vertical road was clicked
+	vertex2 = this.getRoadDestination(vertex1, "vertical");
+	var coords1 = this.verticesToCoordinates(vertex1);
+	if(!!vertex2){ 
+		var coords2 = this.verticesToCoordinates(vertex2);
+		if(x<=(coords1[0] + bevel_width) && x>=(coords1[0] - bevel_width) 		//checking if x click coordinate lies within road width
+		&& (z<=coords1[1] && z>=coords2[1]))	{							//vertex1 z-coordinate will always be higher than vertex2 due to top-down iteration through vertices
+			cb(this.game.playerID, vertex1, "vertical");
+		}
+	}
+
+	// Vertical road wasn't clicked, so rule out the left or right road based on x-coordinates
+	var adjacent_vertices = [this.getRoadDestination(vertex1, "left")];
+	adjacent_vertices.push(this.getRoadDestination(vertex1, "right"));
+	var count = 2;
+	while(adjacent_vertices.length){
+		count--;
+		var temp_vertex = adjacent_vertices.pop();
+		coords2 = this.verticesToCoordinates(temp_vertex);
+		if(x>= Math.min(coords1[0], coords2[0]) && x<= Math.max(coords1[0], coords2[0])){
+			vertex2 = temp_vertex;
+			break;
+		}
+	}
+
+
+	// Since vertex 1 always has higher z than vertex2, find how far click-x is from vertex1-x, 
+	// calculate z-offset for center of road at that x-offset, and subtract from vertex-z
+	x_diff = Math.abs(coords1[0] - x);
+	bevel_width*=1.5; //factoring in extra wiggle room for clicking
+	var road_vertical_center = coords1[1] - (Math.tan(Math.PI/6) * x_diff);
+	if(z>=road_vertical_center - bevel_width && z<=road_vertical_center + bevel_width){
+		switch(count){
+			case 1:
+				var direction = "right";
+				break;
+			case 0:
+				direction = "left";
+		}
+		cb(this.game.playerID, vertex1, direction);
+	}
+
 };
 
 // Function to move the robber

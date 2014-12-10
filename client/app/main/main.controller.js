@@ -80,7 +80,6 @@ angular.module('settlersApp')
                             gameObject.playerNumber = $rootScope.whatPlayerAmI;
                             dataLink.child('users').child(authData.uid).child('currentGames').push(gameObject);
                             $rootScope.playerData = gameData.players[$rootScope.whatPlayerAmI];
-                            $scope.gameData = $rootScope.playerData;
                             $scope.gameIsLoaded = true;
                         }
                     else {
@@ -89,7 +88,6 @@ angular.module('settlersApp')
                                 console.log($scope.previousGameIDs[game]);
                                 $rootScope.whatPlayerAmI = $scope.previousGameIDs[game].playerNumber;
                                 $rootScope.playerData = gameData.players[$rootScope.whatPlayerAmI];
-                                $scope.gameData = gameData.players[$scope.whatPlayerAmI];
                                 $scope.gameIsLoaded = true;
                             }
                         }
@@ -127,8 +125,9 @@ angular.module('settlersApp')
             }
             else {
                 console.log('gets here')
-                $rootScope.currentGameID = gameID;
+                $rootScope.currentGameID = id;
                 $scope.loadPreviousGame(id, 'newPlayer');
+                $scope.userJoiningCurrentGame = false;
             }
         }); 
         dataLink.child('games').child(id).child('users').push(authData.uid); 

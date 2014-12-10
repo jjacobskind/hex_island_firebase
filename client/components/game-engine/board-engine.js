@@ -194,7 +194,7 @@ GameBoard.prototype.constructRoad = function(player, currentLocation, newDirecti
     if (player.constructionPool.roads === 0) {
         return {err: "no roads left"};
     }
-    else if(this.boardVertices[currentLocation[0]][currentLocation[1]].connections[newDirection]!==null){
+    else if(!!this.boardVertices[currentLocation[0]][currentLocation[1]].connections[newDirection]){
         return {err: "occupied"};
     }
     else {

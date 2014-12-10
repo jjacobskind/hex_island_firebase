@@ -118,17 +118,17 @@ GameEngine.prototype.distributeResources = function(sumDice) {
                 resourceArray.push({resourceCount: resourcesToDistribute, resource: item.resource, player: rows[i][j].owner});
               }
             })
-            if (resourceArray.length !== 0) {
+            }
+          }
+        }
+        if (resourceArray.length !== 0) {
               resourceArray.forEach(function(item){
                 var resources = players[+item.player].resources;
                 console.log(resources);
                 console.log(item);
                 resources[item.resource] = resources[item.resource] + resourcesToDistribute;
                 console.log(resources[item.resource])
-              })
-            }
-          }
-        }
+        })
       }
     }
     console.log('finished distributing');
@@ -154,26 +154,31 @@ GameEngine.prototype.buildSettlement = function(playerID, location) {
   if(this.gameBoard.boardVertices[location[0]][location[1]].hasSettlementOrCity === "settlement"){
     return this.upgradeSettlementToCity(playerID, location);
   }
-  else if (player.resources.wool < 1 || player.resources.grain < 1 || player.resources.lumber < 1 || player.resources.brick < 1) {
+  else if ((player.resources.wool < 1 || player.resources.grain < 1 || player.resources.lumber < 1 || player.resources.brick < 1) && (this.turn > (this.players.length * 2))) {
     return {err: "Not enough resources to build a settlement!"};
   }
   else {
-    player.resources.wool--;
-    player.resources.grain--;
-    player.resources.lumber--;
-    player.resources.brick--;
+    if (this.turn > this.players.length * 2) {
+      player.resources.wool--;
+      player.resources.grain--;
+      player.resources.lumber--;
+      player.resources.brick--;
+    }
     return this.gameBoard.placeSettlement(player, location);
   }
 };
 
 GameEngine.prototype.buildRoad = function(playerID, location, direction) {
   var player = this.players[playerID];
-  if (player.resources.lumber < 1 || player.resources.brick < 1) {
+  if ((player.resources.lumber < 1 || player.resources.brick < 1) && 
+    (this.turn > (this.players.length * 2))) {
     return {err: "Not enough resources to build road!"};
   }
   else {
-    player.resources.lumber--;
-    player.resources.brick--;
+    if (this.turn > this.players.length * 2) {
+      player.resources.lumber--;
+      player.resources.brick--;
+    }
     return this.gameBoard.constructRoad(player,location,direction);
   }
 };

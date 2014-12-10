@@ -20,12 +20,13 @@ angular.module('settlersApp')
 			currentGameData.on("child_changed", function(childSnapshot) {
 				  var dataToSanitize = childSnapshot.val();
 				  var keyName = childSnapshot.key();
-				  console.log('updating local')
 				  switch (keyName) {
 				    case "players":
 				      var callback = function(data) {
 				      	game.players = data;
+				      	console.log('players', data)
 				      	$rootScope.playerData = game.players[$rootScope.whatPlayerAmI];
+				      	$rootScope.$apply();
 				      };
 				      break;
 				    case "boardTiles":
@@ -41,13 +42,15 @@ angular.module('settlersApp')
 				    case "turn":
 				      callback = function(data){
 				      	game.turn = data;
-				      	$rootScope.$apply();
+				      	$rootScope.currentTurn = game.turn;
+				      	$rootScope.$digest();
 				      };
 				      break;
 				    case "currentPlayer":
 				      callback = function(data){
 				      	game.currentPlayer = data;
-				      	$rootScope.$apply();
+				      	$rootScope.currentPlayer = game.currentPlayer;
+				      	console.log('currentPlayer', data)
 				      };
 				      break;
 				  };
@@ -186,6 +189,7 @@ angular.module('settlersApp')
 				}
 			},
 			buildRoad: function(player, location, direction){
+				console.log("test");
 				var updates = game.buildRoad(player, location, direction);
 				if(updates.hasOwnProperty("err")){
 					console.log(updates.err);
