@@ -1,48 +1,105 @@
-<div id="board_container" ng-style="RouteData.get('bodyStyle')">
+<div id="board_container">
 	<div class="hud-masthead">
-		<div class="container">
-			<nav class="blog-nav">
-			<div class="hudALeft">
-				<img src="assets/svg/brickOpt.svg" height="25px" />
-				<span href="#" class="blog-nav-item">{{$root.playerData.resources.brick}}</span>
-				<img src="assets/svg/grainOpt.svg" height="25px" />
-				<span href="#" class="blog-nav-item">{{$root.playerData.resources.grain}}</span>
-				<img src="assets/svg/lumberOpt.svg" height="25px" />
-				<span href="#" class="blog-nav-item">{{$root.playerData.resources.lumber}}</span>
-				<img src="assets/svg/oreOpt.svg" height="25px" />
-				<span href="#" class="blog-nav-item">{{$root.playerData.resources.ore}}</span>
-				<img src="assets/svg/woolOpt.svg" height="25px" />
-				<span href="#" class="blog-nav-item">{{$root.playerData.resources.wool}}</span>
-				<img src="assets/svg/starOpt.svg" height="22px" />
-				<span href="#" class="blog-nav-item">{{$root.playerData.playerQualities.privatePoints}}</span>
-			</div>
-			<div class="hudARight">
-				<span href="#" class="blog-nav-item">TURN: {{$root.currentTurn}} </span> | 
-				<span href="#" class="blog-nav-item">LONGEST ROAD: 2</span>
-			</div>
-			<div class="cb"></div>
-			</nav>
-		</div>
+				<!-- HUD -->
+				<ul id="menu" class="hudALeft">
+					<li>
+			  <div>
+			    <img src="assets/svg/brickOpt.svg" height="25px">
+			    <span href="#" class="blog-nav-item ng-binding">{{playerData.resources.brick}}</span>
+			  </div>
+			</li>
+
+					<li>
+			  <div>
+			    <img src="assets/svg/grainOpt.svg" height="25px">
+			    <span href="#" class="blog-nav-item ng-binding">{{playerData.resources.grain}}</span>
+			  </div>
+
+			</li>
+					<li>
+			  <div>
+			  <img src="assets/svg/lumberOpt.svg" height="25px">
+			    <span href="#" class="blog-nav-item ng-binding">{{playerData.resources.lumber}}</span>
+			  </div>
+			</li>
+					
+			  		<li>
+			  <div><img src="assets/svg/oreOpt.svg" height="25px">
+			  
+			  <span href="#" class="blog-nav-item ng-binding">{{playerData.resources.ore}}</span>
+			  </div>
+			</li>
+			  		<li>
+			  <div>
+			  <img src="assets/svg/woolOpt.svg" height="25px">
+			    <span href="#" class="blog-nav-item ng-binding">{{playerData.resources.wool}}</span>
+			  </div>
+			</li>
+				</ul>
+
+				<ul id="menu" class="hudARight">
+					<li>
+					  <div>
+					  <img src="assets/svg/devcardOpt.svg" height="25px">
+					    <span href="#" class="blog-nav-item ng-binding">{{playerData.resources.grain}}</span>
+					  </div>
+					</li>
+					<li>
+					  <div>
+					  <img src="assets/svg/starOpt.svg" height="25px">
+					    <span href="#" class="blog-nav-item ng-binding">{{$root.playerData.playerQualities.privatePoints}}</span>
+					  </div>
+					</li>
+
+					<li>
+						<div>
+							<span href="#" class="blog-nav-item ng-binding">LONGEST ROAD: 1</span>
+						</div>
+					</li>
+
+					<li>
+						<div>
+							<span href="#" class="blog-nav-item ng-binding">TURN: {{$root.currentTurn}}</span>
+						</div>
+					</li>
+				</ul>
+				<div class="cb"></div>
+		<!--</div>-->
 	</div>
+
 	<!-- end HUD -->	
-	<div class="diceHolder">
+	<div class="chatHolder opacityGradRtL">
 		<span href="#" id="button" class="dicon">
-			<a ng-click="rollDice()"><img src="assets/svg/diceOpt.svg" height="40px" /></a>
+			<img src="assets/svg/chatboxOpt.svg" height="30px">
 		</span>
-		<span href="#" id="button" class="num">{{currentRoll}}</span>
 	</div>
-	<!-- end dice roll view -->
+	<!-- end chatHolder view -->
 	
 	<div class="buttonHolder">
-	  <!--version 2-->
-	  <a href="#" id="button" class="tlk"><img src="assets/svg/chatboxOpt.svg" height="30px"></a>
-	  <a ng-click="board_ctrl.setMode('building')" id="button" class="bld"><img src="assets/svg/hammerOpt.svg" height="60px"></a>
-	  <a href="#" id="button" class="trd"><img src="assets/svg/swapOpt.svg" height="60px"></a>
-	  <a ng-click="nextTurn()" id="button" class="end"><img src="assets/svg/ffwdOpt.svg" height="60px"></a>
+		<div class="btnMarquee opacityGradLtR">DISPLAY BTN NAME HERE</div>
+ 	  <a ng-click="rollDice()" href id="button" class="tlk"><img src="assets/svg/diceOpt.svg" height="85px" /></a>
+	  <ul id="menu2" class="hudALeft">
+	  	<li ng-click="board_ctrl.setMode('building')">
+	  	  <div>
+	  	    <a href=""><img src="assets/svg/hammerOpt.svg" height="45px"></a>
+	  	  </div>
+	  	</li>
+
+	  	<li>
+	  	  <div>
+	  	    <a href=""><img src="assets/svg/swapOpt.svg" height="45px"></a>
+	  	  </div>
+	  	</li>
+	  	<li>
+	  	  <div>
+	  	  <a ng-click="nextTurn()" href=""><img src="assets/svg/ffwdOpt.svg" height="45px"></a>
+	  	  </div>
+	  	</li>
+	  </ul>
 	</div>
 	<!-- end button holder -->
 
-<!-- 	<div id="chatWindow">
+ 	<div id="chatWindow">
 		<div class='textScreen'></div>
 		<div class="input-group chatCtl">
 			<span class="input-group-btn">
@@ -51,65 +108,40 @@
 			<input type="text" class="form-control">
 		</div>
 		
-	</div> -->
+	</div>
 	<!-- end chat window view -->
 
-		<div id="playerBoard" class="list-group">
-			<div class="list-group-item">
-	    		<div class="pull-left">
-	      			<img height="45px"src="assets/images/bolt.png" />
-	      		</div>
-	      		<div class="media-body">
-	      		    Keith Richards
-	      		</div>
-	      		<div class="card-Count">5</div>
-	 		</div>
-
-	 		<div class="list-group-item">
-	 	  		<div class="pull-left">
-	 	    		<img height="45px"src="assets/images/cat.png" />
-	 	  		</div>
-	 	  		<div class="media-body">
-	 	      		Kate Middleton
-	 	  		</div>
-	 	  		<div class="card-Count">6</div>
-	 		</div>
-
-	 		<div class="list-group-item">
-	 	  		<div class="pull-left">
-	 	  			<img height="45px"src="assets/images/droid.png" />
-	 	  		</div>
-	 	  		<div class="media-body">
-	 	      		Tony Hsieh
-	 	  		</div>
-	 	  		<div class="card-Count">7</div>
-	 		</div>
-
-	 		<div class="list-group-item">
-	 		  	<div class="pull-left">
-	 		    	<img height="45px"src="assets/images/rocket.png" />
-	 		  	</div>
-	 		  	<div class="media-body ng-binding">
-	 		    	Jacob Zuma
-	 		  	</div>
-	 		  	<div class="card-Count">8</div>
-	 		</div></div>
+	<table>
+	  <tbody>
+	    <tr>
+	      <td><img height="45px"src="assets/images/bolt.png" /></td>
+	      <td>Keith Richards</td>
+	      <td>15</td>
+	    </tr>
+	    <tr>
+	      <td><img height="45px"src="assets/images/cat.png" /></td>
+	      <td>Kate Middleton</td>
+	      <td>6</td>
+	    </tr>
+	    <tr>
+	      <td><img height="45px"src="assets/images/droid.png" /></td>
+	      <td>Tony Hsieh</td>
+	      <td>3</td>
+	    </tr>
+	    <tr>
+	      <td><img height="45px"src="assets/images/rocket.png" /></td>
+	      <td>Jacob Zuma</td>
+	      <td>8</td>
+	    </tr>
+	  </tbody>
+	</table>
 	<!--end playerBoard-->
 
-
-	<div ng-view></div>
+	<div class="diceHolder opacityGradRtL">
+		<span href id="button" class="dicon">
+			<img src="assets/svg/diceOpt.svg" height="40px" />
+		</span>
+		<span href class="numRoll">LAST DICE ROLL: {{rollData}}</span>
+	</div>
+	<!-- end diceHolder view -->
 </div>
-<!-- end board_container -->
-<!-- <div class="container">
-  <div class="bs-example">
-    <div class="btn-toolbar" role="toolbar">
-      <button type="button" class="btn btn-default">
-        <span class="glyphicon glyphicon-tower" aria-hidden="true"></span> Build
-      </button>
-      <button type="button" class="btn btn-default">
-        <span class="glyphicon glyphicon-transfer" aria-hidden="true"></span> Trade
-      </button>
-    </div>
-  </div>
-<<<<<<< HEAD
-</div> -->

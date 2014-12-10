@@ -135,6 +135,7 @@ Board.prototype.drawBoard = function(tiles) {
 };
 
 Board.prototype.drawPort = function(location1, location2){
+	var side_length=this.side_length;
 	if(!!location1 && !!location2){
 		var coords1 = this.verticesToCoordinates(location1);
 		var coords2 = this.verticesToCoordinates(location2);
@@ -148,6 +149,30 @@ Board.prototype.drawPort = function(location1, location2){
 	var white_material = new THREE.MeshLambertMaterial( { color: 0xffffff, wireframe: false} );
 	var port_geometry = new THREE.ExtrudeGeometry(this.chip_shape, {amount:5, bevelEnabled:false});
 	var port = new THREE.Mesh(port_geometry, white_material);
+	if(coords1[0]===coords2[0]){
+		if(location1[1]===0){
+			x_avg+=side_length/2;
+		} else {
+			x_avg-=side_length/2;
+		}
+	} else {
+		var abs_max_x = Math.max(Math.abs(coords1[0]), Math.abs(coords2[0]));
+		var abs_min_x = Math.min(Math.abs(coords1[0]), Math.abs(coords2[0]));
+		if(coords1[0]<0){
+			abs_max_x*=-1;
+			abs_min_x*=-1;
+		}
+		x_avg = (abs_max_x + (abs_min_x*2))/3;
+
+		var abs_max_z = Math.max(Math.abs(coords1[1]), Math.abs(coords2[1]));
+		var abs_min_z = Math.min(Math.abs(coords1[1]), Math.abs(coords2[1]));
+		if(coords1[1]<0){
+			abs_max_z*=-1;
+			abs_min_z*=-1;
+		}
+		z_avg = ((abs_max_z*3) + abs_min_z)/4;
+		z_avg*=1.05
+	}
 	port.position.set(x_avg, 1, z_avg);
 	port.rotation.set(Math.PI/2, 0, 0);
 	this.game.scene.add(port);

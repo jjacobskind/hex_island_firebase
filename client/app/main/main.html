@@ -1,114 +1,19 @@
-<!--<div ng-include="'components/navbar/navbar.html'"></div>-->
-<h3 ng-if='currentUserData.facebook && !gameIsLoaded'>Welcome to Catan, {{currentUserData.facebook.displayName}}.</h3>
-<!--<img ng-if='currentUserData.facebook' ng-src="{{currentUserData.facebook.cachedUserProfile.picture.data.url}}" style="float:right; height:50px;"></img>-->
-<div ng-if="!gameIsLoaded && userIsLoggedIn" class="test">
-  <div class="site-wrapper-inner">
-    <div class="inner cover">
-      <h1 class="cover-heading gameTitle">CASTAN</h1>
-
-      <p class="spaced">
-        <a ng-click="createNewGame()" class="loginBtn" href="">CREATE A NEW GAME</a>
-      </p>
-      <p class="spaced">
-        <a ng-click="loadGameDataForUser()" class="loginBtn" href="">LOAD AN OLDER GAME</a>
-      </p>
-      <p class="spaced  ">
-        <a ng-click="joinCurrentGame()" class="loginBtn" href="">JOIN ANOTHER GAME</a>
-      </p>
-      
-      <p ng-if="previousGameIDs">Your current game ids are as follows...</p>
-      <ul >
-      <li ng-repeat="game in previousGameIDs">Load this game? <a ng-click="loadPreviousGame(game.gameID)">{{game.gameID}}</a></li>
-      	
-      </ul>
-  <!--<button ng-click="joinCurrentGame()"> join another game </button>--> 
-    </div>	
-  </div>
-  </div>
-
-  <div ng-if="userIsLoggedIn && gameIsLoaded"  class="test">
-  {{currentGameID}}
-  <board></board>
-          <div class="container">
-            <div class="bs-example">
-              <div class="btn-toolbar" role="toolbar">
-                  <span class="glyphicon glyphicon-tower" aria-hidden="true"></span> Build
-                </button>
-                <button type="button" class="btn btn-default">
-                  <span class="glyphicon glyphicon-transfer" aria-hidden="true"></span> Trade
-                </button>
-              </div>
-            </div>
-          </div>
-    </div>
-
-  <div ng-if="!userIsLoggedIn" class="test">
-    <div class="site-wrapper-inner">
-    <div class="inner cover">
-      <h1 class="cover-heading gameTitle">CASTAN</h1>
+<div class="site-wrapper-inner test">
+  <div class="inner cover">
+    <h3 ng-if='!!main_ctrl.player_name'>Welcome to Catan, {{main_ctrl.player_name}}.</h3>
+    <h1 class="cover-heading gameTitle">CASTAN</h1>
+    <div ui-view>
       <p class="lead">
         <a ng-click="loginOauth()" class="loginBtn" href="">LOGIN WITH FACEBOOK</a>
-        <!-- <button ng-click="loginOauth()">Login w/ Facebook</button> -->
       </p>
+    </div>
 
-      <div class="mastfoot">
-        <div class="inner">
-          <span>A MEAN stack translation of <a href="http://www.catan.com/">Settlers of Catan &copy; </a></span>
-          <span> | Team Castan - class 110 <a href="http://www.fullstackacademy.com/">@Fullstack Academy</a>.</span>
-        </div>
+    <div class="mastfoot">
+      <div class="inner">
+        <span>A MEAN stack translation of <a href="http://www.catan.com/">Settlers of Catan &copy; </a></span>
+        <span> | Team Castan - class 110 <a href="http://www.fullstackacademy.com/">@Fullstack Academy</a>.</span>
       </div>
-
     </div>
+
   </div>
-  </div>
-
-<div ng-if="userJoiningCurrentGame" class="test">
-  <div class="site-wrapper-inner">
-    <div class="inner cover">
-      <h1 class="cover-heading gameTitle">CASTAN</h1>
-        enter your game password here
-        <form name="userForm" class="lead">
-          <input type="text" name="currentGameID" ng-model="currentGameID" style="background:white;padding:12px 30px;"/>
-        </form>
-        <p class="lead">
-          <a ng-click="joinGameID(currentGameID)" class="loginBtn">join game {{currentGameID}}</a>
-        </p>
-    </div>
-  </div>
-
-
-
-
-
-
-<div>
-
-<!-- <div id="board_preview_inputs">
-	<input type="text" ng-model="main_ctrl.small_num" />
-	<input type="text" ng-model="main_ctrl.big_num" />
-	<button type="button" class="btn btn-success" ng-click="main_ctrl.makeBoard()">Preview Board</button>
-</div> -->
-<!--  -->
-<!--
-<div id='messagesDiv'></div>
-    <input type='text' id='nameInput' placeholder='Name'>
-    <input type='text' id='messageInput' placeholder='Message'>
-    <script type='text/javascript'>
-      var myDataRef = new Firebase('https://flickering-heat-2888.firebaseio.com/' + gameID + '/chat');
-      $('#messageInput').keypress(function (e) {
-        if (e.keyCode == 13) {
-          var name = $('#nameInput').val();
-          var text = $('#messageInput').val();
-          myDataRef.push({name: name, text: text});
-          $('#messageInput').val('');
-        }
-      });
-      function printChatMessage(name, text) {
-        $('<div/>').text(text).prepend($('<em/>').text(name+': ')).appendTo($('#messagesDiv'));
-        $('#messagesDiv')[0].scrollTop = $('#messagesDiv')[0].scrollHeight;
-      };
-      myDataRef.on('child_added', function(snapshot) {
-        var message = snapshot.val();
-        printChatMessage(message.name, message.text);
-      });
-</script> -->
+</div>

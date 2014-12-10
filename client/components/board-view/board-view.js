@@ -1,12 +1,15 @@
 'use strict';
 
 angular.module('settlersApp')
-  .factory('boardFactory', function() {
+  .factory('boardFactory', function($state, authFactory) {
+    if(!authFactory.getAuthData()) {
+      $state.go('main');
+    }
 
     var camera, scene, renderer, controls, light, water, game_board, someAction, updateEngine;
 
     var canvas_width = $(window).width();
-    var canvas_height = 800;
+    var canvas_height = 700;
 
     var init = function(game) {
 
@@ -214,6 +217,7 @@ angular.module('settlersApp')
   };
 })
 .controller('BoardCtrl', function(boardFactory, engineFactory, $scope, $compile, $rootScope, $timeout){
+
   var self = this;
   self.setMode = boardFactory.set_someAction;
   boardFactory.insert();
@@ -236,14 +240,14 @@ angular.module('settlersApp')
     }  
   };
   $scope.rollDice = function(){
-    if ($scope.playerHasRolled === false && $rootScope.currentPlayer === $rootScope.whatPlayerAmI)
-      {
-        $scope.playerHasRolled = true;
-        engineFactory.rollDice();
-      }
-    
-    $rootScope.currentRoll = engineFactory.getGame().diceNumber;
-  };
+     if ($scope.playerHasRolled === false && $rootScope.currentPlayer === $rootScope.whatPlayerAmI)
+       {
+         $scope.playerHasRolled = true;
+         engineFactory.rollDice();
+       }
+     
+     $rootScope.currentRoll = engineFactory.getGame().diceNumber;
+   };
 
   $scope.isItMyTurn = function(){
     if ($rootScope.currentPlayer === $rootScope.whatPlayerAmI){
