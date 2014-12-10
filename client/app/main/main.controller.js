@@ -48,6 +48,7 @@ angular.module('settlersApp')
         });
         engineFactory.addPlayer();
         $rootScope.whatPlayerAmI = 0;
+        $rootScope.playerData = game.players[0];
         $scope.gameIsLoaded = true;
     };
     $scope.loadGameDataForUser = function(){
@@ -69,25 +70,25 @@ angular.module('settlersApp')
                     boardFactory.drawGame(game);
                     $scope.gameIsLoaded = true;
                     $rootScope.currentGameID = gameID;
-                    $scope.whatPlayerAmI = game.players.length;
+                    $rootScope.whatPlayerAmI = game.players.length;
                     boardFactory.drawGame(game);
                     if (newPlayer)
                         {   
                             var player = engineFactory.addPlayer();
                             var gameObject = {};
                             gameObject.gameID = +gameID;
-                            gameObject.playerNumber = $scope.whatPlayerAmI;
+                            gameObject.playerNumber = $rootScope.whatPlayerAmI;
                             dataLink.child('users').child(authData.uid).child('currentGames').push(gameObject);
-                            $rootScope.playerData = gameData.players[0];
-                            $scope.gameData = gameData.players[0];
+                            $rootScope.playerData = gameData.players[$rootScope.whatPlayerAmI];
+                            $scope.gameData = $rootScope.playerData;
                             $scope.gameIsLoaded = true;
                         }
                     else {
                         for (var game in $scope.previousGameIDs){
                             if ($scope.previousGameIDs[game].gameID === gameID) {
                                 console.log($scope.previousGameIDs[game]);
-                                $scope.whatPlayerAmI = $scope.previousGameIDs[game].playerNumber;
-                                $rootScope.playerData = gameData.players[$scope.whatPlayerAmI];
+                                $rootScope.whatPlayerAmI = $scope.previousGameIDs[game].playerNumber;
+                                $rootScope.playerData = gameData.players[$rootScope.whatPlayerAmI];
                                 $scope.gameData = gameData.players[$scope.whatPlayerAmI];
                                 $scope.gameIsLoaded = true;
                             }
