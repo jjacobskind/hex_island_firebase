@@ -88,7 +88,69 @@ Board.prototype.drawBoard = function(tiles) {
 		}
 		board_tiles.push(board_tile_row);
 	}
+
+	// DRAW PORTS
+
+	// compile array of all outer vertices
+	var outer_vertices = [];
+	var cur_vertex = [0,0];
+	while(!!cur_vertex){
+		outer_vertices.push(cur_vertex);
+		cur_vertex = this.getRoadDestination(cur_vertex, "right");
+	}
+	var left_vertices =[];
+	num_rows = this.boardVertices.length;
+	for(row=2;row<num_rows;row++){
+		col = this.boardVertices[row].length-1;
+		outer_vertices.push([row, col]);
+		left_vertices.push([row, 0]);
+	}
+	left_vertices.pop();
+	left_vertices = left_vertices.reverse();
+	cur_vertex = [--row, col];
+	outer_vertices.pop();
+
+	while(!!cur_vertex){
+		outer_vertices.push(cur_vertex);
+		cur_vertex = this.getRoadDestination(cur_vertex, "left");
+	}
+	outer_vertices.pop();
+	outer_vertices = outer_vertices.concat(left_vertices);
+	outer_vertices.push([1, 0]);
+
+	for(i=0, len=outer_vertices.length; i<len; i++) {
+		var row=outer_vertices[i][0], col = outer_vertices[i][1];
+		if(i<len-1){
+			var row_next= outer_vertices[i+1][0], col_next= outer_vertices[i+1][1];
+		}
+		if(!!this.boardVertices[row][col].port && (i===0 || i===len-1 || !!this.boardVertices[row_next][col_next].port)) {
+			if(!this.boardVertices[row_next][col_next].port){
+				this.drawPort(outer_vertices[i], undefined);
+			} else {
+				this.drawPort(outer_vertices[i], outer_vertices[++i]);
+			}
+		}
+	}
 	return board_tiles;
+};
+
+Board.prototype.drawPort = function(location1, location2){
+	if(!!location1 && !!location2){
+		var coords1 = this.verticesToCoordinates(location1);
+		var coords2 = this.verticesToCoordinates(location2);
+	} else if(location1!==[1, 0]) {
+		coords1 = this.verticesToCoordinates([1, 0]);
+		coords2 = this.verticesToCoordinates([0, 0]);
+	}
+	var x_avg = (coords1[0] + coords2[0])/2;
+	var z_avg = (coords1[1] + coords2[1])/2;
+
+	var white_material = new THREE.MeshLambertMaterial( { color: 0xffffff, wireframe: false} );
+	var port_geometry = new THREE.ExtrudeGeometry(this.chip_shape, {amount:5, bevelEnabled:false});
+	var port = new THREE.Mesh(port_geometry, white_material);
+	port.position.set(x_avg, 1, z_avg);
+	port.rotation.set(Math.PI/2, 0, 0);
+	this.game.scene.add(port);
 };
 
 Board.prototype.indicesToCoordinates = function(indices){
