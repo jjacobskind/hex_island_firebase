@@ -23,21 +23,35 @@ angular.module('settlersApp')
 				  switch (keyName) {
 				    case "players":
 				      var callback = function(data) {
-				      	console.log(game.players);
 				      	game.players = data;
+				      	console.log('players', data)
+				      	$rootScope.playerData = game.players[$rootScope.whatPlayerAmI];
+				      	$rootScope.$apply();
 				      };
 				      break;
 				    case "boardTiles":
 				      callback = function(data) {
-				      	// game.gameBoard.boardTiles = data
+				      	game.gameBoard.boardTiles = data;
 				      };
 				      break;
 				    case "boardVertices":
 				      callback = function(data) { 	
-				      return game.findObjectDifferences(game.gameBoard.boardVertices, data)};
+				      return game.findObjectDifferences(game.gameBoard.boardVertices, data)
+				  	  };
 				      break;
-				    default:
-				      callback = function(data) {throw new Error ('incident occurred with this data: ', data)};
+				    case "turn":
+				      callback = function(data){
+				      	game.turn = data;
+				      	$rootScope.currentTurn = game.turn;
+				      	$rootScope.$digest();
+				      };
+				      break;
+				    case "currentPlayer":
+				      callback = function(data){
+				      	game.currentPlayer = data;
+				      	$rootScope.currentPlayer = game.currentPlayer;
+				      	console.log('currentPlayer', data)
+				      };
 				      break;
 				  };
 				  var change = parseJSON(dataToSanitize, callback);
@@ -60,12 +74,15 @@ angular.module('settlersApp')
 				  	}
 				}
 			});
+			console.log('event listener added');
 		};
 
 		function syncDatabase(game) {
 		    currentGameData.child('players').set(JSON.stringify(game.players));
 		    currentGameData.child('boardTiles').set(JSON.stringify(game.gameBoard.boardTiles));
 		    currentGameData.child('boardVertices').set(JSON.stringify(game.gameBoard.boardVertices));
+		    currentGameData.child('turn').set(game.turn);
+		    currentGameData.child('currentPlayer').set(game.currentPlayer);
 		};
 
 		var _refreshDatabase = function(){
@@ -76,19 +93,32 @@ angular.module('settlersApp')
 
 		function boardSync(currentGameData) {
 			return $q(function(resolve, reject) {
+				console.log('got to board sync');
 				game = new GameEngine(3,5);
+				console.log(game);
 			    currentGameData.once("value", function(snapshot) {
 			    	var persistedData = snapshot.val();
-			    	parseJSON(persistedData.players, function(data){game.players = data});
-			    	parseJSON(persistedData.boardTiles, function(data){game.gameBoard.boardTiles = data});
-			    	parseJSON(persistedData.boardVertices, function(data){game.gameBoard.boardVertices = data});
+			    	console.log(persistedData)
+			    	parseJSON(persistedData.players, function(data){
+			    		game.players = data;
+			    		console.log(data);
+			    	});
+			    	parseJSON(persistedData.boardTiles, function(data){
+			    		game.gameBoard.boardTiles = data;
+			    		console.log(data);
+			    	});
+			    	parseJSON(persistedData.boardVertices, function(data){
+			    		game.gameBoard.boardVertices = data;
+			    		console.log(data);	
+			    	});
 			    	if (persistedData.turn) {
-	                    parseJSON(persistedData.turn, function(data){game.turn = data});
+	                    parseJSON(persistedData.turn, function(data){game.turn = data;
+	                    console.log(data);});
 	                }
 	                if (persistedData.currentPlayer){
-		                parseJSON(persistedData.currentPlayer, function(data){game.currentPlayer = data});    
-	                }
-			    	boardFactory.drawGame(game);
+		                parseJSON(persistedData.currentPlayer, function(data){game.currentPlayer = data;
+		                console.log(data);});    
+	                }			    
 			    	console.log('data loaded');
 
 			    	resolve('success');
@@ -126,6 +156,11 @@ angular.module('settlersApp')
 			},
 			getGame: function(){
 				return game;
+			},
+			gamePromise:function(){
+				return $q(function(resolve, reject) {
+					resolve(game);
+				});
 			},
 			_refreshDatabase: _refreshDatabase, 
 			buildSettlement: function(player, location){
@@ -180,6 +215,7 @@ angular.module('settlersApp')
 				} else {
 					updateFireBase(updates);
 				}
+				return game.players[game.players.length];
 			},
 			restorePreviousSession: function(gameID) {
 					gameDatabase = dataLink.child('games').child(gameID);
@@ -234,6 +270,9 @@ angular.module('settlersApp')
 				return diceRoll;
 			},
 			endTurn: function () {
+				var deferAction = $q.defer();
+				
+				function modifyData () {
 				game.turn++;
 				game.calculatePlayerTurn();
 				game.diceRolled = false;
@@ -246,7 +285,16 @@ angular.module('settlersApp')
 						}
 					}
 				};
-				updateFireBase(updates);
+				updateFireBase(updates)
+				deferAction.resolve(updates);
+				};
+
+				modifyData();
+
+				return deferAction.promise;
+			},
+			refresh: function(){
+				return $rootScope.$digest();
 			}
 		}
 	});
