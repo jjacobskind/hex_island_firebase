@@ -223,7 +223,7 @@ Board.prototype.verticesToCoordinates = function(location){
 	var i=0;
 
 
-	while(temp_row!==z){
+	while(temp_row!==z && z !== undefined){
 		temp_row-=direction;
 		z_offset += direction * intervals[i%2];
 		i++;
@@ -536,6 +536,7 @@ Board.prototype.getVertex = function(coords, cb){
 			var z_diff = vertex_coords[1]-z;
 			var distance_from_vertex = Math.sqrt(Math.pow(x_diff, 2) + Math.pow(z_diff, 2));
 			if(distance_from_vertex<radius){
+				console.log(row,col)
 				cb(this.game.playerID, [row, col]);
 				// return null;
 			}

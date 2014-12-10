@@ -17,7 +17,6 @@ angular.module('settlersApp')
 
 		function firebaseEventListener(){
 			//this will be applied on the new game and the existing game
-			console.log('event listener added');
 			currentGameData.on("child_changed", function(childSnapshot) {
 				  var dataToSanitize = childSnapshot.val();
 				  var keyName = childSnapshot.key();
@@ -68,6 +67,7 @@ angular.module('settlersApp')
 				  	}
 				}
 			});
+			console.log('event listener added');
 		};
 
 		function syncDatabase(game) {
@@ -86,19 +86,32 @@ angular.module('settlersApp')
 
 		function boardSync(currentGameData) {
 			return $q(function(resolve, reject) {
+				console.log('got to board sync');
 				game = new GameEngine(3,5);
+				console.log(game);
 			    currentGameData.once("value", function(snapshot) {
 			    	var persistedData = snapshot.val();
-			    	parseJSON(persistedData.players, function(data){game.players = data});
-			    	parseJSON(persistedData.boardTiles, function(data){game.gameBoard.boardTiles = data});
-			    	parseJSON(persistedData.boardVertices, function(data){game.gameBoard.boardVertices = data});
+			    	console.log(persistedData)
+			    	parseJSON(persistedData.players, function(data){
+			    		game.players = data;
+			    		console.log(data);
+			    	});
+			    	parseJSON(persistedData.boardTiles, function(data){
+			    		game.gameBoard.boardTiles = data;
+			    		console.log(data);
+			    	});
+			    	parseJSON(persistedData.boardVertices, function(data){
+			    		game.gameBoard.boardVertices = data;
+			    		console.log(data);	
+			    	});
 			    	if (persistedData.turn) {
-	                    parseJSON(persistedData.turn, function(data){game.turn = data});
+	                    parseJSON(persistedData.turn, function(data){game.turn = data;
+	                    console.log(data);});
 	                }
 	                if (persistedData.currentPlayer){
-		                parseJSON(persistedData.currentPlayer, function(data){game.currentPlayer = data});    
-	                }
-			    	boardFactory.drawGame(game);
+		                parseJSON(persistedData.currentPlayer, function(data){game.currentPlayer = data;
+		                console.log(data);});    
+	                }			    
 			    	console.log('data loaded');
 
 			    	resolve('success');
@@ -136,6 +149,11 @@ angular.module('settlersApp')
 			},
 			getGame: function(){
 				return game;
+			},
+			gamePromise:function(){
+				return $q(function(resolve, reject) {
+					resolve(game);
+				});
 			},
 			_refreshDatabase: _refreshDatabase, 
 			buildSettlement: function(player, location){
