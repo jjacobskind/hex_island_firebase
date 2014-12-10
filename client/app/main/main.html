@@ -61,15 +61,21 @@
   </div>
   </div>
 
-  <div ng-if="userJoiningCurrentGame">
-  enter your game password here
-  <div>
-    <form name="userForm">
-      <input type="text" name="currentGameID" ng-model="currentGameID"/>
-    </form>
-    <button ng-click="joinGameID(currentGameID)">join game {{currentGameID}}</button>
+<div ng-if="userJoiningCurrentGame" class="test">
+  <div class="site-wrapper-inner">
+    <div class="inner cover">
+      <h1 class="cover-heading gameTitle">CASTAN</h1>
+        enter your game password here
+        <form name="userForm" class="lead">
+          <input type="text" name="currentGameID" ng-model="currentGameID" style="background:white;padding:12px 30px;"/>
+        </form>
+        <p class="lead">
+          <a ng-click="joinGameID(currentGameID)" class="loginBtn">join game {{currentGameID}}</a>
+        </p>
+    </div>
   </div>
-</div>
+
+<div>
 
 <!-- <div id="board_preview_inputs">
 	<input type="text" ng-model="main_ctrl.small_num" />
