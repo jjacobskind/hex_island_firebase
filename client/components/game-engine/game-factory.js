@@ -46,6 +46,13 @@ angular.module('settlersApp')
 				      	$rootScope.$digest();
 				      };
 				      break;
+				  	case "boardIsSetup":
+				      callback = function(data){
+				      	console.log(data);
+				      	game.boardIsSetup = data;
+				      	$rootScope.$digest();
+				      };
+				      break;
 				    case "currentPlayer":
 				      callback = function(data){
 				      	game.currentPlayer = data;
@@ -117,6 +124,10 @@ angular.module('settlersApp')
 	                }
 	                if (persistedData.currentPlayer){
 		                parseJSON(persistedData.currentPlayer, function(data){game.currentPlayer = data;
+		                console.log(data);});    
+	                }	
+	                if (persistedData.boardIsSetup){
+		                parseJSON(persistedData.boardIsSetup, function(data){game.boardIsSetup = data;
 		                console.log(data);});    
 	                }			    
 			    	console.log('data loaded');
