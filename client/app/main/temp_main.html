@@ -1,0 +1,32 @@
+<!--<div ng-include="'components/navbar/navbar.html'"></div>-->
+<h3 ng-if='currentUserData.facebook && !gameIsLoaded'>Welcome to Catan, {{currentUserData.facebook.displayName}}.</h3>
+<!--<img ng-if='currentUserData.facebook' ng-src="{{currentUserData.facebook.cachedUserProfile.picture.data.url}}" style="float:right; height:50px;"></img>-->
+
+      
+      <p ng-if="previousGameIDs">Your current game ids are as follows...</p>
+      <ul >
+      <li ng-repeat="game in previousGameIDs">
+        <a ng-click="loadPreviousGame(game.gameID)">{{game.gameID}}</a>
+      </li>
+      	
+      </ul>
+  <!--<button ng-click="joinCurrentGame()"> join another game </button>--> 
+    </div>	
+  </div>
+  </div>
+
+  <div ng-if="userIsLoggedIn && gameIsLoaded"  class="test">
+  {{currentGameID}}
+  <board></board>
+          <div class="container">
+            <div class="bs-example">
+              <div class="btn-toolbar" role="toolbar">
+                  <span class="glyphicon glyphicon-tower" aria-hidden="true"></span> Build
+                </button>
+                <button type="button" class="btn btn-default">
+                  <span class="glyphicon glyphicon-transfer" aria-hidden="true"></span> Trade
+                </button>
+              </div>
+            </div>
+          </div>
+    </div>
