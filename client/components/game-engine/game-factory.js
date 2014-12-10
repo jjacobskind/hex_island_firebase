@@ -154,6 +154,7 @@ angular.module('settlersApp')
 				}
 			},
 			buildRoad: function(player, location, direction){
+				console.log("test");
 				var updates = game.buildRoad(player, location, direction);
 				if(updates.hasOwnProperty("err")){
 					console.log(updates.err);

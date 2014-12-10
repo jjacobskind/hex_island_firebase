@@ -94,7 +94,8 @@ angular.module('settlersApp')
       pos.x*= -1;
       var click_coordinates = [pos.x, pos.z];
       if(!!someAction){
-        someAction = someAction.call(game_board.board, click_coordinates, updateEngine);
+        someAction.call(game_board.board, click_coordinates, updateEngine);
+        unset_someAction();
       }
     });
     return renderer;
@@ -132,6 +133,11 @@ angular.module('settlersApp')
     renderer.setSize($(window).width(), canvas_height);
   });
 
+  function unset_someAction(){
+    someAction = null;
+    updateEngine = null;
+  };
+
   return {
     drawGame: function(game) {
       init(game);
@@ -147,20 +153,32 @@ angular.module('settlersApp')
       animate();
     },
     set_someAction: function(action){
+      var engine_factory = angular.element(document.body).injector().get('engineFactory');
       switch(action){
         case "road":
+          if(updateEngine === engine_factory.buildRoad){
+            unset_someAction();
+          } else {
+            someAction = game_board.board.getRoad;
+            updateEngine = engine_factory.buildRoad;
+          }
+          break;
         case "building":
-          if(someAction === game_board.board.getVertex){
-            someAction = null;
-            updateEngine = null;
+          if(updateEngine === engine_factory.buildSettlement){
+            unset_someAction();
           } else {
             someAction = game_board.board.getVertex;
-            updateEngine = angular.element(document.body).injector().get('engineFactory').buildSettlement;
+            updateEngine = engine_factory.buildSettlement;
           }
           break;
         case "robber":
-          someAction = game_board.board.getTile;
-          updateEngine = angular.element(document.body).injector().get('engineFactory').moveRobber; 
+          if(updateEngine === engine_factory.moveRobber){
+            unset_someAction();
+          } else {
+            someAction = game_board.board.getTile;
+            updateEngine = engine_factory.moveRobber; 
+          }
+          break;
       }
     },
     moveRobber: function(destination){
