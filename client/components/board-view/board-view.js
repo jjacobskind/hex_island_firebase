@@ -220,8 +220,8 @@ angular.module('settlersApp')
     }
   };
 })
-.controller('BoardCtrl', function(boardFactory, engineFactory, $scope, $compile, $rootScope, $timeout){
-  console.log("hello");
+.controller('BoardCtrl', function(boardFactory, engineFactory, authFactory, $scope, $compile, $rootScope, $timeout){
+
   var self = this;
   self.setMode = boardFactory.set_someAction;
   boardFactory.insert();
@@ -235,7 +235,7 @@ angular.module('settlersApp')
       ($scope.playerHasRolled === true
      && authFactory.getPlayerID() === $scope.currentPlayer) ||
       ($rootScope.currentTurn < (engineFactory.getGame().players.length * 2) && 
-            authFactory.getPlayerID() === $scope.currentPlayer))
+            authFactory.getPlayerID() === $rootScope.currentPlayer))
     {
       engineFactory.endTurn()
       $scope.playerHasRolled = false;

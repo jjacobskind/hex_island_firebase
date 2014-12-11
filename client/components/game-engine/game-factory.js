@@ -57,7 +57,6 @@ angular.module('settlersApp')
 				      callback = function(data){
 				      	game.currentPlayer = data;
 				      	$rootScope.currentPlayer = game.currentPlayer;
-				      	console.log('currentPlayer', data)
 				      };
 				      break;
 				  };
