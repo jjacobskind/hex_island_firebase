@@ -96,6 +96,7 @@ angular.module('settlersApp')
       var pos = camera.position.clone().add( dir.multiplyScalar( distance ) );
       pos.x*= -1;
       var click_coordinates = [pos.x, pos.z];
+
       if(!!someAction){
         someAction.call(game_board.board, click_coordinates, updateEngine);
         unset_someAction();
@@ -142,6 +143,9 @@ angular.module('settlersApp')
   };
 
   return {
+    buildRoad: function(player, vertex1, vertex2) {
+      game_board.board.buildRoad(player, vertex1, vertex2);
+    },
     drawGame: function(game) {
       init(game);
     },
@@ -196,15 +200,15 @@ angular.module('settlersApp')
       init(small_num, big_num);
       animate();
     },
-    placeSettlement: function(playerID, location){
+    placeSettlement: function(player, location){
       var row=location[0], col=location[1];
       if(!game_board.board.boardVertices[row][col].building){
-        var settlement = new Building(game_board.board, "settlement", playerID, location);
+        var settlement = new Building(game_board.board, "settlement", player, location);
         game_board.board.boardVertices[row][col].building=settlement;
         scene.add(settlement.building);
       }
     },
-    upgradeSettlementToCity: function(playerID, location){
+    upgradeSettlementToCity: function(player, location){
       var row=location[0], col=location[1];
       var vertex_building = game_board.board.boardVertices[row][col].building;
       scene.remove(vertex_building.building);
@@ -217,7 +221,7 @@ angular.module('settlersApp')
   };
 })
 .controller('BoardCtrl', function(boardFactory, engineFactory, $scope, $compile, $rootScope, $timeout){
-
+  console.log("hello");
   var self = this;
   self.setMode = boardFactory.set_someAction;
   boardFactory.insert();
@@ -229,9 +233,9 @@ angular.module('settlersApp')
   $scope.nextTurn = function(){
     if (
       ($scope.playerHasRolled === true
-     && $rootScope.whatPlayerAmI === $scope.currentPlayer) ||
+     && authFactory.getPlayerID() === $scope.currentPlayer) ||
       ($rootScope.currentTurn < (engineFactory.getGame().players.length * 2) && 
-            $rootScope.whatPlayerAmI === $scope.currentPlayer))
+            authFactory.getPlayerID() === $scope.currentPlayer))
     {
       engineFactory.endTurn()
       $scope.playerHasRolled = false;
@@ -240,7 +244,7 @@ angular.module('settlersApp')
     }  
   };
   $scope.rollDice = function(){
-     if ($scope.playerHasRolled === false && $rootScope.currentPlayer === $rootScope.whatPlayerAmI)
+     if ($scope.playerHasRolled === false && $rootScope.currentPlayer === authFactory.getPlayerID())
        {
          $scope.playerHasRolled = true;
          engineFactory.rollDice();
@@ -250,7 +254,7 @@ angular.module('settlersApp')
    };
 
   $scope.isItMyTurn = function(){
-    if ($rootScope.currentPlayer === $rootScope.whatPlayerAmI){
+    if ($rootScope.currentPlayer === authFactory.getPlayerID()){
       return true;
     }
     else {

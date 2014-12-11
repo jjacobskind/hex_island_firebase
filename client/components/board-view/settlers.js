@@ -7,7 +7,6 @@ var materials = [ border_material, tile_material ];
 
 var Game = function(scene, game, scale) {
 	this.scene = scene;
-	this.playerID = game.currentPlayer;  //need to update this later to reflect actual player index
 
 	this.board = new Board(this, game.gameBoard.getRoadDestination, game.gameBoard.boardVertices, game.gameBoard.boardTiles, scale);
 
@@ -75,7 +74,6 @@ Board.prototype.drawBoard = function(tiles) {
 
 		for(var col=0, num_cols=tiles[row].length;col<num_cols; col++){
 			if(tiles.robber===true){
-				console.log("here");
 				this.drawRobber([row, col]);
 			}
 			var coordinates = this.indicesToCoordinates([row, col]);
@@ -319,11 +317,7 @@ Board.prototype.verticesToCoordinates = function(location){
 	return [x_coord, z_offset];
 };
 
-Board.prototype.buildRoad = function(location1, location2, playerID){
-	if(!playerID){
-		playerID = this.game.playerID;
-	}
-	console.log(location1, location2);
+Board.prototype.buildRoad = function(playerID, location1, location2){
 	var edge = 5 * this.scale;
 	var depth = this.side_length*0.7;
 	var pts = [new THREE.Vector2(0, 0)];
@@ -363,6 +357,7 @@ Board.prototype.buildRoad = function(location1, location2, playerID){
 	var z_avg = (coords1[1] + coords2[1])/2;
 	var z_offset = Math.cos(angle)*depth/2;
 	road.position.set(x_avg - x_offset,0,z_avg - z_offset);
+	this.game.scene.add(road);
 
 	return road;
 };
@@ -387,7 +382,7 @@ Board.prototype.populateBoard = function(getRoadDestination, tiles) {
 					if(!!destination && (row<destination[0] || col<destination[1])){
 						obj.connections = {};
 						owner = this.boardVertices[row][col].connections[key];
-						obj.connections[key] = this.buildRoad([row, col], destination, owner);
+						obj.connections[key] = this.buildRoad(owner, [row, col], destination);
 						this.game.scene.add(obj.connections[key]);
 					}
 				}
@@ -627,8 +622,7 @@ Board.prototype.getVertex = function(coords, cb){
 			var z_diff = vertex_coords[1]-z;
 			var distance_from_vertex = Math.sqrt(Math.pow(x_diff, 2) + Math.pow(z_diff, 2));
 			if(distance_from_vertex<radius){
-				console.log(row,col)
-				cb(this.game.playerID, [row, col]);
+				cb([row, col]);
 				return null;
 			}
 		}
@@ -666,7 +660,7 @@ Board.prototype.getRoad = function(coords, cb){
 		var coords2 = this.verticesToCoordinates(vertex2);
 		if(x<=(coords1[0] + bevel_width) && x>=(coords1[0] - bevel_width) 		//checking if x click coordinate lies within road width
 		&& (z<=coords1[1] && z>=coords2[1]))	{							//vertex1 z-coordinate will always be higher than vertex2 due to top-down iteration through vertices
-			cb(this.game.playerID, vertex1, "vertical");
+			cb(vertex1, "vertical");
 		}
 	}
 
@@ -698,7 +692,7 @@ Board.prototype.getRoad = function(coords, cb){
 			case 0:
 				direction = "left";
 		}
-		cb(this.game.playerID, vertex1, direction);
+		cb(vertex1, direction);
 	}
 
 };

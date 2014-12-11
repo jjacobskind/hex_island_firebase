@@ -1,7 +1,7 @@
 'use strict';
 
 angular.module('settlersApp')
-	.factory('engineFactory', function($q, boardFactory, $rootScope){
+	.factory('engineFactory', function($q, $rootScope, boardFactory, authFactory){
 		var game;
 
 		var gameID;
@@ -25,7 +25,7 @@ angular.module('settlersApp')
 				      var callback = function(data) {
 				      	game.players = data;
 				      	console.log('players', data)
-				      	$rootScope.playerData = game.players[$rootScope.whatPlayerAmI];
+				      	$rootScope.playerData = game.players[authFactory.getPlayerID()];
 				      	$rootScope.$apply();
 				      };
 				      break;
@@ -66,22 +66,23 @@ angular.module('settlersApp')
 				  	return null;
 				  }
 				  var coords1 = [change[0].row, change[0].col];
-				  if(change.length===2){
+				  if(change.length>2){
 				  	var coords2 = [change[1].row, change[1].col];
-				  	drawRoad(coords1, coords2);
+				  	var owner = change[2];
+				  	boardFactory.buildRoad(owner, coords1, coords2);
 				  } else if(change.length===1){
-				  	console.log(change[0]);
 				  	if(change[0].keys.indexOf("owner")!==-1) {
-				  		boardFactory.placeSettlement(change[0].owner, coords1);
+				  		var owner = change[0].owner;
+				  		boardFactory.placeSettlement(owner, coords1);
 				  	}
 				  	else if(change[0].keys.indexOf("hasSettlementOrCity")!==-1) {
-				  		console.log(change[0]);
-				  		var owner = game.gameBoard.boardVertices[coords1[0]][coords1[1]].owner;
-				  		boardFactory.upgradeSettlementToCity(owner, coords1);
+				  		$rootScope.actingPlayer = game.gameBoard.boardVertices[coords1[0]][coords1[1]].owner;
+				  		boardFactory.upgradeSettlementToCity(coords1);
+				  		// var owner = game.gameBoard.boardVertices[coords1[0]][coords1[1]].owner;
+				  		// boardFactory.upgradeSettlementToCity(owner, coords1);
 				  	}
 				}
 			});
-			console.log('event listener added');
 		};
 
 		function syncDatabase(game) {
@@ -112,23 +113,18 @@ angular.module('settlersApp')
 			    	});
 			    	parseJSON(persistedData.boardTiles, function(data){
 			    		game.gameBoard.boardTiles = data;
-			    		console.log(data);
 			    	});
 			    	parseJSON(persistedData.boardVertices, function(data){
 			    		game.gameBoard.boardVertices = data;
-			    		console.log(data);	
 			    	});
 			    	if (persistedData.turn) {
-	                    parseJSON(persistedData.turn, function(data){game.turn = data;
-	                    console.log(data);});
+	                    parseJSON(persistedData.turn, function(data){game.turn = data;});
 	                }
 	                if (persistedData.currentPlayer){
-		                parseJSON(persistedData.currentPlayer, function(data){game.currentPlayer = data;
-		                console.log(data);});    
+		                parseJSON(persistedData.currentPlayer, function(data){game.currentPlayer = data});    
 	                }	
 	                if (persistedData.boardIsSetup){
-		                parseJSON(persistedData.boardIsSetup, function(data){game.boardIsSetup = data;
-		                console.log(data);});    
+		                parseJSON(persistedData.boardIsSetup, function(data){game.boardIsSetup = data});    
 	                }			    
 			    	console.log('data loaded');
 
@@ -146,11 +142,11 @@ angular.module('settlersApp')
 			}
 		};
 
-		var drawRoad = function(coords1, coords2){
-			var game_view = boardFactory.getGame();
-		  	var road = game_view.board.buildRoad(coords1, coords2);
-		  	game_view.scene.add(road);
-		};
+		// var drawRoad = function(coords1, coords2){
+		// 	var game_view = boardFactory.getGame();
+		//   	var road = game_view.board.buildRoad(coords1, coords2);
+		//   	game_view.scene.add(road);
+		// };
 
 		return {
 			newGame: function(small_num, big_num){
@@ -174,39 +170,38 @@ angular.module('settlersApp')
 				});
 			},
 			_refreshDatabase: _refreshDatabase, 
-			buildSettlement: function(player, location){
+			buildSettlement: function(location){
 				var settlement_exists = (game.gameBoard.boardVertices[location[0]][location[1]].hasSettlementOrCity === "settlement")
-				var updates = game.buildSettlement(player, location);
+				var updates = game.buildSettlement(authFactory.getPlayerID(), location);
 				if(updates.hasOwnProperty("err")){
 					console.log(updates.err);
 				}
 				else {
 					if(!settlement_exists){
-						boardFactory.placeSettlement(player, location);
+						boardFactory.placeSettlement(authFactory.getPlayerID(), location);
 					} else {
-						boardFactory.upgradeSettlementToCity(player, location);
+						boardFactory.upgradeSettlementToCity(authFactory.getPlayerID(), location);
 					}
 					updateFireBase(updates);
 				}
 			},
-			upgradeSettlementToCity: function(player, location){
-				var updates = game.upgradeSettlementToCity(player, location);
+			upgradeSettlementToCity: function(location){
+				var updates = game.upgradeSettlementToCity(authFactory.getPlayerID(), location);
 				if(updates.hasOwnProperty("err")){
 					console.log(updates.err);
 				}
 				else {
-					boardFactory.upgradeSettlementToCity(player, location);
+					boardFactory.upgradeSettlementToCity(authFactory.getPlayerID(), location);
 					updateFireBase(updates);
 				}
 			},
-			buildRoad: function(player, location, direction){
-				console.log("test");
-				var updates = game.buildRoad(player, location, direction);
+			buildRoad: function(location, direction){
+				var updates = game.buildRoad(authFactory.getPlayerID(), location, direction);
 				if(updates.hasOwnProperty("err")){
 					console.log(updates.err);
 				} else {
 					var destination = game.gameBoard.getRoadDestination(location, direction);
-					drawRoad(location, destination);
+					boardFactory.buildRoad(authFactory.getPlayerID(), location, destination);
 					updateFireBase(updates);
 				}
 			},
