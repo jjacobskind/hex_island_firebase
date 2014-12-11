@@ -80,9 +80,9 @@
 	 		<div class='textScreen'></div>
 	 		<div class="input-group chatCtl">
 	 			<span class="input-group-btn">
-	 				<button class="btn btn-default" type="button">TO EVERYONE:</button>
+	 				<button class="btn btn-default" type="button" ng-click="submitChat(textContent)">TO EVERYONE:</button>
 	 			</span>
-	 			<input type="text" class="form-control">
+	 			<input type="text" class="form-control" ng-model="textContent">
 	 		</div>
 			
 		</div>
@@ -92,7 +92,7 @@
 	<!-- end chatHolder view -->
 	
 	<div class="buttonHolder">
-		<div class="btnMarquee opacityGradLtR">GAME ID: </div>
+	<div class="btnMarquee opacityGradLtR">Game ID: {{$root.currentGameID}}</div>
  	  <a ng-click="rollDice()" href id="button" class="tlk"><img src="assets/svg/diceOpt.svg" height="85px" /></a>
  	  <div class="buttonWrapper">
 		  <ul id="menu2" class="hudALeft">
@@ -142,7 +142,7 @@
 		<span href id="button" class="dicon">
 			<img src="assets/svg/diceOpt.svg" height="40px" />
 		</span>
-		<span href class="numRoll">LAST DICE ROLL: {{rollData}}</span>
+		<span href class="numRoll">LAST DICE ROLL: {{$root.currentRoll}}</span>
 	</div>
 	<!-- end diceHolder view -->
 </div>

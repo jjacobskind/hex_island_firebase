@@ -220,8 +220,8 @@ angular.module('settlersApp')
     }
   };
 })
-.controller('BoardCtrl', function(boardFactory, engineFactory, authFactory, $scope, $compile, $rootScope, $timeout){
 
+.controller('BoardCtrl', function(boardFactory, engineFactory, authFactory, $scope, $compile, $rootScope, $timeout){
   var self = this;
   self.setMode = boardFactory.set_someAction;
   boardFactory.insert();
@@ -229,6 +229,15 @@ angular.module('settlersApp')
   $rootScope.currentTurn = engineFactory.getGame().turn;
   $scope.playerHasRolled = false;
   $rootScope.currentPlayer = engineFactory.getGame().currentPlayer;
+
+  $scope.submitChat = function(textContent){
+    chatLink.push({name: 'testPlayer', text: textContent});
+  };
+
+  function printChatMessage(name, text) {
+    $('<div/>').text(text).prepend($('<em/>').text(name+': ')).appendTo($('.textScreen'));
+    $('.textScreen')[0].scrollTop = $('.textScreen')[0].scrollHeight;
+  };
   
   $scope.nextTurn = function(){
     if (
@@ -248,21 +257,22 @@ angular.module('settlersApp')
        {
          $scope.playerHasRolled = true;
          engineFactory.rollDice();
+         $rootScope.currentRoll = engineFactory.getGame().diceNumber;
+         chatLink.push({name: 'GAME', text: "On turn " + $rootScope.currentTurn + ", " + $rootScope.currentPlayer + " has rolled a " + $rootScope.currentRoll});
        }
-     
-     $rootScope.currentRoll = engineFactory.getGame().diceNumber;
+       $rootScope.currentRoll = engineFactory.getGame().diceNumber;
    };
 
-  $scope.isItMyTurn = function(){
-    if ($rootScope.currentPlayer === authFactory.getPlayerID()){
-      return true;
-    }
-    else {
-      return false;
-    }
-  }
-
   $rootScope.currentRoll = engineFactory.currentDiceRoll();
+  $scope.currentGameID = $rootScope.currentGameID;
+  var dataLink = engineFactory.getDataLink();
+  var chatLink = dataLink.child('games').child($rootScope.currentGameID).child('chats');
+
+  chatLink.on('child_added', function(snapshot) {
+    var message = snapshot.val();
+    console.log(message);
+    printChatMessage(message.name, message.text);
+  });
 
 }) 
 .directive('board', function() {

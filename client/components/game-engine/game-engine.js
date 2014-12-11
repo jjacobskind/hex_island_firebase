@@ -13,6 +13,7 @@ function GameEngine(small_num, large_num) {
 }
 
 GameEngine.prototype.calculatePlayerTurn = function() {
+
  var currentTurn = this.turn, playerLength = this.players.length;
 
  if (this.turn <= playerLength - 1) {
