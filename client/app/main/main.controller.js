@@ -19,8 +19,8 @@ angular.module('settlersApp')
     self.big_num = 5;
 
     $scope.previousGameIDs = undefined;
-    $rootScope.currentGameID = null;
     $scope.whatPlayerAmI = undefined;
+
 
     var dataLink = engineFactory.getDataLink();
 
@@ -37,6 +37,7 @@ angular.module('settlersApp')
             if (!userData.currentGames) {
                 var gameObject = {};
                 gameObject.gameID = gameID;
+                $rootScope.currentGameID = gameID;
                 gameObject.playerNumber = 0
                 dataLink.child('users').child(authData.uid).child('currentGames').push(gameObject);
             }
@@ -48,6 +49,7 @@ angular.module('settlersApp')
                 }
                 var gameObject = {};
                 gameObject.gameID = gameID;
+                $rootScope.currentGameID = gameID;
                 gameObject.playerNumber = 0
                 gameArray.push(gameObject);
                 dataLink.child('users').child(authData.uid).child('currentGames').set(gameArray)
@@ -55,7 +57,6 @@ angular.module('settlersApp')
             $scope.currentGameID = gameID;
         });
         engineFactory.addPlayer();
-
         $rootScope.whatPlayerAmI = 0;
         $rootScope.playerData = game.players[0];
         $state.go('game');
@@ -79,9 +80,9 @@ angular.module('settlersApp')
             engineFactory.gamePromise()
                 .then(function(gameData){
                     game = gameData;
+                    $rootScope.currentGameID = gameID;
                     boardFactory.drawGame(game);
                     $scope.gameIsLoaded = true;
-                    $rootScope.currentGameID = gameID;
                     $rootScope.whatPlayerAmI = game.players.length;
                     boardFactory.drawGame(game);
                     if (newPlayer)
@@ -113,6 +114,7 @@ angular.module('settlersApp')
             if (auth) {
                 authFactory.setAuthData(auth);
                 var authData = authFactory.getAuthData();
+                console.log(authFactory.getAuthData());
                 self.player_name = authData.facebook.displayName.split(" ")[0];
                 $state.go('main.menu');
                 $scope.$digest();
@@ -138,10 +140,10 @@ angular.module('settlersApp')
                 console.log('gets here')
                 $rootScope.currentGameID = id;
                 $scope.loadPreviousGame(id, 'newPlayer');
-                $rootScope.currentGameID = gameID;
                 $state.go('game');
             }
         }); 
+        var authData = authFactory.getAuthData();
         dataLink.child('games').child(id).child('users').push(authData.uid); 
     }
   });

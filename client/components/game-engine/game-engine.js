@@ -13,11 +13,31 @@ function GameEngine(small_num, large_num) {
 }
 
 GameEngine.prototype.calculatePlayerTurn = function() {
-  if (this.turn >= (this.players.length * 2) + 1) {
-    this.boardIsSetup = true;
-  }
   var currentTurn = this.turn, playerLength = this.players.length;
-  this.currentPlayer = currentTurn % playerLength;
+
+  if (this.turn >= playerLength - 1) {
+    //go in order eg, 0, 1, 2
+    // turn 0, 1, 2
+    this.currentPlayer = this.turn;
+
+  }
+
+  else if (this.turn >= playerLength && this.turn <= (playerLength * 2) - 1) {
+    if (this.turn = playerLength) {
+      // turn 3, 4, 5
+      // start at the last player eg, 2
+      this.currentPlayer = this.turn;
+    }
+    else {
+      // then go backwards, eg 1, 0
+      this.currentPlayer--;
+    }
+  }
+
+  else if (this.turn >= (playerLength * 2)) {
+    this.boardIsSetup = true;
+    this.currentPlayer = currentTurn % playerLength;
+  }
 }
 
 GameEngine.prototype.addPlayer = function() {

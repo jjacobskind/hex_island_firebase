@@ -257,8 +257,8 @@ angular.module('settlersApp')
       return false;
     }
   }
-
   $rootScope.currentRoll = engineFactory.currentDiceRoll();
+  $scope.currentGameID = $rootScope.currentGameID;
 
 }) 
 .directive('board', function() {
