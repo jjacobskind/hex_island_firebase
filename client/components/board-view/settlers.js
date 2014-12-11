@@ -73,7 +73,7 @@ Board.prototype.drawBoard = function(tiles) {
 		var board_tile_row = [];
 
 		for(var col=0, num_cols=tiles[row].length;col<num_cols; col++){
-			if(tiles.robber===true){
+			if(tiles[row][col].robber===true){
 				this.drawRobber([row, col]);
 			}
 			var coordinates = this.indicesToCoordinates([row, col]);
