@@ -78,10 +78,8 @@ angular.module('settlersApp')
     $scope.loadPreviousGame = function(gameID, newPlayer) {
         // var deferred = $q.defer()
         var authData = authFactory.getAuthData();
-        console.log("before");
         engineFactory.restorePreviousSession(gameID)
         .then(function onSuccess(){
-            console.log("after");
             engineFactory.gamePromise()
                 .then(function(gameData){
                     game = gameData;
@@ -98,13 +96,11 @@ angular.module('settlersApp')
                         gameObject.gameID = gameID;
                         gameObject.playerNumber = playerID;
                         dataLink.child('users').child(authData.uid).child('currentGames').push(gameObject);
-                        console.log(gameData);
                         $rootScope.playerData = gameData.players[playerID];
                         $scope.gameIsLoaded = true;
                     } else {
                         for (var game in $scope.previousGameIDs){
                             if ($scope.previousGameIDs[game].gameID === gameID) {
-                                console.log($scope.previousGameIDs[game]);
                                 authFactory.setPlayerID($scope.previousGameIDs[game].playerNumber);
                                 $rootScope.playerData = gameData.players[authFactory.getPlayerID()];
                                 $scope.gameIsLoaded = true;

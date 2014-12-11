@@ -13,31 +13,32 @@ function GameEngine(small_num, large_num) {
 }
 
 GameEngine.prototype.calculatePlayerTurn = function() {
-  var currentTurn = this.turn, playerLength = this.players.length;
 
-  if (this.turn >= playerLength - 1) {
-    //go in order eg, 0, 1, 2
-    // turn 0, 1, 2
-    this.currentPlayer = this.turn;
+ var currentTurn = this.turn, playerLength = this.players.length;
 
-  }
+ if (this.turn <= playerLength - 1) {
+   //go in order eg, 0, 1, 2
+   // turn 0, 1, 2
+   this.currentPlayer = this.turn;
 
-  else if (this.turn >= playerLength && this.turn <= (playerLength * 2) - 1) {
-    if (this.turn === playerLength) {
-      // turn 3, 4, 5
-      // start at the last player eg, 2
-      this.currentPlayer = this.turn - 1;
-    }
-    else {
-      // then go backwards, eg 1, 0
-      this.currentPlayer--;
-    }
-  }
+ }
 
-  else if (this.turn >= (playerLength * 2)) {
-    this.boardIsSetup = true;
-    this.currentPlayer = currentTurn % playerLength;
-  }
+ else if (this.turn >= playerLength && this.turn <= (playerLength * 2) - 1) {
+   if (this.turn === playerLength) {
+     // turn 3, 4, 5
+     // start at the last player eg, 2
+     this.currentPlayer = this.turn - 1;
+   }
+   else {
+     // then go backwards, eg 1, 0
+     this.currentPlayer--;
+   }
+ }
+
+ else if (this.turn >= (playerLength * 2)) {
+   this.boardIsSetup = true;
+   this.currentPlayer = currentTurn % playerLength;
+ }
 }
 
 GameEngine.prototype.addPlayer = function() {
@@ -178,7 +179,7 @@ GameEngine.prototype.buildSettlement = function(playerID, location) {
   else if ((player.resources.wool < 1 || player.resources.grain < 1 || player.resources.lumber < 1 || player.resources.brick < 1) && (this.turn > (this.players.length * 2) -1 )) {
     return {err: "Not enough resources to build a settlement!"};
   }
-  else if (this.boardIsSetup === false) {
+  else if (this.boardIsSetup === false && playerID===this.currentPlayer) {
     if ((this.turn < this.players.length) && player.playerQualities.settlements === 0) {
       return this.gameBoard.placeSettlement(player, location);
     }
@@ -197,7 +198,7 @@ GameEngine.prototype.buildSettlement = function(playerID, location) {
       return {err: "Cannot build another settlement during setup!"};
     }
   }
-  else {
+  else if(playerID===this.currentPlayer){
     if (this.turn >= (this.players.length * 2)) {
       player.resources.wool--;
       player.resources.grain--;
@@ -205,6 +206,8 @@ GameEngine.prototype.buildSettlement = function(playerID, location) {
       player.resources.brick--;
       return this.gameBoard.placeSettlement(player, location)
     }
+  } else {
+    return {err: "It is not currently your turn!"};
   }
 };
 
@@ -214,7 +217,7 @@ GameEngine.prototype.buildRoad = function(playerID, location, direction) {
     (this.turn > (this.players.length * 2))) {
     return {err: "Not enough resources to build road!"};
   }
-  else if (this.boardIsSetup === false) {
+  else if (this.boardIsSetup === false && playerID===this.currentPlayer) {
     if ((this.turn < this.players.length) && player.playerQualities.roadSegments === 0) {
       return this.gameBoard.constructRoad(player,location,direction);
     }
@@ -225,12 +228,14 @@ GameEngine.prototype.buildRoad = function(playerID, location, direction) {
       return {err: "Cannot build another road during setup!"};
     }
   }
-  else {
+  else if(playerID===this.currentPlayer) {
     if (this.turn > this.players.length * 2) {
       player.resources.lumber--;
       player.resources.brick--;
     }
     return this.gameBoard.constructRoad(player,location,direction);
+  } else {
+    return {err: "It is not currently your turn!"};
   }
 };
 
@@ -239,10 +244,12 @@ GameEngine.prototype.upgradeSettlementToCity = function(playerID, location) {
   if (player.resources.grain < 2 || player.resources.ore < 3) {
     return {err: 'Not enough resources to build city!'};
   }
-  else {
+  else if(playerID===this.currentPlayer){
     player.resources.grain = player.resources.grain - 2;
     player.resources.ore = player.resources.ore - 3;
     return this.gameBoard.upgradeSettlementToCity(player, location); 
+  } else {
+    return {err: "It is not currently your turn!"};
   }
 };
 
