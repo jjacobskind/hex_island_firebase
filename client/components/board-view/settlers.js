@@ -73,9 +73,6 @@ Board.prototype.drawBoard = function(tiles) {
 		var board_tile_row = [];
 
 		for(var col=0, num_cols=tiles[row].length;col<num_cols; col++){
-			if(tiles[row][col].robber===true){
-				this.drawRobber([row, col]);
-			}
 			var coordinates = this.indicesToCoordinates([row, col]);
 			var obj=new Tile(this, coordinates, tiles[row][col].resource, tiles[row][col].chit);
 			this.game.scene.add(obj.tile);

@@ -31,12 +31,12 @@ angular.module('settlersApp')
 				      break;
 				    case "boardTiles":
 				      callback = function(data) {
-				      	game.gameBoard.boardTiles = data;
+				      	return game.findObjectDifferences(game.gameBoard.boardTiles, data);
 				      };
 				      break;
 				    case "boardVertices":
 				      callback = function(data) { 	
-				      return game.findObjectDifferences(game.gameBoard.boardVertices, data)
+				      return game.findObjectDifferences(game.gameBoard.boardVertices, data);
 				  	  };
 				      break;
 				    case "turn":
@@ -48,7 +48,6 @@ angular.module('settlersApp')
 				      break;
 				  	case "boardIsSetup":
 				      callback = function(data){
-				      	console.log(data);
 				      	game.boardIsSetup = data;
 				      	$rootScope.$digest();
 				      };
@@ -69,17 +68,18 @@ angular.module('settlersApp')
 				  	var coords2 = [change[1].row, change[1].col];
 				  	var owner = change[2];
 				  	boardFactory.buildRoad(owner, coords1, coords2);
-				  } else if(change.length===1){
+				  }
+				  else if(change.length===1){
 				  	if(change[0].keys.indexOf("owner")!==-1) {
 				  		var owner = change[0].owner;
 				  		boardFactory.placeSettlement(owner, coords1);
 				  	}
 				  	else if(change[0].keys.indexOf("hasSettlementOrCity")!==-1) {
-				  		$rootScope.actingPlayer = game.gameBoard.boardVertices[coords1[0]][coords1[1]].owner;
 				  		boardFactory.upgradeSettlementToCity(coords1);
-				  		// var owner = game.gameBoard.boardVertices[coords1[0]][coords1[1]].owner;
-				  		// boardFactory.upgradeSettlementToCity(owner, coords1);
 				  	}
+					else if(change[0].keys.indexOf("robber")!==-1) {
+					  	boardFactory.moveRobber(coords1);
+					} 
 				}
 			});
 		};
@@ -140,12 +140,6 @@ angular.module('settlersApp')
 				currentGameData.child(key).set(updates[key]);
 			}
 		};
-
-		// var drawRoad = function(coords1, coords2){
-		// 	var game_view = boardFactory.getGame();
-		//   	var road = game_view.board.buildRoad(coords1, coords2);
-		//   	game_view.scene.add(road);
-		// };
 
 		return {
 			newGame: function(small_num, big_num){

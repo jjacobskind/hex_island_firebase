@@ -179,19 +179,14 @@ angular.module('settlersApp')
           }
           break;
         case "robber":
-          if(updateEngine === engine_factory.moveRobber){
-            unset_someAction();
-          } else {
-            someAction = game_board.board.getTile;
-            updateEngine = engine_factory.moveRobber; 
-          }
+          someAction = game_board.board.getTile;
+          updateEngine = engine_factory.moveRobber;
           break;
       }
     },
     moveRobber: function(destination){
       game_board.board.moveRobber(destination);
-      someAction = null;
-      updateEngine = null;
+      renderer.render(scene, camera);
     },
     newBoard: function(small_num, big_num){
       renderer.delete;

@@ -307,21 +307,20 @@ GameEngine.prototype.findObjectDifferences = function(old_arr, new_arr){
           // might need this to tell if robber is blocking an adjacent tile
 
         }
+        else if(key==="robber") {
+          if(new_obj[key]===true){
+            found_change=true;
+            changes_obj.keys.push(key);
+          }
+        }
         else if(old_obj[key]!==new_obj[key]) {
             found_change=true;
             changes_obj.owner = new_obj.owner;
             changes_obj.keys.push(key);
-
-            // Don't want to return until we've found the change to robber's old tile AND change to robber's new tile
-            // if(key==="robber" && robber_changes===0){
-            //   robber_changes++;
-            //   found_change=false;
-            // }
         }
       }
       if(found_change){
         all_changes.push(changes_obj);
-        console.log(all_changes);
         this.gameBoard.boardVertices = new_arr;
         return all_changes;
       }
