@@ -68,70 +68,71 @@
 	</div>
 
 	<!-- end HUD -->	
-	<div class="chatHolder opacityGradRtL">
-		<span href="#" id="button" class="dicon">
-			<img src="assets/svg/chatboxOpt.svg" height="30px">
-		</span>
+	<div class="chatHolder">
+
+	<!--end chatWindow-->
+	 	<div id="chatWindow">
+	 		<div class="chatWindowHeader">
+		 		<span href="#" id="button" class="dicon">
+					<img src="assets/svg/chatboxOpt.svg" height="30px">
+				</span>	
+	 		</div>
+	 		<div class='textScreen'></div>
+	 		<div class="input-group chatCtl">
+	 			<span class="input-group-btn">
+	 				<button class="btn btn-default" type="button">TO EVERYONE:</button>
+	 			</span>
+	 			<input type="text" class="form-control">
+	 		</div>
+			
+		</div>
+		<!-- end chat window view -->
+
 	</div>
 	<!-- end chatHolder view -->
 	
 	<div class="buttonHolder">
-		<div class="btnMarquee opacityGradLtR">DISPLAY BTN NAME HERE</div>
+		<div class="btnMarquee opacityGradLtR">GAME ID: </div>
  	  <a ng-click="rollDice()" href id="button" class="tlk"><img src="assets/svg/diceOpt.svg" height="85px" /></a>
-	  <ul id="menu2" class="hudALeft">
-	  	<li ng-click="board_ctrl.setMode('building')">
-	  	  <div>
-	  	    <a href=""><img src="assets/svg/hammerOpt.svg" height="45px"></a>
-	  	  </div>
-	  	</li>
+ 	  <div class="buttonWrapper">
+		  <ul id="menu2" class="hudALeft">
+		  	<li ng-click="board_ctrl.setMode('building')">
+		  	  <div>
+		  	    <a href=""><img src="assets/svg/hammerOpt.svg" height="45px"></a>
+		  	  </div>
+		  	</li>
 
-	  	<li>
-	  	  <div>
-	  	    <a href=""><img src="assets/svg/swapOpt.svg" height="45px"></a>
-	  	  </div>
-	  	</li>
-	  	<li>
-	  	  <div>
-	  	  <a ng-click="nextTurn()" href=""><img src="assets/svg/ffwdOpt.svg" height="45px"></a>
-	  	  </div>
-	  	</li>
-	  </ul>
+		  	<li>
+		  	  <div>
+		  	    <a href=""><img src="assets/svg/swapOpt.svg" height="45px"></a>
+		  	  </div>
+		  	</li>
+		  	<li>
+		  	  <div>
+		  	  <a ng-click="nextTurn()" href=""><img src="assets/svg/ffwdOpt.svg" height="45px"></a>
+		  	  </div>
+		  	</li>
+		  </ul>
+	  </div>
 	</div>
 	<!-- end button holder -->
-
- 	<div id="chatWindow">
-		<div class='textScreen'></div>
-		<div class="input-group chatCtl">
-			<span class="input-group-btn">
-				<button class="btn btn-default" type="button">To everyone:</button>
-			</span>
-			<input type="text" class="form-control">
-		</div>
-		
-	</div>
-	<!-- end chat window view -->
 
 	<table>
 	  <tbody>
 	    <tr>
-	      <td><img height="45px"src="assets/images/bolt.png" /></td>
-	      <td>Keith Richards</td>
-	      <td>15</td>
+	      <td><img height="45px"src="assets/images/hoot.png" /></td>
+	      <td>Jeremy</td>
+	      <td>0</td>
 	    </tr>
 	    <tr>
-	      <td><img height="45px"src="assets/images/cat.png" /></td>
-	      <td>Kate Middleton</td>
-	      <td>6</td>
+	      <td><img height="45px"src="assets/images/spook.png" /></td>
+	      <td>Steve</td>
+	      <td>0</td>
 	    </tr>
 	    <tr>
-	      <td><img height="45px"src="assets/images/droid.png" /></td>
-	      <td>Tony Hsieh</td>
-	      <td>3</td>
-	    </tr>
-	    <tr>
-	      <td><img height="45px"src="assets/images/rocket.png" /></td>
-	      <td>Jacob Zuma</td>
-	      <td>8</td>
+	      <td><img height="45px"src="assets/images/ship.png" /></td>
+	      <td>Ahn</td>
+	      <td>0</td>
 	    </tr>
 	  </tbody>
 	</table>
