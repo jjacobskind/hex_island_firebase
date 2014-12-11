@@ -96,6 +96,7 @@ angular.module('settlersApp')
       var pos = camera.position.clone().add( dir.multiplyScalar( distance ) );
       pos.x*= -1;
       var click_coordinates = [pos.x, pos.z];
+
       if(!!someAction){
         someAction.call(game_board.board, click_coordinates, updateEngine);
         unset_someAction();
@@ -142,6 +143,9 @@ angular.module('settlersApp')
   };
 
   return {
+    buildRoad: function(player, vertex1, vertex2) {
+      game_board.board.buildRoad(player, vertex1, vertex2);
+    },
     drawGame: function(game) {
       init(game);
     },
@@ -196,15 +200,15 @@ angular.module('settlersApp')
       init(small_num, big_num);
       animate();
     },
-    placeSettlement: function(playerID, location){
+    placeSettlement: function(player, location){
       var row=location[0], col=location[1];
       if(!game_board.board.boardVertices[row][col].building){
-        var settlement = new Building(game_board.board, "settlement", playerID, location);
+        var settlement = new Building(game_board.board, "settlement", player, location);
         game_board.board.boardVertices[row][col].building=settlement;
         scene.add(settlement.building);
       }
     },
-    upgradeSettlementToCity: function(playerID, location){
+    upgradeSettlementToCity: function(player, location){
       var row=location[0], col=location[1];
       var vertex_building = game_board.board.boardVertices[row][col].building;
       scene.remove(vertex_building.building);
@@ -216,8 +220,8 @@ angular.module('settlersApp')
     }
   };
 })
-.controller('BoardCtrl', function(boardFactory, engineFactory, $scope, $compile, $rootScope, $timeout){
-
+.controller('BoardCtrl', function(boardFactory, engineFactory, $scope, $compile, $rootScope, $timeout, authFactory){
+  console.log("hello");
   var self = this;
   self.setMode = boardFactory.set_someAction;
   boardFactory.insert();
@@ -225,13 +229,22 @@ angular.module('settlersApp')
   $rootScope.currentTurn = engineFactory.getGame().turn;
   $scope.playerHasRolled = false;
   $rootScope.currentPlayer = engineFactory.getGame().currentPlayer;
+
+  $scope.submitChat = function(textContent){
+    chatLink.push({name: 'testPlayer', text: textContent});
+  };
+
+  function printChatMessage(name, text) {
+    $('<div/>').text(text).prepend($('<em/>').text(name+': ')).appendTo($('.textScreen'));
+    $('.textScreen')[0].scrollTop = $('.textScreen')[0].scrollHeight;
+  };
   
   $scope.nextTurn = function(){
     if (
       ($scope.playerHasRolled === true
-     && $rootScope.whatPlayerAmI === $scope.currentPlayer) ||
+     && authFactory.getPlayerID() === $scope.currentPlayer) ||
       ($rootScope.currentTurn < (engineFactory.getGame().players.length * 2) && 
-            $rootScope.whatPlayerAmI === $scope.currentPlayer))
+            authFactory.getPlayerID() === $scope.currentPlayer))
     {
       engineFactory.endTurn()
       $scope.playerHasRolled = false;
@@ -240,25 +253,26 @@ angular.module('settlersApp')
     }  
   };
   $scope.rollDice = function(){
-     if ($scope.playerHasRolled === false && $rootScope.currentPlayer === $rootScope.whatPlayerAmI)
+     if ($scope.playerHasRolled === false && $rootScope.currentPlayer === authFactory.getPlayerID())
        {
          $scope.playerHasRolled = true;
          engineFactory.rollDice();
+         $rootScope.currentRoll = engineFactory.getGame().diceNumber;
+         chatLink.push({name: 'GAME', text: $rootScope.currentPlayer + " has rolled a " + $rootScope.currentRoll});
        }
-     
-     $rootScope.currentRoll = engineFactory.getGame().diceNumber;
+       $rootScope.currentRoll = engineFactory.getGame().diceNumber;
    };
 
-  $scope.isItMyTurn = function(){
-    if ($rootScope.currentPlayer === $rootScope.whatPlayerAmI){
-      return true;
-    }
-    else {
-      return false;
-    }
-  }
   $rootScope.currentRoll = engineFactory.currentDiceRoll();
   $scope.currentGameID = $rootScope.currentGameID;
+  var dataLink = engineFactory.getDataLink();
+  var chatLink = dataLink.child('games').child($rootScope.currentGameID).child('chats');
+
+  chatLink.on('child_added', function(snapshot) {
+    var message = snapshot.val();
+    console.log(message);
+    printChatMessage(message.name, message.text);
+  });
 
 }) 
 .directive('board', function() {

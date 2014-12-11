@@ -2,13 +2,20 @@
 
 angular.module('settlersApp')
     .factory('authFactory', function(){
-        var auth_data, playerData;
+        var auth_data, playerData, playerID;
         return {
             setAuthData: function(data){
                 auth_data = data;
+                console.log(auth_data);
             },
             getAuthData: function() {
                 return auth_data;
+            },
+            setPlayerID: function(id){
+                playerID = id;
+            },
+            getPlayerID: function(){
+                return playerID;
             }
         };
     })
@@ -19,8 +26,6 @@ angular.module('settlersApp')
     self.big_num = 5;
 
     $scope.previousGameIDs = undefined;
-    $scope.whatPlayerAmI = undefined;
-
 
     var dataLink = engineFactory.getDataLink();
 
@@ -57,7 +62,7 @@ angular.module('settlersApp')
             $scope.currentGameID = gameID;
         });
         engineFactory.addPlayer();
-        $rootScope.whatPlayerAmI = 0;
+        authFactory.setPlayerID(0);
         $rootScope.playerData = game.players[0];
         $state.go('game');
     };
@@ -73,34 +78,35 @@ angular.module('settlersApp')
     $scope.loadPreviousGame = function(gameID, newPlayer) {
         // var deferred = $q.defer()
         var authData = authFactory.getAuthData();
-        
+        console.log("before");
         engineFactory.restorePreviousSession(gameID)
-            
         .then(function onSuccess(){
+            console.log("after");
             engineFactory.gamePromise()
                 .then(function(gameData){
                     game = gameData;
                     $rootScope.currentGameID = gameID;
                     boardFactory.drawGame(game);
                     $scope.gameIsLoaded = true;
-                    $rootScope.whatPlayerAmI = game.players.length;
+                    $rootScope.currentGameID = gameID;
                     boardFactory.drawGame(game);
-                    if (newPlayer)
-                        {   
-                            var player = engineFactory.addPlayer();
-                            var gameObject = {};
-                            gameObject.gameID = +gameID;
-                            gameObject.playerNumber = $rootScope.whatPlayerAmI;
-                            dataLink.child('users').child(authData.uid).child('currentGames').push(gameObject);
-                            $rootScope.playerData = gameData.players[$rootScope.whatPlayerAmI];
-                            $scope.gameIsLoaded = true;
-                        }
-                    else {
+                    if (newPlayer){
+                        var player = engineFactory.addPlayer();
+                        authFactory.setPlayerID(game.players.length-1);
+                        var playerID = authFactory.getPlayerID();
+                        var gameObject = {};
+                        gameObject.gameID = gameID;
+                        gameObject.playerNumber = playerID;
+                        dataLink.child('users').child(authData.uid).child('currentGames').push(gameObject);
+                        console.log(gameData);
+                        $rootScope.playerData = gameData.players[playerID];
+                        $scope.gameIsLoaded = true;
+                    } else {
                         for (var game in $scope.previousGameIDs){
                             if ($scope.previousGameIDs[game].gameID === gameID) {
                                 console.log($scope.previousGameIDs[game]);
-                                $rootScope.whatPlayerAmI = $scope.previousGameIDs[game].playerNumber;
-                                $rootScope.playerData = gameData.players[$rootScope.whatPlayerAmI];
+                                authFactory.setPlayerID($scope.previousGameIDs[game].playerNumber);
+                                $rootScope.playerData = gameData.players[authFactory.getPlayerID()];
                                 $scope.gameIsLoaded = true;
                             }
                         }
@@ -129,7 +135,6 @@ angular.module('settlersApp')
     $scope.joinGameID = function(id) {
         var game = null;
         dataLink.child('games').once('value', function(data){
-            console.log(data);
             var existingGames = data.val();
             var gameData = existingGames[id];
             if (!existingGames[id]){
@@ -140,11 +145,9 @@ angular.module('settlersApp')
                 console.log('gets here')
                 $rootScope.currentGameID = id;
                 $scope.loadPreviousGame(id, 'newPlayer');
-                $state.go('game');
             }
         }); 
-        var authData = authFactory.getAuthData();
-        dataLink.child('games').child(id).child('users').push(authData.uid); 
+        dataLink.child('games').child(id).child('users').push(authFactory.getAuthData().uid); 
     }
   });
 

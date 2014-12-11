@@ -23,10 +23,10 @@ GameEngine.prototype.calculatePlayerTurn = function() {
   }
 
   else if (this.turn >= playerLength && this.turn <= (playerLength * 2) - 1) {
-    if (this.turn = playerLength) {
+    if (this.turn === playerLength) {
       // turn 3, 4, 5
       // start at the last player eg, 2
-      this.currentPlayer = this.turn;
+      this.currentPlayer = this.turn - 1;
     }
     else {
       // then go backwards, eg 1, 0
@@ -279,6 +279,7 @@ GameEngine.prototype.findObjectDifferences = function(old_arr, new_arr){
               all_changes.push(changes_obj);
               var roadEnd = this.gameBoard.getRoadDestination([row, col], direction);
               all_changes.push({row:roadEnd[0], col:roadEnd[1], keys:[new_obj[key][direction]]});
+              all_changes.push(new_obj[key][direction]);
               switch(direction){
                 case "left":
                   all_changes[1].keys.unshift("right");
