@@ -230,6 +230,12 @@ angular.module('settlersApp')
   $scope.playerHasRolled = false;
   $rootScope.currentPlayer = engineFactory.getGame().currentPlayer;
 
+  $scope.toggleDropdown = function($event) {
+    $event.preventDefault();
+    $event.stopPropagation();
+    $scope.status.isopen = !$scope.status.isopen;
+  };
+
   $scope.submitChat = function(textContent){
     chatLink.push({name: 'testPlayer', text: textContent});
   };
