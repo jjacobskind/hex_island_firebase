@@ -186,7 +186,7 @@ angular.module('settlersApp')
     },
     moveRobber: function(destination){
       game_board.board.moveRobber(destination);
-      renderer.render(scene, camera);
+      // renderer.render(scene, camera);
     },
     newBoard: function(small_num, big_num){
       renderer.delete;
