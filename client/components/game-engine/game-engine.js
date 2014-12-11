@@ -194,7 +194,6 @@ GameEngine.prototype.buildSettlement = function(playerID, location) {
       return this.gameBoard.placeSettlement(player, location);
     }
     else {
-      console.log(this.turn, this.players.length)
       return {err: "Cannot build another settlement during setup!"};
     }
   }

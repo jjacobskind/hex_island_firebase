@@ -92,12 +92,13 @@
 	<!-- end chatHolder view -->
 	
 	<div class="buttonHolder">
-	<div class="btnMarquee opacityGradLtR">Game ID: {{$root.currentGameID}}</div>
+		<div class="btnMarquee opacityGradLtR">GAME ID: </div>
  	  <a ng-click="rollDice()" href id="button" class="tlk"><img src="assets/svg/diceOpt.svg" height="85px" /></a>
- 	  <div class="buttonWrapper">
+ 	  <div class="buttonWrapper" dropdown is-open="status.isopen">
 		  <ul id="menu2" class="hudALeft">
-		  	<li ng-click="board_ctrl.setMode('building')">
-		  	  <div>
+		  	<!--<li ng-click="board_ctrl.setMode('building')">-->
+		  	<li class="dropdown-toggle" dropdown-toggle ng-disabled="disabled">
+ 		  	  <div>
 		  	    <a href=""><img src="assets/svg/hammerOpt.svg" height="45px"></a>
 		  	  </div>
 		  	</li>
@@ -113,6 +114,12 @@
 		  	  </div>
 		  	</li>
 		  </ul>
+		  <ul class="dropdown-menu" role="menu">
+			<li><a href ng-click="board_ctrl.setMode('road')">BUILD ROAD</a></li>
+			<li><a href ng-click="board_ctrl.setMode('building')">BUILD SETTLEMENT</a></li>
+			<li class="divider"></li>
+			<li><a href="#">Donate to team Castan</a></li>
+		</ul>
 	  </div>
 	</div>
 	<!-- end button holder -->
