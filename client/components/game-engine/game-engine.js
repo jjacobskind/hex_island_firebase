@@ -228,6 +228,7 @@ GameEngine.prototype.findObjectDifferences = function(old_arr, new_arr){
               all_changes.push(changes_obj);
               var roadEnd = this.gameBoard.getRoadDestination([row, col], direction);
               all_changes.push({row:roadEnd[0], col:roadEnd[1], keys:[new_obj[key][direction]]});
+              all_changes.push(new_obj[key][direction]);
               switch(direction){
                 case "left":
                   all_changes[1].keys.unshift("right");
