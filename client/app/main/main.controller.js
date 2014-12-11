@@ -116,7 +116,6 @@ angular.module('settlersApp')
             if (auth) {
                 authFactory.setAuthData(auth);
                 var authData = authFactory.getAuthData();
-                console.log(authFactory.getAuthData());
                 self.player_name = authData.facebook.displayName.split(" ")[0];
                 $state.go('main.menu');
                 $scope.$digest();
