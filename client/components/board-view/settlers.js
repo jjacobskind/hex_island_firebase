@@ -19,6 +19,7 @@ var Board = function(game, getRoadDestination, vertices, tiles, scale) {
 	this.small_num = tiles[0].length;
 	this.big_num = tiles[Math.floor(tiles.length/2)].length;
 	this.getRoadDestination = getRoadDestination;
+	this.ports = [];
 	if(!!scale && scale>10) {
 		this.scale=10;
 	} 
@@ -120,16 +121,16 @@ Board.prototype.drawBoard = function(tiles) {
 		}
 		if(!!this.boardVertices[row][col].port && (i===0 || i===len-1 || !!this.boardVertices[row_next][col_next].port)) {
 			if(!this.boardVertices[row_next][col_next].port){
-				this.drawPort(outer_vertices[i], undefined);
+				this.drawPort(outer_vertices[i], undefined, this.boardVertices[row][col.port]);
 			} else {
-				this.drawPort(outer_vertices[i], outer_vertices[++i]);
+				this.drawPort(outer_vertices[i], outer_vertices[++i], this.boardVertices[row][col].port);
 			}
 		}
 	}
 	return board_tiles;
 };
 
-Board.prototype.drawPort = function(location1, location2){
+Board.prototype.drawPort = function(location1, location2, resource){
 	var side_length=this.side_length;
 	if(!!location1 && !!location2){
 		var coords1 = this.verticesToCoordinates(location1);
@@ -141,9 +142,30 @@ Board.prototype.drawPort = function(location1, location2){
 	var x_avg = (coords1[0] + coords2[0])/2;
 	var z_avg = (coords1[1] + coords2[1])/2;
 
+	// add textures to ports
+	var texture = new THREE.ImageUtils.loadTexture( 'assets/images/tile_textures/' + resource + '.jpg' );
+	texture.flipY = true;
+	texture.repeat.x = 2/this.side_length;
+	texture.repeat.y = 2/this.side_length;
+	texture.offset.x = (this.side_length/4) * texture.repeat.x;
+	texture.offset.y = (this.side_length/4) * texture.repeat.y;
+	var textured_material = new THREE.MeshLambertMaterial( { map:texture} );
 	var white_material = new THREE.MeshLambertMaterial( { color: 0xffffff, wireframe: false} );
+	var materials = [textured_material, white_material];
+
 	var port_geometry = new THREE.ExtrudeGeometry(this.chip_shape, {amount:5, bevelEnabled:false});
-	var port = new THREE.Mesh(port_geometry, white_material);
+
+	// Applies white_material to all faces other than those facing upwards
+	if(resource==="general") {
+		for(var i=0; i<252; i++){
+			if(i===62){
+				i=124;
+			}
+			port_geometry.faces[i].materialIndex = 1;
+		}
+	}
+
+	var port = new THREE.Mesh(port_geometry, new THREE.MeshFaceMaterial(materials));
 	if(coords1[0]===coords2[0]){
 		if(location1[1]===0){
 			x_avg+=side_length/2;
@@ -170,6 +192,7 @@ Board.prototype.drawPort = function(location1, location2){
 	}
 	port.position.set(x_avg, 1, z_avg);
 	port.rotation.set(Math.PI/2, 0, 0);
+	this.ports.push(port);
 	this.game.scene.add(port);
 };
 

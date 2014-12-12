@@ -26,6 +26,7 @@ angular.module('settlersApp')
     self.big_num = 5;
 
     $scope.previousGameIDs = undefined;
+    $scope.userIsJoiningGame = false;
 
     var dataLink = engineFactory.getDataLink();
 
@@ -128,22 +129,24 @@ angular.module('settlersApp')
     };
 
     $scope.joinGameID = function(id) {
-        var game = null;
-        dataLink.child('games').once('value', function(data){
-            var existingGames = data.val();
-            var gameData = existingGames[id];
-            if (!existingGames[id]){
-                console.log('no game exists by this id');
-                return false;
-            }
-            else {
-                console.log('gets here')
-                $rootScope.currentGameID = id;
-                $scope.loadPreviousGame(id, 'newPlayer');
-            }
-        }); 
-        dataLink.child('games').child(id).child('users').push(authFactory.getAuthData().uid); 
-    }
+           if ($scope.userIsJoiningGame === false) {
+               $scope.userIsJoiningGame = true;
+               var game = null;
+               dataLink.child('games').once('value', function(data){
+                   var existingGames = data.val();
+                   var gameData = existingGames[id];
+                   if (!existingGames[id]){
+                       console.log('no game exists by this id');
+                       return false;
+                   }
+                   else {
+                       $rootScope.currentGameID = id;
+                       $scope.loadPreviousGame(id, 'newPlayer');
+                   }
+               }); 
+               dataLink.child('games').child(id).child('users').push(authFactory.getAuthData().uid); 
+           }
+       }
   });
 
 
