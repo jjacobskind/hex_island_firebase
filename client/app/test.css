@@ -153,7 +153,7 @@ html, body {
   background: -ms-radial-gradient(center, ellipse cover,  rgba(0,0,0,1) 0%,rgba(29,30,32,1) 100%); /* IE10+ */
   background: radial-gradient(ellipse at center,  rgba(0,0,0,1) 0%,rgba(29,30,32,1) 100%); /* W3C */
   filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#000000', endColorstr='#1d1e20',GradientType=1 ); /* IE6-9 fallback on horizontal gradient */
-
+  margin-bottom: 10px;
  }
 
 .img-container img {
@@ -217,7 +217,7 @@ html, body {
 .textScreen{
     position:relative;
     width:100%;
-    height:60%;
+    height:50%;
     float:right;
     border-top:none;
     overflow: scroll;
