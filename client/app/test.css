@@ -222,6 +222,7 @@ html, body {
     border-top:none;
     overflow: scroll;
     margin-bottom:10px;
+    text-align:left;
 }
 
 .chatCtl {

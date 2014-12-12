@@ -26,6 +26,8 @@ angular.module('settlersApp')
       // controls.autoRotate=true;
       controls.noPan = true;
       controls.maxPolarAngle = Math.PI/2.5;
+      controls.minDistance=5;
+      controls.maxDistance=500;
 
       scene.add( new THREE.AmbientLight( 0x222222 ) );
 
@@ -237,7 +239,7 @@ angular.module('settlersApp')
   };
 
   $scope.submitChat = function(){
-    chatLink.push({name: 'testPlayer', text: self.textContent});
+    chatLink.push({name: authFactory.getAuthData().facebook.displayName, text: self.textContent});
     self.textContent="";
   };
 
