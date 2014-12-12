@@ -41,7 +41,7 @@
 					<li>
 					  <div>
 					  <img src="assets/svg/devcardOpt.svg" height="25px">
-					    <span href="#" class="blog-nav-item ng-binding">{{playerData.resources.grain}}</span>
+					    <span href="#" class="blog-nav-item ng-binding">0</span>
 					  </div>
 					</li>
 					<li>
@@ -80,9 +80,9 @@
 	 		<div class='textScreen'></div>
 	 		<div class="input-group chatCtl">
 	 			<span class="input-group-btn">
-	 				<button class="btn btn-default" type="button" ng-click="submitChat(textContent)">TO EVERYONE:</button>
+	 				<button class="btn btn-default" type="button" ng-click="submitChat()">TO EVERYONE:</button>
 	 			</span>
-	 			<input type="text" class="form-control" ng-model="textContent">
+	 			<input type="text" class="form-control" ng-model="board_ctrl.textContent">
 	 		</div>
 			
 		</div>
@@ -92,14 +92,14 @@
 	<!-- end chatHolder view -->
 	
 	<div class="buttonHolder">
-		<div class="btnMarquee opacityGradLtR">GAME ID: </div>
+		<div class="btnMarquee opacityGradLtR">GAME ID: {{$root.currentGameID}}</div>
  	  <a ng-click="rollDice()" href id="button" class="tlk"><img src="assets/svg/diceOpt.svg" height="85px" /></a>
  	  <div class="buttonWrapper" dropdown is-open="status.isopen">
 		  <ul id="menu2" class="hudALeft">
 		  	<!--<li ng-click="board_ctrl.setMode('building')">-->
 		  	<li class="dropdown-toggle" dropdown-toggle ng-disabled="disabled">
  		  	  <div>
-		  	    <a href=""><img src="assets/svg/hammerOpt.svg" height="45px"></a>
+		  	    <a href ng-click=""><img src="assets/svg/hammerOpt.svg" height="45px"></a>
 		  	  </div>
 		  	</li>
 
