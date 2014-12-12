@@ -73,9 +73,17 @@
 	<!--end chatWindow-->
 	 	<div id="chatWindow">
 	 		<div class="chatWindowHeader">
-		 		<span href="#" id="button" class="dicon">
+		 		<div href="#" id="button" class="img-container">
+		 			<div class="centerer"></div>
 					<img src="assets/svg/chatboxOpt.svg" height="30px">
-				</span>	
+				</div>	
+
+
+<!-- 				<div href id="button" class="img-container">
+					<div class="centerer"></div>
+					<img src="assets/svg/diceOpt.svg" height="40px" />
+				</div> -->
+
 	 		</div>
 	 		<div class='textScreen'></div>
 	 		<div class="input-group chatCtl">
@@ -93,7 +101,10 @@
 	
 	<div class="buttonHolder">
 		<div class="btnMarquee opacityGradLtR">GAME ID: </div>
- 	  <a ng-click="rollDice()" href id="button" class="tlk"><img src="assets/svg/diceOpt.svg" height="85px" /></a>
+ 	  <div ng-click="rollDice()" href id="button" class="tlk">
+ 	  	<div class="centerer"></div>
+ 	  	<img src="assets/svg/diceOpt.svg" height="85px" />
+ 	  </div>
  	  <div class="buttonWrapper" dropdown is-open="status.isopen">
 		  <ul id="menu2" class="hudALeft">
 		  	<!--<li ng-click="board_ctrl.setMode('building')">-->
@@ -117,8 +128,6 @@
 		  <ul class="dropdown-menu" role="menu">
 			<li><a href ng-click="board_ctrl.setMode('road')">BUILD ROAD</a></li>
 			<li><a href ng-click="board_ctrl.setMode('building')">BUILD SETTLEMENT</a></li>
-			<li class="divider"></li>
-			<li><a href="#">Donate to team Castan</a></li>
 		</ul>
 	  </div>
 	</div>
@@ -146,9 +155,10 @@
 	<!--end playerBoard-->
 
 	<div class="diceHolder opacityGradRtL">
-		<span href id="button" class="dicon">
+		<div href id="button" class="img-container">
+			<div class="centerer"></div>
 			<img src="assets/svg/diceOpt.svg" height="40px" />
-		</span>
+		</div>
 		<span href class="numRoll">LAST DICE ROLL: {{$root.currentRoll}}</span>
 	</div>
 	<!-- end diceHolder view -->
