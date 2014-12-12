@@ -359,6 +359,16 @@ tr:last-of-type td:last-child {
 /*  box-shadow: inset -1px -1px 0 #fff;*/
 } 
 
+.thisPlayersTurn {
+background: rgb(0,0,0);
+background: -moz-linear-gradient(top, rgba(0,0,0,1) 0%, rgba(0,0,0,1) 33%, rgba(15,55,87,1) 59%, rgba(28,102,159,1) 76%, rgba(125,185,232,1) 100%);
+background: -webkit-gradient(linear, left top, left bottom, color-stop(0%,rgba(0,0,0,1)), color-stop(33%,rgba(0,0,0,1)), color-stop(59%,rgba(15,55,87,1)), color-stop(76%,rgba(28,102,159,1)), color-stop(100%,rgba(125,185,232,1)));
+background: -webkit-linear-gradient(top, rgba(0,0,0,1) 0%,rgba(0,0,0,1) 33%,rgba(15,55,87,1) 59%,rgba(28,102,159,1) 76%,rgba(125,185,232,1) 100%);
+background: -o-linear-gradient(top, rgba(0,0,0,1) 0%,rgba(0,0,0,1) 33%,rgba(15,55,87,1) 59%,rgba(28,102,159,1) 76%,rgba(125,185,232,1) 100%);
+background: -ms-linear-gradient(top, rgba(0,0,0,1) 0%,rgba(0,0,0,1) 33%,rgba(15,55,87,1) 59%,rgba(28,102,159,1) 76%,rgba(125,185,232,1) 100%);
+background: linear-gradient(to bottom, rgba(0,0,0,1) 0%,rgba(0,0,0,1) 33%,rgba(15,55,87,1) 59%,rgba(28,102,159,1) 76%,rgba(125,185,232,1) 100%);
+filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#000000', endColorstr='#7db9e8',GradientType=0 );
+}
 
 /*************** UI BG - Transparent fade divs ***************/
 .opacityGradLtR {
