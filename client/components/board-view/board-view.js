@@ -52,6 +52,10 @@ angular.module('settlersApp')
             }
           }
         }
+
+        for(var i=0, len=game_board.board.ports.length; i<len;i++){
+          game_board.board.ports[i].rotation.set(Math.PI/2, Math.PI, angle);
+        }
       });
   }
 
@@ -96,7 +100,6 @@ angular.module('settlersApp')
       var pos = camera.position.clone().add( dir.multiplyScalar( distance ) );
       pos.x*= -1;
       var click_coordinates = [pos.x, pos.z];
-      console.log("Click event handler turn #: " + $rootScope.currentPlayer);
 
       if(!!someAction){
         someAction.call(game_board.board, click_coordinates, updateEngine);
@@ -133,9 +136,10 @@ angular.module('settlersApp')
   var renderer = createRenderer();
 
   $(window).on('resize', function(){
-    camera.aspect = ($(window).width()/canvas_height);
+    canvas_width = $(window).width();
+    camera.aspect = (canvas_width/canvas_height);
     camera.updateProjectionMatrix();
-    renderer.setSize($(window).width(), canvas_height);
+    renderer.setSize(canvas_width, canvas_height);
   });
 
   function unset_someAction(){
