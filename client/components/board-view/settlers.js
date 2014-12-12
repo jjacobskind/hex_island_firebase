@@ -421,7 +421,15 @@ var Tile = function(board, coordinates, resource, number) {
 Tile.prototype.drawTile = function(coordinates, resource) {
 	var white_material = new THREE.MeshLambertMaterial( { color: 0xffffff, wireframe: false } );
 	var colored_material = new THREE.MeshLambertMaterial( { color: this.paintResource(resource), wireframe: false } );
-	var materials = new THREE.MeshFaceMaterial([white_material, colored_material]);
+	var texture = new THREE.ImageUtils.loadTexture('assets/images/tile_textures/' + resource + '.jpg');
+	texture.repeat.x = 0.5/this.board.side_length;
+	texture.repeat.y = 0.5/this.board.side_length;
+	texture.offset.x = (this.board.side_length) * texture.repeat.x;
+	texture.offset.y = (this.board.side_length) * texture.repeat.y;
+
+	var textured_material = new THREE.MeshLambertMaterial( {map:texture});
+
+	var materials = new THREE.MeshFaceMaterial([white_material, textured_material]);
 	var tile = new THREE.Mesh( this.board.tile_geometry, materials );
 	tile.position.set( coordinates[0], 0, coordinates[1] );
 	tile.rotation.set(Math.PI/2, 0, Math.PI/6);
@@ -460,17 +468,17 @@ Tile.prototype.drawChit = function(coordinates, chit_number) {
 Tile.prototype.paintResource = function(resource){
 	switch(resource){
 		case "desert":
-			return 0xFFFFCC;
+			return 'assets/images/tile_textures/desert.jpg';
 		case "ore":
-			return 0x3D3D3D;
+			return 'assets/images/tile_textures/ore.jpg';
 		case "lumber":
-			return 0x996600;
+			return 'assets/images/tile_textures/lumber.jpg';
 		case "wool":
-			return 0xE0E0E0;
+			return 'assets/images/tile_textures/lumber.jpg';
 		case "brick":
-			return 0xFF0000;
+			return 'assets/images/tile_textures/brick.jpg';
 		case "grain":
-			return 0xFFB13D;
+			return 'assets/images/tile_textures/lumber.jpg';
 	}
 };
 

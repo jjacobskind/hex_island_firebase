@@ -172,6 +172,7 @@ GameEngine.prototype.tradeResources = function(firstPlayer, firstResource, secon
 };
 
 GameEngine.prototype.buildSettlement = function(playerID, location) {
+  console.log("Build Settlement: " + this.currentPlayer);
   var player = this.players[playerID];
   if(this.gameBoard.boardVertices[location[0]][location[1]].hasSettlementOrCity === "settlement"){
     return this.upgradeSettlementToCity(playerID, location);
@@ -211,6 +212,7 @@ GameEngine.prototype.buildSettlement = function(playerID, location) {
 };
 
 GameEngine.prototype.buildRoad = function(playerID, location, direction) {
+  console.log("Build Road: " + this.currentPlayer);
   var player = this.players[playerID];
   if ((player.resources.lumber < 1 || player.resources.brick < 1) && 
     (this.turn > (this.players.length * 2))) {

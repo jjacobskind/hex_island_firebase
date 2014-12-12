@@ -1,7 +1,7 @@
 'use strict';
 
 angular.module('settlersApp')
-  .factory('boardFactory', function($state, authFactory) {
+  .factory('boardFactory', function($state, $rootScope, authFactory) {
     if(!authFactory.getAuthData()) {
       $state.go('main');
     }
@@ -96,6 +96,7 @@ angular.module('settlersApp')
       var pos = camera.position.clone().add( dir.multiplyScalar( distance ) );
       pos.x*= -1;
       var click_coordinates = [pos.x, pos.z];
+      console.log("Click event handler turn #: " + $rootScope.currentPlayer);
 
       if(!!someAction){
         someAction.call(game_board.board, click_coordinates, updateEngine);
@@ -218,6 +219,7 @@ angular.module('settlersApp')
 .controller('BoardCtrl', function(boardFactory, engineFactory, authFactory, $scope, $compile, $rootScope, $timeout){
   var self = this;
   self.setMode = boardFactory.set_someAction;
+  self.textContent = "";
   boardFactory.insert();
   $compile($('#board_container'))($scope);
   $rootScope.currentTurn = engineFactory.getGame().turn;
@@ -230,8 +232,9 @@ angular.module('settlersApp')
     $scope.status.isopen = !$scope.status.isopen;
   };
 
-  $scope.submitChat = function(textContent){
-    chatLink.push({name: 'testPlayer', text: textContent});
+  $scope.submitChat = function(){
+    chatLink.push({name: 'testPlayer', text: self.textContent});
+    self.textContent="";
   };
 
   function printChatMessage(name, text) {
