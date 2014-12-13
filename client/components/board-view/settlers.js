@@ -121,7 +121,7 @@ Board.prototype.drawBoard = function(tiles) {
 		}
 		if(!!this.boardVertices[row][col].port && (i===0 || i===len-1 || !!this.boardVertices[row_next][col_next].port)) {
 			if(!this.boardVertices[row_next][col_next].port){
-				this.drawPort(outer_vertices[i], undefined, this.boardVertices[row][col.port]);
+				this.drawPort(outer_vertices[i], undefined, this.boardVertices[row][col].port);
 			} else {
 				this.drawPort(outer_vertices[i], outer_vertices[++i], this.boardVertices[row][col].port);
 			}

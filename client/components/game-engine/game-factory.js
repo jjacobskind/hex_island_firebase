@@ -24,9 +24,8 @@ angular.module('settlersApp')
 				    case "players":
 				      var callback = function(data) {
 				      	game.players = data;
-				      	console.log('players', data)
 				      	$rootScope.playerData = game.players[authFactory.getPlayerID()];
-				      	$rootScope.$apply();
+				      	// $rootScope.$apply();
 				      };
 				      break;
 				    case "boardTiles":
@@ -43,13 +42,13 @@ angular.module('settlersApp')
 				      callback = function(data){
 				      	game.turn = data;
 				      	$rootScope.currentTurn = game.turn;
-				      	$rootScope.$digest();
+				      	// $rootScope.$digest();
 				      };
 				      break;
 				  	case "boardIsSetup":
 				      callback = function(data){
 				      	game.boardIsSetup = data;
-				      	$rootScope.$digest();
+				      	// $rootScope.$digest();
 				      };
 				      break;
 				    case "currentPlayer":
@@ -100,15 +99,11 @@ angular.module('settlersApp')
 
 		function boardSync(currentGameData) {
 			return $q(function(resolve, reject) {
-				console.log('got to board sync');
 				game = new GameEngine(3,5);
-				console.log(game);
 			    currentGameData.once("value", function(snapshot) {
 			    	var persistedData = snapshot.val();
-			    	console.log(persistedData)
 			    	parseJSON(persistedData.players, function(data){
 			    		game.players = data;
-			    		console.log(data);
 			    	});
 			    	parseJSON(persistedData.boardTiles, function(data){
 			    		game.gameBoard.boardTiles = data;
@@ -125,7 +120,6 @@ angular.module('settlersApp')
 	                if (persistedData.boardIsSetup){
 		                parseJSON(persistedData.boardIsSetup, function(data){game.boardIsSetup = data});    
 	                }			    
-			    	console.log('data loaded');
 
 			    	resolve('success');
 			  }, function (errorObject) {
@@ -254,7 +248,6 @@ angular.module('settlersApp')
 				updateFireBase(updates);
 			},
 			currentDiceRoll: function(){
-				console.log(game)
 				return game.diceNumber;
 			},
 			rollDice: function() {

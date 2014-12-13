@@ -220,7 +220,7 @@ html, body {
     height:50%;
     float:right;
     border-top:none;
-    overflow: scroll;
+    overflow: auto;
     margin-bottom:10px;
     text-align:left;
 }
