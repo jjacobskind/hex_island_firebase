@@ -2,11 +2,12 @@
 
 angular.module('settlersApp')
     .factory('authFactory', function(){
-        var auth_data, playerData, playerID;
+        var auth_data, playerData, playerID, playerName, playerFirstName;
         return {
             setAuthData: function(data){
+                playerName = data.facebook.displayName;
+                playerFirstName = playerName.split(" ")[0];
                 auth_data = data;
-                console.log(auth_data);
             },
             getAuthData: function() {
                 return auth_data;
@@ -16,6 +17,13 @@ angular.module('settlersApp')
             },
             getPlayerID: function(){
                 return playerID;
+            },
+            getPlayerName: function(full){
+                if(full){
+                    return playerName;
+                } else {
+                    return playerFirstName;
+                }
             }
         };
     })
@@ -77,15 +85,12 @@ angular.module('settlersApp')
         });
     }
     $scope.loadPreviousGame = function(gameID, newPlayer) {
-        // var deferred = $q.defer()
         var authData = authFactory.getAuthData();
         engineFactory.restorePreviousSession(gameID)
         .then(function onSuccess(){
             engineFactory.gamePromise()
                 .then(function(gameData){
                     game = gameData;
-                    $rootScope.currentGameID = gameID;
-                    boardFactory.drawGame(game);
                     $scope.gameIsLoaded = true;
                     $rootScope.currentGameID = gameID;
                     boardFactory.drawGame(game);
@@ -117,7 +122,7 @@ angular.module('settlersApp')
             if (auth) {
                 authFactory.setAuthData(auth);
                 var authData = authFactory.getAuthData();
-                self.player_name = authData.facebook.displayName.split(" ")[0];
+                self.player_name = authFactory.getPlayerName();
                 $state.go('main.menu');
                 $scope.$digest();
                 dataLink.child('users').child(authData.uid).update(authData);

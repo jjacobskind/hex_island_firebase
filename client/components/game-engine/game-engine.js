@@ -121,8 +121,6 @@ GameEngine.prototype.getNestedArrayIndex = function(search_arr, find_arr) {
 GameEngine.prototype.distributeResources = function(sumDice) {
   var rows = this.gameBoard.boardVertices;
   var players = this.players;
-  console.log(players);
-  console.log(sumDice)
   // if player's dice roll doesn't trigger robber fn
   if (sumDice !== 7) {
       var resourceArray = [];
@@ -149,11 +147,9 @@ GameEngine.prototype.distributeResources = function(sumDice) {
               resourceArray.forEach(function(item){
                 var resources = players[+item.player].resources;
                 resources[item.resource] = resources[item.resource] + resourcesToDistribute;
-                console.log(resources[item.resource])
         })
       }
     }
-    console.log('finished distributing');
 };
 
 GameEngine.prototype.tradeResources = function(firstPlayer, firstResource, secondPlayer, secondResource) {

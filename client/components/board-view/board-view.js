@@ -23,7 +23,6 @@ angular.module('settlersApp')
 
       
       controls = new THREE.OrbitControls( camera, renderer.domElement );
-      // controls.autoRotate=true;
       controls.noPan = true;
       controls.maxPolarAngle = Math.PI/2.5;
       controls.minDistance=5;
@@ -129,7 +128,6 @@ angular.module('settlersApp')
       new THREE.PlaneBufferGeometry( 2400, 2400 ),
       water.material
     );
-    // mirrorMesh.position.set(0, tile_depth*-1, 0);
 
     mirrorMesh.rotation.x = - Math.PI * 0.5;
     return mirrorMesh;
@@ -139,8 +137,10 @@ angular.module('settlersApp')
 
   $(window).on('resize', function(){
     canvas_width = $(window).width();
-    camera.aspect = (canvas_width/canvas_height);
-    camera.updateProjectionMatrix();
+    if(!!camera){
+      camera.aspect = (canvas_width/canvas_height);
+      camera.updateProjectionMatrix();
+    }
     renderer.setSize(canvas_width, canvas_height);
   });
 
@@ -222,12 +222,10 @@ angular.module('settlersApp')
   };
 })
 
-.controller('BoardCtrl', function(boardFactory, engineFactory, authFactory, $scope, $compile, $rootScope, $timeout){
+.controller('BoardCtrl', function(boardFactory, engineFactory, authFactory, $scope, $rootScope){
   var self = this;
   self.setMode = boardFactory.set_someAction;
   self.textContent = "";
-  boardFactory.insert();
-  $compile($('#board_container'))($scope);
   $rootScope.currentTurn = engineFactory.getGame().turn;
   $scope.playerHasRolled = false;
   $rootScope.currentPlayer = engineFactory.getGame().currentPlayer;
@@ -239,7 +237,7 @@ angular.module('settlersApp')
   };
 
   $scope.submitChat = function(){
-    chatLink.push({name: authFactory.getAuthData().facebook.displayName, text: self.textContent});
+    chatLink.push({name: authFactory.getPlayerName(), text: self.textContent});
     self.textContent="";
   };
 
@@ -279,15 +277,17 @@ angular.module('settlersApp')
 
   chatLink.on('child_added', function(snapshot) {
     var message = snapshot.val();
-    console.log(message);
     printChatMessage(message.name, message.text);
   });
 
 }) 
-.directive('board', function() {
+.directive('board', function(boardFactory) {
     return {
       restrict: 'E',
       templateUrl: 'components/board-view/board_template.html',
-      controller: 'BoardCtrl as board_ctrl'
+      controller: 'BoardCtrl as board_ctrl',
+      link: function(){
+        boardFactory.insert();
+      }
     };
   });
