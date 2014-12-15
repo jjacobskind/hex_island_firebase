@@ -135,12 +135,11 @@
 
 	<table>
 	  <tbody>
-	    <tr>
+	    <tr ng-repeat="player in $root.playerBoard">
 	      <td><img height="45px"src="assets/images/hoot.png" /></td>
-	      <td>Jeremy</td>
-	      <td>0</td>
+	      <td>{{player}}</td>
 	    </tr>
-	    <tr>
+<!-- 	    <tr>
 	      <td><img height="45px"src="assets/images/spook.png" /></td>
 	      <td>Steve</td>
 	      <td>0</td>
@@ -149,7 +148,7 @@
 	      <td><img height="45px"src="assets/images/ship.png" /></td>
 	      <td>Ahn</td>
 	      <td>0</td>
-	    </tr>
+	    </tr> -->
 	  </tbody>
 	</table>
 	<!--end playerBoard-->
