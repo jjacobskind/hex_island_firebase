@@ -194,13 +194,7 @@ GameEngine.prototype.buildSettlement = function(playerID, location) {
     }
   }
   else if(playerID===this.currentPlayer){
-    if (this.turn >= this.players.length * 2) {
-      player.resources.wool--;
-      player.resources.grain--;
-      player.resources.lumber--;
-      player.resources.brick--;
-      return this.gameBoard.placeSettlement(player, location)
-    }
+    return this.gameBoard.placeSettlement(player, location);
   } else {
     return {err: "It is not currently your turn!"};
   }

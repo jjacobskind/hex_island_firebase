@@ -104,6 +104,12 @@ GameBoard.prototype.placeSettlement = function(player, location) {
             }
         }
     }
+    if (this.game.turn >= this.game.players.length * 2) {
+      player.resources.wool--;
+      player.resources.grain--;
+      player.resources.lumber--;
+      player.resources.brick--;
+    }
     return {'players': JSON.stringify(this.game.players),
             'boardVertices': JSON.stringify(this.boardVertices)
     };
