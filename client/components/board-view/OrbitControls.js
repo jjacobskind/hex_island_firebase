@@ -310,9 +310,14 @@ THREE.OrbitControls = function ( object, domElement, localElement ) {
  
 		}
  
-		// Greggman fix: https://github.com/greggman/three.js/commit/fde9f9917d6d8381f06bf22cdff766029d1761be
-		scope.domElement.addEventListener( 'mousemove', onMouseMove, false );
-		scope.domElement.addEventListener( 'mouseup', onMouseUp, false );
+		// Jeremy customization so that map rotation can continue after mouse moves over other DOM elements,
+		// but stops when mouseup occurs on top of other DOM elements
+		window.addEventListener( 'mousemove', onMouseMove, false );
+		window.addEventListener( 'mouseup', onMouseUp, false );
+		
+
+		// scope.domElement.addEventListener( 'mousemove', onMouseMove, false );
+		// scope.domElement.addEventListener( 'mouseup', onMouseUp, false );
  
 	}
  

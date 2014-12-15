@@ -9,7 +9,7 @@ angular.module('settlersApp')
     var camera, scene, renderer, controls, light, water, game_board, someAction, updateEngine;
 
     var canvas_width = $(window).width();
-    var canvas_height = 700;
+    var canvas_height = $(window).height();
 
     var init = function(game) {
 
@@ -137,6 +137,8 @@ angular.module('settlersApp')
 
   $(window).on('resize', function(){
     canvas_width = $(window).width();
+    canvas_height = $(window).height();
+    $("#board_container").height(canvas_height);
     if(!!camera){
       camera.aspect = (canvas_width/canvas_height);
       camera.updateProjectionMatrix();
@@ -157,8 +159,10 @@ angular.module('settlersApp')
       init(game);
     },
     insert: function() {
+      $("#board_container").height(canvas_height);
       $("#board_container").prepend( renderer.domElement );
       $("#board-canvas").addClass( 'full' );
+      $("board-canvas").focus();
 
       $('#board-canvas').on('mousewheel', function(e) {
           e.preventDefault();
