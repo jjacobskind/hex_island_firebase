@@ -25,7 +25,7 @@ angular.module('settlersApp')
 				      var callback = function(data) {
 				      	game.players = data;
 				      	$rootScope.playerData = game.players[authFactory.getPlayerID()];
-				      	// $rootScope.$apply();
+				      	$rootScope.$apply();
 				      };
 				      break;
 				    case "boardTiles":

@@ -74,7 +74,6 @@ GameBoard.prototype.placeSettlement = function(player, location) {
     while (nearestThreeVertices.length !== 0) {
         var thisVertex = nearestThreeVertices[0];
         if (!!thisVertex && vertices[thisVertex[0]][thisVertex[1]].owner !== null) {
-            console.log("adjacent settlement!");
             return {err: "Cannot build next to another settlement!"};
         }
         nearestThreeVertices.shift();
@@ -202,17 +201,47 @@ GameBoard.prototype.constructRoad = function(player, currentLocation, newDirecti
         if(!destinationCoords){
             return {err: "Vertex [" + currentLocation + "] doesn't have a '" + newDirection + "' road!"};
         }
-        switch (newDirection)
-            {  case "left":
-                   var originDirection = "right";
-                   break;
-               case "right":
-                   var originDirection = "left";
-                   break;
-               case "vertical":
-                   var originDirection = "vertical";
-                   break;
-            };
+
+        // Check to make sure this road is adjacent to this player's settlement/city/other road
+        var currentVertex = this.boardVertices[currentLocation[0]][currentLocation[1]];
+        var destinationVertex = this.boardVertices[destinationCoords[0]][destinationCoords[1]];
+        var player_adjacent_road_currentVertex = false;
+        var player_adjacent_road_destinationVertex = false;
+        for(var key in currentVertex.connections){
+            if(currentVertex.connections[key]===player.playerID){
+                player_adjacent_road_currentVertex = true;
+            }
+            if(destinationVertex.connections[key]===player.playerID){
+                player_adjacent_road_destinationVertex = true;
+            }
+        }
+
+        // Check that player either owns one of the adjacent vertices, 
+        // OR owns a road attached to one of those vertices, and that another player doesn't own the vertex in between that road and the road being built
+        // Negating the logic in order to return an error instead of putting the rest of the function inside the IF statement
+        if(!((currentVertex.owner===player.playerID || destinationVertex.owner===player.playerID)
+            ||(player_adjacent_road_currentVertex && currentVertex.owner===null)
+            ||player_adjacent_road_destinationVertex && destinationVertex.owner===null)) {
+            return {err:"Road is not adjacent to player's current road, settlement, or city!"};
+        }
+        else if((this.game.turn<this.game.players.length*2)
+                && !((currentVertex.owner===player.playerID && !player_adjacent_road_currentVertex)
+                    || (destinationVertex.owner===player.playerID && !player_adjacent_road_destinationVertex))) {
+                            return {err:"Must place road adjacent to most recent settlement during board setup phase!"};
+        }
+
+
+        switch (newDirection) {  
+            case "left":
+               var originDirection = "right";
+               break;
+           case "right":
+               var originDirection = "left";
+               break;
+           case "vertical":
+               var originDirection = "vertical";
+               break;
+        };
         this.game.gameBoard.boardVertices[currentLocation[0]][currentLocation[1]].connections[newDirection] = player.playerID;
         this.game.gameBoard.boardVertices[destinationCoords[0]][destinationCoords[1]].connections[originDirection] = player.playerID;
         //housekeeping
@@ -226,6 +255,10 @@ GameBoard.prototype.constructRoad = function(player, currentLocation, newDirecti
         //validation - this is two lines because validateNewVertices does not account for the vertex that is passed in, so we manually pass in the vertex and then validate all surrounding
         player.rulesValidatedBuildableVertices.push(destinationCoords);
         this.validateNewVertices(player, destinationCoords);
+        if (this.game.turn >= this.game.players.length * 2) {
+          player.resources.lumber--;
+          player.resources.brick--;
+        }
         return {
             players: JSON.stringify(this.game.players),
             boardVertices: JSON.stringify(this.boardVertices)
