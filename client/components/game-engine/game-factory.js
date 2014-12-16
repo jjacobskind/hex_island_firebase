@@ -1,7 +1,7 @@
 'use strict';
 
 angular.module('settlersApp')
-	.factory('engineFactory', function($q, $rootScope, boardFactory, authFactory){
+	.factory('engineFactory', function($q, $rootScope, $timeout, boardFactory, authFactory){
 		var game;
 
 		var gameID;
@@ -25,7 +25,9 @@ angular.module('settlersApp')
 				      var callback = function(data) {
 				      	game.players = data;
 				      	$rootScope.playerData = game.players[authFactory.getPlayerID()];
-				      	$rootScope.$apply();
+				      	$timeout(function(){
+					      	$rootScope.$apply();
+				      	});
 				      };
 				      break;
 				    case "boardTiles":
@@ -162,6 +164,7 @@ angular.module('settlersApp')
 				var updates = game.buildSettlement(authFactory.getPlayerID(), location);
 				if(updates.hasOwnProperty("err")){
 					console.log(updates.err);
+					return false;
 				}
 				else {
 					if(!settlement_exists){
@@ -169,6 +172,7 @@ angular.module('settlersApp')
 					} else {
 						boardFactory.upgradeSettlementToCity(authFactory.getPlayerID(), location);
 					}
+					return true;
 					updateFireBase(updates);
 				}
 			},
@@ -186,19 +190,23 @@ angular.module('settlersApp')
 				var updates = game.buildRoad(authFactory.getPlayerID(), location, direction);
 				if(updates.hasOwnProperty("err")){
 					console.log(updates.err);
+					return false;
 				} else {
 					var destination = game.gameBoard.getRoadDestination(location, direction);
 					boardFactory.buildRoad(authFactory.getPlayerID(), location, destination);
 					updateFireBase(updates);
+					return true;
 				}
 			},
 			moveRobber: function(destination){
 				var updates = game.gameBoard.moveRobber.call(game.gameBoard, destination);
 				if(updates.hasOwnProperty("err")){
 					console.log(updates.err);
+					return false;
 				} else {
 					boardFactory.moveRobber(destination);
 					updateFireBase(updates);
+					return true;
 				}
 			},
 			addPlayer: function(){

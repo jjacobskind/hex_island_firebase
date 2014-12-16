@@ -103,8 +103,8 @@ angular.module('settlersApp')
       var click_coordinates = [pos.x, pos.z];
 
       if(!!someAction){
-        someAction.call(game_board.board, click_coordinates, updateEngine);
-        unset_someAction();
+        var success = someAction.call(game_board.board, click_coordinates, updateEngine);
+        unset_someAction(success);
       }
     });
     return renderer;
@@ -146,9 +146,11 @@ angular.module('settlersApp')
     renderer.setSize(canvas_width, canvas_height);
   });
 
-  function unset_someAction(){
-    someAction = null;
-    updateEngine = null;
+  function unset_someAction(success){
+    if(success){
+      someAction = null;
+      updateEngine = null;
+    }
   };
 
   return {
@@ -272,6 +274,9 @@ angular.module('settlersApp')
          chatLink.push({name: 'GAME', text: "On turn " + $rootScope.currentTurn + ", " + $rootScope.currentPlayer + " has rolled a " + $rootScope.currentRoll});
        }
        $rootScope.currentRoll = engineFactory.getGame().diceNumber;
+      if($rootScope.currentRoll===7){
+        boardFactory.set_someAction("robber");
+      }
    };
 
   $rootScope.currentRoll = engineFactory.currentDiceRoll();

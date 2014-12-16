@@ -631,13 +631,13 @@ Board.prototype.getTile = function(coords, cb){
 				}
 
 				if(dist_from_center < horizontal_range*2){
-					cb([row, col]);
-					return null;
+					var success = cb([row, col]);
+					return success;
 				}
 			}
 		}
 	}
-	return null;
+	return false;
 };
 
 Board.prototype.getVertex = function(coords, cb){
@@ -650,12 +650,12 @@ Board.prototype.getVertex = function(coords, cb){
 			var z_diff = vertex_coords[1]-z;
 			var distance_from_vertex = Math.sqrt(Math.pow(x_diff, 2) + Math.pow(z_diff, 2));
 			if(distance_from_vertex<radius){
-				cb([row, col]);
-				return null;
+				var success = cb([row, col]);
+				return success;
 			}
 		}
 	}
-	return null;
+	return false;
 };
 
 Board.prototype.getRoad = function(coords, cb){
@@ -688,7 +688,8 @@ Board.prototype.getRoad = function(coords, cb){
 		var coords2 = this.verticesToCoordinates(vertex2);
 		if(x<=(coords1[0] + bevel_width) && x>=(coords1[0] - bevel_width) 		//checking if x click coordinate lies within road width
 		&& (z<=coords1[1] && z>=coords2[1]))	{							//vertex1 z-coordinate will always be higher than vertex2 due to top-down iteration through vertices
-			cb(vertex1, "vertical");
+			var success = cb(vertex1, "vertical");
+			return success;
 		}
 	}
 
@@ -720,9 +721,10 @@ Board.prototype.getRoad = function(coords, cb){
 			case 0:
 				direction = "left";
 		}
-		cb(vertex1, direction);
+		success = cb(vertex1, direction);
+		return success;
 	}
-
+	return false;
 };
 
 // Function to move the robber
