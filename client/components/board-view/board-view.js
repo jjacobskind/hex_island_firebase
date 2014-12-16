@@ -11,6 +11,9 @@ angular.module('settlersApp')
     var canvas_width = $(window).width();
     var canvas_height = $(window).height();
 
+    // Game view data that needs to be displayed, but not on WebGL canvas
+    var players;
+
     var init = function(game) {
 
       scene = new THREE.Scene();
@@ -237,6 +240,16 @@ angular.module('settlersApp')
   $rootScope.currentPlayer = engineFactory.getGame().currentPlayer;
   $rootScope.playerBoard = [];
 
+  $rootScope.currentRoll = engineFactory.currentDiceRoll();
+  $scope.currentGameID = $rootScope.currentGameID;
+  var dataLink = engineFactory.getDataLink();
+  var chatLink = dataLink.child('games').child($rootScope.currentGameID).child('chats');
+  var gameLink = dataLink.child('games').child($rootScope.currentGameID).child('data');
+  var userLink = dataLink.child('games').child($rootScope.currentGameID);
+  var userDB = dataLink.child('users');
+  self.players =[];
+  pullCurrentUsers();
+
   $scope.toggleDropdown = function($event) {
     $event.preventDefault();
     $event.stopPropagation();
@@ -296,14 +309,6 @@ angular.module('settlersApp')
       }
    };
 
-  $rootScope.currentRoll = engineFactory.currentDiceRoll();
-  $scope.currentGameID = $rootScope.currentGameID;
-
-  var dataLink = engineFactory.getDataLink();
-  var chatLink = dataLink.child('games').child($rootScope.currentGameID).child('chats');
-  var gameLink = dataLink.child('games').child($rootScope.currentGameID).child('data');
-  var userLink = dataLink.child('games').child($rootScope.currentGameID);
-  var userDB = dataLink.child('users');
 
   // monitor for new chats
 
@@ -318,20 +323,24 @@ angular.module('settlersApp')
 
   function pullCurrentUsers(){
     userLink.once('value', function (snapshot) {
+      self.players=[];
       var snapData = snapshot.val();
       var userData = snapData.users;
+      for(var user in userData){
+        self.players.push(userData[user]);
+      }
       $rootScope.playerBoard = $rootScope.playerBoard || [];
       for (var user in userData){
         userDB.child(userData[user].playerID).once('value', function(snap){
           var retrievedAuthData = snap.val();
-          console.log(userData[user].playerNumber)
           var tempObj = {
             playerName: retrievedAuthData.facebook.displayName,
             playerID: userData[user].playerNumber
           }
           $rootScope.playerBoard[tempObj.playerID]= tempObj;
         })
-      }      
+      } 
+      $scope.$apply();     
     })
   };
 
@@ -340,7 +349,7 @@ angular.module('settlersApp')
     $rootScope.$apply();
   });
 
-  pullCurrentUsers();
+  // pullCurrentUsers();
 
 }) 
 .directive('board', function(boardFactory) {

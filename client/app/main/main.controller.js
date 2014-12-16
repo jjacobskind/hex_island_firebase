@@ -45,7 +45,7 @@ angular.module('settlersApp')
         var game = engineFactory.getGame();
         var userArray = [];
         userArray.push(authData.uid);
-        dataLink.child('games').child(gameID).child('users').push({playerID: authData.uid, playerNumber: 0});
+        dataLink.child('games').child(gameID).child('users').push({playerID: authData.uid, playerNumber: 0, playerName:authFactory.getPlayerName()});
         dataLink.child('users').child(authData.uid).once('value', function (data) {
             var userData = data.val();
             if (!userData.currentGames) {
@@ -101,7 +101,7 @@ angular.module('settlersApp')
                         var gameObject = {};
                         gameObject.gameID = gameID;
                         gameObject.playerNumber = playerID;
-                        dataLink.child('games').child(gameID).child('users').push({playerID: authData.uid, playerNumber: playerID}); 
+                        dataLink.child('games').child(gameID).child('users').push({playerID: authData.uid, playerNumber: playerID, playerName: authFactory.getPlayerName()}); 
                         dataLink.child('users').child(authData.uid).child('currentGames').push(gameObject);
                         $rootScope.playerData = gameData.players[playerID];
                         $scope.gameIsLoaded = true;
