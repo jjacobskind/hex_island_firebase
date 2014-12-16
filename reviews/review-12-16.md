@@ -6,6 +6,7 @@
 # Separation and Modularization
 - Separate classes into two types:
     + Game Engine
+        * Models -> Game STate, Game State Storage
     + Game Rendering
     + Game UI
     + Right now Board in settlers.js has some of both, makes it harder to maintain
@@ -16,7 +17,7 @@
             - Player (?)
         * Domain specific things to games?
             - Turn Array
-- Consider having a Game Engine, Game Scene and Game Render, the Game Engine determines what needs to be shown, puts them into a Game Scene (which is an array of objects that need to be shown).  Objects in the Game Scene (CityView, SettlementView) know how to render, but have no game logic.  GameRender is aware of things like Three.js
+- Consider having a Game Data, Game State (these two are the "engine"), Game Scene and Game Render, the Game Engine determines what needs to be shown, puts them into a Game Scene (which is an array of objects that need to be shown).  Objects in the Game Scene (CityView, SettlementView) know how to render, but have no game logic.  GameRender is aware of things like Three.js
 
 
 # Angular
