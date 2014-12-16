@@ -41,6 +41,7 @@ function Player(id) {
         roads: [],
     };
     this.rulesValidatedBuildableVertices = [];
+    this.playerName = undefined;
     this.hasLongestRoad = false;
     this.hasLargestArmy = false;
 };

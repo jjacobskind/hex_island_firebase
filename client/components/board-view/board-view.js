@@ -103,8 +103,8 @@ angular.module('settlersApp')
       var click_coordinates = [pos.x, pos.z];
 
       if(!!someAction){
-        someAction.call(game_board.board, click_coordinates, updateEngine);
-        unset_someAction();
+        var success = someAction.call(game_board.board, click_coordinates, updateEngine);
+        unset_someAction(success);
       }
     });
     return renderer;
@@ -146,9 +146,11 @@ angular.module('settlersApp')
     renderer.setSize(canvas_width, canvas_height);
   });
 
-  function unset_someAction(){
-    someAction = null;
-    updateEngine = null;
+  function unset_someAction(success){
+    if(success){
+      someAction = null;
+      updateEngine = null;
+    }
   };
 
   return {
@@ -233,6 +235,7 @@ angular.module('settlersApp')
   $rootScope.currentTurn = engineFactory.getGame().turn;
   $scope.playerHasRolled = false;
   $rootScope.currentPlayer = engineFactory.getGame().currentPlayer;
+  $rootScope.playerBoard = [];
 
   $scope.toggleDropdown = function($event) {
     $event.preventDefault();
@@ -240,13 +243,29 @@ angular.module('settlersApp')
     $scope.status.isopen = !$scope.status.isopen;
   };
 
+  function refreshPlayerBoard(game) {
+  game.players.forEach(function (item) {
+      $rootScope.playerBoard = $rootScope.playerBoard || [];
+      var resourceCount = 0;
+      for (var resource in item.resources){
+        resourceCount += item.resources[resource]; 
+      };
+      $rootScope.playerBoard[item.playerID] = {playerName: item.playerName, playerID: item.playerID, resources: resourceCount};
+   })
+  };
+
   $scope.submitChat = function(){
     chatLink.push({name: authFactory.getPlayerName(), text: self.textContent});
     self.textContent="";
   };
 
-  function printChatMessage(name, text) {
-    $('<div/>').text(text).prepend($('<em/>').text(name+': ')).appendTo($('.textScreen'));
+  function printChatMessage(name, text, systemMessage) {
+    if (systemMessage !== undefined){
+      $('<div style="color:#bb5e00; font-size:0.8em; font-weight: 900;"/>').text(text).prepend($('<b/>').text('')).appendTo($('.textScreen'));
+    }
+    else {
+      $('<div/>').text(text).prepend($('<b/>').text(name+': ')).appendTo($('.textScreen'));
+    }
     $('.textScreen')[0].scrollTop = $('.textScreen')[0].scrollHeight;
   };
   
@@ -269,20 +288,59 @@ angular.module('settlersApp')
          $scope.playerHasRolled = true;
          engineFactory.rollDice();
          $rootScope.currentRoll = engineFactory.getGame().diceNumber;
-         chatLink.push({name: 'GAME', text: "On turn " + $rootScope.currentTurn + ", " + $rootScope.currentPlayer + " has rolled a " + $rootScope.currentRoll});
+         chatLink.push({name: 'GAME', text: "On turn " + $rootScope.currentTurn + ", " + engineFactory.getGame().players[$rootScope.currentPlayer].playerName + " has rolled a " + $rootScope.currentRoll, systemMessage: true});
        }
        $rootScope.currentRoll = engineFactory.getGame().diceNumber;
+      if($rootScope.currentRoll===7){
+        boardFactory.set_someAction("robber");
+      }
    };
 
   $rootScope.currentRoll = engineFactory.currentDiceRoll();
   $scope.currentGameID = $rootScope.currentGameID;
+
   var dataLink = engineFactory.getDataLink();
   var chatLink = dataLink.child('games').child($rootScope.currentGameID).child('chats');
+  var gameLink = dataLink.child('games').child($rootScope.currentGameID).child('data');
+  var userLink = dataLink.child('games').child($rootScope.currentGameID);
+  var userDB = dataLink.child('users');
+
+  // monitor for new chats
 
   chatLink.on('child_added', function(snapshot) {
     var message = snapshot.val();
-    printChatMessage(message.name, message.text);
+    console.log(message)
+    if (!!message.systemMessage) {
+      printChatMessage(message.name, message.text, message.systemMessage);
+    }
+      else {printChatMessage(message.name, message.text)};
   });
+
+  function pullCurrentUsers(){
+    userLink.once('value', function (snapshot) {
+      var snapData = snapshot.val();
+      var userData = snapData.users;
+      $rootScope.playerBoard = $rootScope.playerBoard || [];
+      for (var user in userData){
+        userDB.child(userData[user].playerID).once('value', function(snap){
+          var retrievedAuthData = snap.val();
+          console.log(userData[user].playerNumber)
+          var tempObj = {
+            playerName: retrievedAuthData.facebook.displayName,
+            playerID: userData[user].playerNumber
+          }
+          $rootScope.playerBoard[tempObj.playerID]= tempObj;
+        })
+      }      
+    })
+  };
+
+  userLink.on('child_changed', function(){
+    pullCurrentUsers();
+    $rootScope.$apply();
+  });
+
+  pullCurrentUsers();
 
 }) 
 .directive('board', function(boardFactory) {

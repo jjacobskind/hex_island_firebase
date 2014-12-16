@@ -683,5 +683,7 @@ GameBoard.prototype.moveRobber = function(location) {
         this.boardTiles[old_row][old_col].robber=false;
         this.boardTiles[location[0]][location[1]].robber=true;
         return {'boardTiles': JSON.stringify(this.boardTiles)};
+    } else {
+        return {err: "You must move the Robber to another tile!"};
     }
 };
