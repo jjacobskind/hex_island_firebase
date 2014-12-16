@@ -146,8 +146,18 @@ angular.module('settlersApp')
                        return false;
                    }
                    else {
-                       $rootScope.currentGameID = id;
-                       $scope.loadPreviousGame(id, 'newPlayer');
+                            $rootScope.currentGameID = id;
+                            dataLink.child('games').child(id).once('value', function(snap){
+                                var gameData = snap.val();
+                                var uid = authFactory.getAuthData().uid;
+                                for (var user in gameData.users){
+                                    if (gameData.users[user].playerID === uid) {
+                                        console.log('you are already in this game');
+                                        return false;
+                                    }
+                                }
+                                $scope.loadPreviousGame(id, 'newPlayer');
+                        })
                    }
                }); 
            }

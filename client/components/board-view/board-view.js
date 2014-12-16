@@ -237,17 +237,6 @@ angular.module('settlersApp')
     $scope.status.isopen = !$scope.status.isopen;
   };
 
-  function refreshPlayerBoard(game) {
-  game.players.forEach(function (item) {
-      $rootScope.playerBoard = $rootScope.playerBoard || [];
-      var resourceCount = 0;
-      for (var resource in item.resources){
-        resourceCount += item.resources[resource]; 
-      };
-      $rootScope.playerBoard[item.playerID] = {playerName: item.playerName, playerID: item.playerID, resources: resourceCount};
-   })
-  };
-
   $scope.submitChat = function(){
     chatLink.push({name: authFactory.getPlayerName(), text: self.textContent});
     self.textContent="";
