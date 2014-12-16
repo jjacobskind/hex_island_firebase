@@ -135,7 +135,7 @@
 
 	<table>
 	  <tbody>
-	    <tr ng-repeat="player in $root.playerBoard">
+	    <tr ng-repeat="player in engineFactory.getGame().players">
 	      <td><img height="45px"src="assets/images/hoot.png" /></td>
 	      <td>{{player}}</td>
 	    </tr>

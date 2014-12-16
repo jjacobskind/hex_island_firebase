@@ -253,8 +253,13 @@ angular.module('settlersApp')
     self.textContent="";
   };
 
-  function printChatMessage(name, text) {
-    $('<div/>').text(text).prepend($('<em/>').text(name+': ')).appendTo($('.textScreen'));
+  function printChatMessage(name, text, systemMessage) {
+    if (systemMessage !== undefined){
+      $('<div style="color:#bb5e00; font-size:0.8em; font-weight: 900;"/>').text(text).prepend($('<b/>').text('')).appendTo($('.textScreen'));
+    }
+    else {
+      $('<div/>').text(text).prepend($('<b/>').text(name+': ')).appendTo($('.textScreen'));
+    }
     $('.textScreen')[0].scrollTop = $('.textScreen')[0].scrollHeight;
   };
   
@@ -277,7 +282,7 @@ angular.module('settlersApp')
          $scope.playerHasRolled = true;
          engineFactory.rollDice();
          $rootScope.currentRoll = engineFactory.getGame().diceNumber;
-         chatLink.push({name: 'GAME', text: "On turn " + $rootScope.currentTurn + ", " + engineFactory.getGame().players[$rootScope.currentPlayer].playerName + " has rolled a " + $rootScope.currentRoll});
+         chatLink.push({name: 'GAME', text: "On turn " + $rootScope.currentTurn + ", " + engineFactory.getGame().players[$rootScope.currentPlayer].playerName + " has rolled a " + $rootScope.currentRoll, systemMessage: true});
        }
        $rootScope.currentRoll = engineFactory.getGame().diceNumber;
    };
@@ -295,7 +300,11 @@ angular.module('settlersApp')
 
   chatLink.on('child_added', function(snapshot) {
     var message = snapshot.val();
-    printChatMessage(message.name, message.text);
+    console.log(message)
+    if (!!message.systemMessage) {
+      printChatMessage(message.name, message.text, message.systemMessage);
+    }
+      else {printChatMessage(message.name, message.text)};
   });
 
   function pullCurrentUsers(){
@@ -318,10 +327,8 @@ angular.module('settlersApp')
   };
 
   userLink.on('child_changed', function(){
-    console.log('changed')
     pullCurrentUsers();
     $rootScope.$apply();
-    console.log($rootScope)
   });
 
   pullCurrentUsers();
