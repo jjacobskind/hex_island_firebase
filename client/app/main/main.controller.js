@@ -29,6 +29,8 @@ angular.module('settlersApp')
     })
   .controller('MainCtrl', function ($scope, $state, authFactory, boardFactory, engineFactory, $q, $rootScope) {
     var self = this;
+    var testcanvas = document.createElement('canvas');
+    self.meets_reqs = !!(testcanvas.getContext("webgl") || testcanvas.getContext("experimental-webgl"));
     self.player_name;
     self.small_num = 3;
     self.big_num = 5;
