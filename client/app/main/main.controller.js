@@ -101,10 +101,12 @@ angular.module('settlersApp')
                         var gameObject = {};
                         gameObject.gameID = gameID;
                         gameObject.playerNumber = playerID;
-                        dataLink.child('games').child(gameID).child('users').push({playerID: authData.uid, playerNumber: playerID, playerName: authFactory.getPlayerName()}); 
-                        dataLink.child('users').child(authData.uid).child('currentGames').push(gameObject);
                         $rootScope.playerData = gameData.players[playerID];
                         $scope.gameIsLoaded = true;
+                        dataLink.child('games').child(gameID).child('users').push({playerID: authData.uid, playerNumber: playerID, playerName: authFactory.getPlayerName()}); 
+                        dataLink.child('users').child(authData.uid).child('currentGames').push(gameObject);
+                        dataLink.child('games').child($rootScope.currentGameID).child('chats').push({name:"GAME", text:authFactory.getPlayerName() + " has joined the game", systemMessage:true}, 
+                                                                                                    function(){ $state.go('game'); });
                     } else {
                         for (var game in $scope.previousGameIDs){
                             if ($scope.previousGameIDs[game].gameID === gameID) {
@@ -113,8 +115,8 @@ angular.module('settlersApp')
                                 $scope.gameIsLoaded = true;
                             }
                         }
+                        $state.go('game');
                     }
-                    $state.go('game');
             })
         });
     };

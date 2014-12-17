@@ -172,8 +172,9 @@ angular.module('settlersApp')
 					} else {
 						boardFactory.upgradeSettlementToCity(authFactory.getPlayerID(), location);
 					}
-					return true;
 					updateFireBase(updates);
+					dataLink.child('games').child($rootScope.currentGameID).child('chats').push({text:authFactory.getPlayerName() + " has built a settlement", systemMessage:true});
+					return true;
 				}
 			},
 			upgradeSettlementToCity: function(location){
@@ -184,6 +185,7 @@ angular.module('settlersApp')
 				else {
 					boardFactory.upgradeSettlementToCity(authFactory.getPlayerID(), location);
 					updateFireBase(updates);
+					dataLink.child('games').child($rootScope.currentGameID).child('chats').push({text:authFactory.getPlayerName() + " has built a city", systemMessage:true});
 				}
 			},
 			buildRoad: function(location, direction){
@@ -195,6 +197,7 @@ angular.module('settlersApp')
 					var destination = game.gameBoard.getRoadDestination(location, direction);
 					boardFactory.buildRoad(authFactory.getPlayerID(), location, destination);
 					updateFireBase(updates);
+					dataLink.child('games').child($rootScope.currentGameID).child('chats').push({text:authFactory.getPlayerName() + " has built a road", systemMessage:true});
 					return true;
 				}
 			},
@@ -206,6 +209,7 @@ angular.module('settlersApp')
 				} else {
 					boardFactory.moveRobber(destination);
 					updateFireBase(updates);
+					dataLink.child('games').child($rootScope.currentGameID).child('chats').push({text:authFactory.getPlayerName() + " has moved the robber", systemMessage:true});
 					return true;
 				}
 			},
