@@ -8,5 +8,6 @@ angular.module('settlersApp', [
   'ui.bootstrap'
 ])
   .config(function ($stateProvider, $urlRouterProvider, $locationProvider, $httpProvider) {
+    $locationProvider.html5Mode(true);
     $urlRouterProvider.otherwise('/');
-  })
+  });

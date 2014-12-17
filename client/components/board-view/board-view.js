@@ -3,7 +3,7 @@
 angular.module('settlersApp')
   .factory('boardFactory', function($state, $rootScope, authFactory) {
     if(!authFactory.getAuthData()) {
-      $state.go('main');
+      $state.go('main.login');
     }
 
     var camera, scene, renderer, controls, light, water, game_board, someAction, updateEngine;
@@ -76,6 +76,7 @@ angular.module('settlersApp')
   }
 
   var createRenderer = function(){
+
     var renderer = new THREE.WebGLRenderer({antialias:true});
     renderer.setClearColor( 0xA1CEED );
     renderer.setSize( canvas_width, canvas_height );
@@ -136,8 +137,6 @@ angular.module('settlersApp')
     return mirrorMesh;
   };
 
-  var renderer = createRenderer();
-
   $(window).on('resize', function(){
     canvas_width = $(window).width();
     canvas_height = $(window).height();
@@ -146,7 +145,9 @@ angular.module('settlersApp')
       camera.aspect = (canvas_width/canvas_height);
       camera.updateProjectionMatrix();
     }
-    renderer.setSize(canvas_width, canvas_height);
+    if(!!renderer){
+      renderer.setSize(canvas_width, canvas_height);
+    }
   });
 
   function unset_someAction(success){
@@ -161,19 +162,24 @@ angular.module('settlersApp')
       game_board.board.buildRoad(player, vertex1, vertex2);
     },
     drawGame: function(game) {
+      if(!renderer){
+        renderer = createRenderer();
+      }
       init(game);
     },
     insert: function() {
-      $("#board_container").height(canvas_height);
-      $("#board_container").prepend( renderer.domElement );
-      $("#board-canvas").addClass( 'full' );
-      $("board-canvas").focus();
+      if(!!renderer){
+        $("#board_container").height(canvas_height);
+        $("#board_container").prepend( renderer.domElement );
+        $("#board-canvas").addClass( 'full' );
+        $("board-canvas").focus();
 
-      $('#board-canvas').on('mousewheel', function(e) {
-          e.preventDefault();
-          e.stopPropagation();
-      });
-      animate();
+        $('#board-canvas').on('mousewheel', function(e) {
+            e.preventDefault();
+            e.stopPropagation();
+        });
+        animate();
+      }
     },
     set_someAction: function(action){
       var engine_factory = angular.element(document.body).injector().get('engineFactory');
