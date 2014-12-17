@@ -11,6 +11,9 @@ angular.module('settlersApp')
     var canvas_width = $(window).width();
     var canvas_height = $(window).height();
 
+    // Game view data that needs to be displayed, but not on WebGL canvas
+    var players;
+
     var init = function(game) {
 
       scene = new THREE.Scene();
@@ -228,7 +231,7 @@ angular.module('settlersApp')
   };
 })
 
-.controller('BoardCtrl', function(boardFactory, engineFactory, authFactory, $scope, $rootScope){
+.controller('BoardCtrl', function(boardFactory, engineFactory, authFactory, $scope, $rootScope, $timeout){
   var self = this;
   self.setMode = boardFactory.set_someAction;
   self.textContent = "";
@@ -236,6 +239,16 @@ angular.module('settlersApp')
   $scope.playerHasRolled = false;
   $rootScope.currentPlayer = engineFactory.getGame().currentPlayer;
   $rootScope.playerBoard = [];
+
+  $rootScope.currentRoll = engineFactory.currentDiceRoll();
+  $scope.currentGameID = $rootScope.currentGameID;
+  var dataLink = engineFactory.getDataLink();
+  var chatLink = dataLink.child('games').child($rootScope.currentGameID).child('chats');
+  var gameLink = dataLink.child('games').child($rootScope.currentGameID).child('data');
+  var userLink = dataLink.child('games').child($rootScope.currentGameID);
+  var userDB = dataLink.child('users');
+  self.players =[];
+  pullCurrentUsers();
 
   $scope.toggleDropdown = function($event) {
     $event.preventDefault();
@@ -250,10 +263,10 @@ angular.module('settlersApp')
 
   function printChatMessage(name, text, systemMessage) {
     if (systemMessage !== undefined){
-      $('<div style="color:#bb5e00; font-size:0.8em; font-weight: 900;"/>').text(text).prepend($('<b/>').text('')).appendTo($('.textScreen'));
+      $('<div style="color:#bb5e00; font-size:0.8em; font-weight: 900;padding:4px 0 3px 0"/>').text(text).prepend($('<b/>').text('')).appendTo($('.textScreen'));
     }
     else {
-      $('<div/>').text(text).prepend($('<b/>').text(name+': ')).appendTo($('.textScreen'));
+      $('<div/>').text(text).prepend($('<em/>').text(name+': ')).appendTo($('.textScreen'));
     }
     $('.textScreen')[0].scrollTop = $('.textScreen')[0].scrollHeight;
   };
@@ -285,20 +298,11 @@ angular.module('settlersApp')
       }
    };
 
-  $rootScope.currentRoll = engineFactory.currentDiceRoll();
-  $scope.currentGameID = $rootScope.currentGameID;
-
-  var dataLink = engineFactory.getDataLink();
-  var chatLink = dataLink.child('games').child($rootScope.currentGameID).child('chats');
-  var gameLink = dataLink.child('games').child($rootScope.currentGameID).child('data');
-  var userLink = dataLink.child('games').child($rootScope.currentGameID);
-  var userDB = dataLink.child('users');
 
   // monitor for new chats
 
   chatLink.on('child_added', function(snapshot) {
     var message = snapshot.val();
-    console.log(message)
     if (!!message.systemMessage) {
       printChatMessage(message.name, message.text, message.systemMessage);
     }
@@ -307,30 +311,27 @@ angular.module('settlersApp')
 
   function pullCurrentUsers(){
     userLink.once('value', function (snapshot) {
+      self.players=[];
       var snapData = snapshot.val();
       var userData = snapData.users;
-      $rootScope.playerBoard = $rootScope.playerBoard || [];
-      for (var user in userData){
-        userDB.child(userData[user].playerID).once('value', function(snap){
-          var retrievedAuthData = snap.val();
-          console.log(userData[user].playerNumber)
-          var tempObj = {
-            playerName: retrievedAuthData.facebook.displayName,
-            playerID: userData[user].playerNumber
-          }
-          $rootScope.playerBoard[tempObj.playerID]= tempObj;
-        })
-      }      
+      var players = engineFactory.getGame().players;
+      for(var user in userData){
+        var resource_sum = 0;
+        for(var resource in players[userData[user].playerNumber].resources){
+          resource_sum+=players[userData[user].playerNumber].resources[resource];
+        }
+        self.players.push({playerName:userData[user].playerName, resourceSum:resource_sum});
+      }
+      $timeout(function(){
+        $scope.$apply();     
+      });
     })
   };
 
   userLink.on('child_changed', function(){
     pullCurrentUsers();
-    $rootScope.$apply();
   });
-
-  pullCurrentUsers();
-
+  
 }) 
 .directive('board', function(boardFactory) {
     return {
