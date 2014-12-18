@@ -518,6 +518,7 @@ GameBoard.prototype.portCreation = function() {
 
     // Creates an array with the order of 2 and 3 interval gaps
     // This way, the 3 interval gaps aren't all grouped on one side of the board
+    // NOTE: Intervals of 2 and 3 spaces skip 1 and 2 ports respectively
     for(i=1;i<=num_ports;i++){
         if(i%frequency===0 && three_space_intervals!==0){
             all_intervals.push(2);
