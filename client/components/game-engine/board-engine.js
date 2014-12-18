@@ -87,6 +87,7 @@ GameBoard.prototype.placeSettlement = function(player, location) {
         player.constructionPool.settlements--;
         player.playerQualities.settlements++;
         //add one point to their score
+        player.playerQualities.privatePoints++;
         player.ownedProperties.settlements.push({settlementID: location});
         //validate new buildable tiles?
         this.validateNewVertices(player, location);
@@ -142,6 +143,7 @@ GameBoard.prototype.upgradeSettlementToCity = function(player, location) {
         //remove city 'piece' from construction pool, add settlement piece
         player.constructionPool.settlements++;
         player.constructionPool.cities--;
+        player.playerQualities.privatePoints++;
         player.ownedProperties.cities.push({settlementID: location});
         return {
             'players': JSON.stringify(this.game.players),
