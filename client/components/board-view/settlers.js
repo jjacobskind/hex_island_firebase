@@ -166,30 +166,30 @@ Board.prototype.drawPort = function(location1, location2, resource){
 	}
 
 	var port = new THREE.Mesh(port_geometry, new THREE.MeshFaceMaterial(materials));
-	if(coords1[0]===coords2[0]){
-		if(location1[1]===0){
-			x_avg+=side_length/2;
-		} else {
-			x_avg-=side_length/2;
-		}
-	} else {
-		var abs_max_x = Math.max(Math.abs(coords1[0]), Math.abs(coords2[0]));
-		var abs_min_x = Math.min(Math.abs(coords1[0]), Math.abs(coords2[0]));
-		if(coords1[0]<0){
-			abs_max_x*=-1;
-			abs_min_x*=-1;
-		}
-		x_avg = (abs_max_x + (abs_min_x*2))/3;
+	// if(coords1[0]===coords2[0]){
+	// 	if(location1[1]===0){
+	// 		x_avg+=side_length/2;
+	// 	} else {
+	// 		x_avg-=side_length/2;
+	// 	}
+	// } else {
+	// 	var abs_max_x = Math.max(Math.abs(coords1[0]), Math.abs(coords2[0]));
+	// 	var abs_min_x = Math.min(Math.abs(coords1[0]), Math.abs(coords2[0]));
+	// 	if(coords1[0]<0){
+	// 		abs_max_x*=-1;
+	// 		abs_min_x*=-1;
+	// 	}
+	// 	x_avg = (abs_max_x + (abs_min_x*2))/3;
 
-		var abs_max_z = Math.max(Math.abs(coords1[1]), Math.abs(coords2[1]));
-		var abs_min_z = Math.min(Math.abs(coords1[1]), Math.abs(coords2[1]));
-		if(coords1[1]<0){
-			abs_max_z*=-1;
-			abs_min_z*=-1;
-		}
-		z_avg = ((abs_max_z*3) + abs_min_z)/4;
-		z_avg*=1.05
-	}
+	// 	var abs_max_z = Math.max(Math.abs(coords1[1]), Math.abs(coords2[1]));
+	// 	var abs_min_z = Math.min(Math.abs(coords1[1]), Math.abs(coords2[1]));
+	// 	if(coords1[1]<0){
+	// 		abs_max_z*=-1;
+	// 		abs_min_z*=-1;
+	// 	}
+	// 	z_avg = ((abs_max_z*3) + abs_min_z)/4;
+	// 	z_avg*=1.05
+	// }
 	port.position.set(x_avg, 1, z_avg);
 	port.rotation.set(Math.PI/2, 0, 0);
 	this.ports.push(port);
@@ -221,14 +221,6 @@ Board.prototype.indicesToCoordinates = function(indices){
 	z_pos-=(row-middle_row)*10*this.scale;
 	return [-x_pos, -z_pos];
 };
-
-// Board.prototype.coordinatesToIndices = function(coordinates) {
-// 	var x=coordinates[0], z=coordinates[1];
-// 	var small_num = this.small_num;
-// 	var big_num = this.big_num;
-// 	var num_rows = (big_num-small_num)*2 +1;
-	
-// };
 
 Board.prototype.coordinatesToVertices = function(coordinates){
 	var small_num = this.small_num;

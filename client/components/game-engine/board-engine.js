@@ -473,7 +473,7 @@ GameBoard.prototype.portCreation = function() {
         three_space_intervals++;
         space_interval_sum = (two_space_intervals*2)+(three_space_intervals*3);
     }
-    var space_interval_diff = space_interval_sum-num_spaces;
+    var space_interval_diff = space_interval_sum-num_spaces - 1;
     switch(space_interval_diff){
         case 1:
             two_space_intervals++;
@@ -520,10 +520,10 @@ GameBoard.prototype.portCreation = function() {
     // This way, the 3 interval gaps aren't all grouped on one side of the board
     for(i=1;i<=num_ports;i++){
         if(i%frequency===0 && three_space_intervals!==0){
-            all_intervals.push(3);
+            all_intervals.push(2);
             three_space_intervals--;
         } else {
-            all_intervals.push(2);
+            all_intervals.push(1);
         }
     }
 
@@ -569,9 +569,11 @@ GameBoard.prototype.portCreation = function() {
         var col = border_vertices[i][1];
         this.boardVertices[row][col].port = this_port;
         i++;
-        var row=border_vertices[i][0];
-        var col = border_vertices[i][1];
-        this.boardVertices[row][col].port = this_port;
+        if(i<len){
+            var row=border_vertices[i][0];
+            var col = border_vertices[i][1];
+            this.boardVertices[row][col].port = this_port;
+        }
 
         // Fast-forwards to next port-buildable vertex, using the array of 2 & 3 gap interval values
         while(all_intervals[0]>0){
