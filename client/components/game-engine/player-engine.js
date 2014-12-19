@@ -25,7 +25,6 @@ function Player(id) {
         roadSegments: 0,
         continuousRoadSegments: 0,
         knightsPlayed: 0,
-        publicPoints: 0,
         privatePoints: 0
     };
     this.tradingCosts = {
