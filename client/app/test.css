@@ -2,6 +2,18 @@
 /* Eric Meyer's Reset CSS v2.0 - http://cssreset.com */
 html,body,div,span,applet,object,iframe,h1,h2,h3,h4,h5,h6,p,blockquote,pre,a,abbr,acronym,address,big,cite,code,del,dfn,em,img,ins,kbd,q,s,samp,small,strike,strong,sub,sup,tt,var,b,u,i,center,dl,dt,dd,ol,ul,li,fieldset,form,label,legend,table,caption,tbody,tfoot,thead,tr,th,td,article,aside,canvas,details,embed,figure,figcaption,footer,header,hgroup,menu,nav,output,ruby,section,summary,time,mark,audio,video{border:0;font-size:100%;font:inherit;vertical-align:baseline;margin:0;padding:0}article,aside,details,figcaption,figure,footer,header,hgroup,menu,nav,section{display:block}body{line-height:1}ol,ul{list-style:none}blockquote,q{quotes:none}blockquote:before,blockquote:after,q:before,q:after{content:none}table{border-collapse:collapse;border-spacing:0}
 
+
+/*********************************************
+PLAYER'S BOX
+**********************************************/
+
+.current_player {
+  display:block;
+   -moz-box-shadow: inset 0 0 10px rgba(255,255,255,5);
+   -webkit-box-shadow: inset 0 0 10px rgba(255,255,255,5);
+   box-shadow: inset 0 0 10px rgba(255,255,255,5);
+}
+
 /*************** Login views  ***************/
 .test {
   position:absolute;
@@ -327,15 +339,18 @@ th:last-child {
 }
 
 td {
-  border-top: 3px solid #888;
-  border-bottom: 2px solid #000;
+  /*border-top: 3px solid #888;*/
+  /*border-bottom: 2px solid #000;*/
   padding: 6px 15px;
   position: relative;
+  vertical-align:middle;
+  width:32%;
 
 }
 
 td:first-child {
 /*  box-shadow: inset 1px 0 0 #fff;*/
+  width:18%;
 } 
 
 td:last-child {
@@ -344,8 +359,9 @@ td:last-child {
 } 
 
 tr {
-border-top:1px solid #000;
-border-bottom:1px solid #999;
+  border-top:1px solid #000;
+  border-bottom:1px solid #999;
+  display:block;
 }
 
 tr:last-of-type td {
@@ -362,14 +378,19 @@ tr:last-of-type td:last-child {
 
 .thisPlayersTurn {
 background: rgb(0,0,0);
-background: -moz-linear-gradient(top, rgba(0,0,0,1) 0%, rgba(0,0,0,1) 33%, rgba(15,55,87,1) 59%, rgba(28,102,159,1) 76%, rgba(125,185,232,1) 100%);
+display:block;
+-moz-box-shadow: inset 0 0 20px rgb(255,255,255);
+-webkit-box-shadow: inset 0 0 20px rgb(255,255,255);
+box-shadow: inset 0 0 20px rgb(255,255,255);
+
+/*9: -moz-linear-gradient(top, rgba(0,0,0,1) 0%, rgba(0,0,0,1) 33%, rgba(15,55,87,1) 59%, rgba(28,102,159,1) 76%, rgba(125,185,232,1) 100%);
 background: -webkit-gradient(linear, left top, left bottom, color-stop(0%,rgba(0,0,0,1)), color-stop(33%,rgba(0,0,0,1)), color-stop(59%,rgba(15,55,87,1)), color-stop(76%,rgba(28,102,159,1)), color-stop(100%,rgba(125,185,232,1)));
 background: -webkit-linear-gradient(top, rgba(0,0,0,1) 0%,rgba(0,0,0,1) 33%,rgba(15,55,87,1) 59%,rgba(28,102,159,1) 76%,rgba(125,185,232,1) 100%);
 background: -o-linear-gradient(top, rgba(0,0,0,1) 0%,rgba(0,0,0,1) 33%,rgba(15,55,87,1) 59%,rgba(28,102,159,1) 76%,rgba(125,185,232,1) 100%);
 background: -ms-linear-gradient(top, rgba(0,0,0,1) 0%,rgba(0,0,0,1) 33%,rgba(15,55,87,1) 59%,rgba(28,102,159,1) 76%,rgba(125,185,232,1) 100%);
 background: linear-gradient(to bottom, rgba(0,0,0,1) 0%,rgba(0,0,0,1) 33%,rgba(15,55,87,1) 59%,rgba(28,102,159,1) 76%,rgba(125,185,232,1) 100%);
 filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#000000', endColorstr='#7db9e8',GradientType=0 );
-}
+*/}
 
 /*************** UI BG - Transparent fade divs ***************/
 .opacityGradLtR {
