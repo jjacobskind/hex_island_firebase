@@ -5,34 +5,34 @@
 					<li>
 			  <div>
 			    <img src="assets/svg/brickOpt.svg" height="25px">
-			    <span href="#" class="blog-nav-item ng-binding">{{playerData.resources.brick}}</span>
+			    <span class="blog-nav-item ng-binding">{{playerData.resources.brick}}</span>
 			  </div>
 			</li>
 
 					<li>
 			  <div>
 			    <img src="assets/svg/grainOpt.svg" height="25px">
-			    <span href="#" class="blog-nav-item ng-binding">{{playerData.resources.grain}}</span>
+			    <span class="blog-nav-item ng-binding">{{playerData.resources.grain}}</span>
 			  </div>
 
 			</li>
 					<li>
 			  <div>
 			  <img src="assets/svg/lumberOpt.svg" height="25px">
-			    <span href="#" class="blog-nav-item ng-binding">{{playerData.resources.lumber}}</span>
+			    <span class="blog-nav-item ng-binding">{{playerData.resources.lumber}}</span>
 			  </div>
 			</li>
 					
 			  		<li>
 			  <div><img src="assets/svg/oreOpt.svg" height="25px">
 			  
-			  <span href="#" class="blog-nav-item ng-binding">{{playerData.resources.ore}}</span>
+			  <span class="blog-nav-item ng-binding">{{playerData.resources.ore}}</span>
 			  </div>
 			</li>
 			  		<li>
 			  <div>
 			  <img src="assets/svg/woolOpt.svg" height="25px">
-			    <span href="#" class="blog-nav-item ng-binding">{{playerData.resources.wool}}</span>
+			    <span class="blog-nav-item ng-binding">{{playerData.resources.wool}}</span>
 			  </div>
 			</li>
 				</ul>
@@ -41,25 +41,18 @@
 					<li>
 					  <div>
 					  <img src="assets/svg/devcardOpt.svg" height="25px">
-					    <span href="#" class="blog-nav-item ng-binding">0</span>
+					    <span class="blog-nav-item ng-binding">0</span>
 					  </div>
 					</li>
 					<li>
 					  <div>
 					  <img src="assets/svg/starOpt.svg" height="25px">
-					    <span href="#" class="blog-nav-item ng-binding">{{$root.playerData.playerQualities.privatePoints}}</span>
+					    <span class="blog-nav-item ng-binding">{{$root.playerData.playerQualities.privatePoints}}</span>
 					  </div>
 					</li>
-
 					<li>
 						<div>
-							<span href="#" class="blog-nav-item ng-binding">LONGEST ROAD: 1</span>
-						</div>
-					</li>
-
-					<li>
-						<div>
-							<span href="#" class="blog-nav-item ng-binding">TURN: {{$root.currentTurn}}</span>
+							<span class="blog-nav-item ng-binding">TURN: {{$root.currentTurn}}</span>
 						</div>
 					</li>
 				</ul>
@@ -135,21 +128,11 @@
 
 	<table>
 	  <tbody>
-	    <tr ng-repeat="player in board_ctrl.players">
-	      <td><img height="45px"src="assets/images/hoot.png" /></td>
+	    <tr ng-repeat="player in board_ctrl.players" ng-class="{thisPlayersTurn: $index===$root.currentPlayer}">
+	      <td><img height="45px"src="assets/images/hoot.png"></td>
 	      <td>{{player.playerName}}</td>
 	      <td>{{player.resourceSum}}</td>
 	    </tr>
-<!-- 	    <tr>
-	      <td><img height="45px"src="assets/images/spook.png" /></td>
-	      <td>Steve</td>
-	      <td>0</td>
-	    </tr>
-	    <tr>
-	      <td><img height="45px"src="assets/images/ship.png" /></td>
-	      <td>Ahn</td>
-	      <td>0</td>
-	    </tr> -->
 	  </tbody>
 	</table>
 	<!--end playerBoard-->
