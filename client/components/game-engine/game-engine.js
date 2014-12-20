@@ -9,6 +9,7 @@ function GameEngine(small_num, large_num) {
     //true or false: is the stage where players add their first two settlements, and first two roads complete?
     this.boardIsSetup = false;
     this.currentPlayer = 0;
+    this.longestRoad = null;
     //have all players setup their first two settlements and first two roads?
 }
 
@@ -79,22 +80,53 @@ GameEngine.prototype.roll = function() {
 };
 
 GameEngine.prototype.findLongestRoad = function() {
-  var longest_road = [];
+  var longest_roads = [];
   for(var row=0, num_rows=this.gameBoard.boardVertices.length; row<num_rows; row++){
     for(var col=0, num_cols=this.gameBoard.boardVertices[row].length; col<num_cols; col++){
       var road = this.gameBoard.followRoad([row, col]);
-      if(!longest_road.length || road.length > longest_road[0].length){
-        longest_road=[];
-        longest_road.unshift(road);
+      if(longest_roads.length===0 || road.length > longest_roads[0].length){
+        longest_roads=[road];
       }
-      else if(!!longest_road[0] && road.length===longest_road[0].length) {
+      else if(!!longest_roads[0] && road.length===longest_roads[0].length) {
         // Need to do something here so that ties don't change possessor of points for longest road
-        // longest_road.unshift(road);
+        longest_roads.push(road);
       }
     }
   }
-  console.log(longest_road[0]);
-  return longest_road[0].length-1;  //number of roads is always one less than the number of vertices along it
+
+  // Get ID of owner of longest road (will only be used if there is only one longest road, so only need to check 0 index)
+  var vertex1 = longest_roads[0][0];
+  var vertex2 = longest_roads[0][1];
+  for(var key in this.gameBoard.boardVertices[0][0].connections){
+    if(this.gameBoard.getRoadDestination(vertex1, key)===vertex2){
+       var owner = this.gameBoard.boardVertices[vertex1[0]][vertex1[1]].connections[key];
+    }
+  }
+  var longest_road_length = longest_roads[0].length-1;   //number of roads is always one less than the number of vertices along it
+
+  // Check if this is the first legitimate longest road of the game
+  if(!this.longestRoad && longest_roads.length===1 && longest_road_length>=5) {
+    this.longestRoad = {road_length: longest_road_length, owner: owner};  
+    this.players[owner].playerQualities.privatePoints+=2;
+    this.players[owner].hasLongestRoad=true;
+  }
+  // Check if this longest road beats the current longest road and whether points need to be transferred
+  else if(!!this.longestRoad && longest_roads.length===1 && longest_road_length>this.longestRoad.road_length) {
+    if(owner!==this.longestRoad.owner){
+      this.players[owner].playerQualities.privatePoints+=2;
+      this.players[owner].hasLongestRoad=true;
+
+      this.players[this.longestRoad.owner].playerQualities.privatePoints-=2;
+      this.players[this.longestRoad.owner].hasLongestRoad = false;
+    }
+    this.longestRoad = {road_length: longest_road_length, owner: owner};
+  }
+  // check for when the longest road is split by a settlement
+  else if(!!this.longestRoad && this.longestRoad.length>longest_road_length && (longest_roads.length>1 || longest_road_length<5) ){
+    this.players[this.longestRoad.owner].playerQualities.privatePoints-=2;
+    this.players[this.longestRoad.owner].hasLongestRoad = false;
+    this.longestRoad = null;
+  }
 };
 
 // Finds the index of the first instance of a nested array in its parent array
