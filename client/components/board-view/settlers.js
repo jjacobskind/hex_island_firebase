@@ -399,15 +399,18 @@ Board.prototype.populateBoard = function(getRoadDestination, tiles) {
 					}
 				}
 			}
-
-			if(!!tiles[row] && !!tiles[row][col] && tiles[row][col].robber === true){
-				this.drawRobber([row, col]);
-			}
 			vertices_row.push(obj);
 		}
 		vertices.push(vertices_row);
 	}
 	this.boardVertices = vertices;
+	for(row=0, num_rows=tiles.length;row<num_rows; row++){
+		for(col=0, num_cols=tiles[row].length;col<num_cols;col++){
+			if(!!tiles[row] && !!tiles[row][col] && tiles[row][col].robber === true){
+				this.drawRobber([row, col]);
+			}
+		}
+	}
 };
 
 // Returns color associated with this player

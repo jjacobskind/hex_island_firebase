@@ -296,7 +296,7 @@ angular.module('settlersApp')
          $scope.playerHasRolled = true;
          engineFactory.rollDice();
          $rootScope.currentRoll = engineFactory.getGame().diceNumber;
-         chatLink.push({name: 'GAME', text: "On turn " + $rootScope.currentTurn + ", " + engineFactory.getGame().players[$rootScope.currentPlayer].playerName + " has rolled a " + $rootScope.currentRoll, systemMessage: true});
+         chatLink.push({name: 'GAME', text: "On turn " + $rootScope.currentTurn + ", " + authFactory.getPlayerName() + " has rolled a " + $rootScope.currentRoll, systemMessage: true});
        }
        $rootScope.currentRoll = engineFactory.getGame().diceNumber;
       if($rootScope.currentRoll===7){
