@@ -110,6 +110,7 @@ GameBoard.prototype.placeSettlement = function(player, location) {
       player.resources.lumber--;
       player.resources.brick--;
     }
+    this.game.findLongestRoad();
     return {'players': JSON.stringify(this.game.players),
             'boardVertices': JSON.stringify(this.boardVertices)
     };
@@ -265,6 +266,7 @@ GameBoard.prototype.constructRoad = function(player, currentLocation, newDirecti
           player.resources.lumber--;
           player.resources.brick--;
         }
+        this.game.findLongestRoad();
         return {
             players: JSON.stringify(this.game.players),
             boardVertices: JSON.stringify(this.boardVertices)
@@ -592,7 +594,10 @@ GameBoard.prototype.followRoad = function(location, road, player) {
     var col = location[1];
     var vertex = this.boardVertices[row][col];
     var longest_road = [];
-    // console.log(row, col);
+
+    // if(!!road){
+    //     console.log(road);
+    // }
 
     // If this is the starting vertex
     if(!road){
@@ -600,12 +605,10 @@ GameBoard.prototype.followRoad = function(location, road, player) {
         road.push([row, col]);
         for(var key in vertex.connections){
             var next_vertex = this.getRoadDestination([row, col], String(key));
-            if(!!next_vertex){
-                if(vertex.connections[key]!==null){
-                    var temp_road = this.followRoad(next_vertex, road.slice(0), vertex.connections[key]);
-                    if(temp_road.length>longest_road.length){
-                        longest_road = temp_road;
-                    }
+            if(!!next_vertex && vertex.connections[key]!==null){
+                var temp_road = this.followRoad(next_vertex, road.slice(0), vertex.connections[key]);
+                if(temp_road.length>longest_road.length){
+                    longest_road = temp_road;
                 }
             }
         }
@@ -625,10 +628,10 @@ GameBoard.prototype.followRoad = function(location, road, player) {
         // console.log(this.game.getNestedArrayIndex(road, [row, col]));
         road.push([row, col]);
         for(key in vertex.connections){
-            if(!!vertex.connections[key] && vertex.connections[key]===player){
+            if(vertex.connections[key]===player){
                 next_vertex = this.getRoadDestination([row, col], String(key));
                 if(!!next_vertex){
-                    var temp_road = this.followRoad(next_vertex, road.slice(0), player); 
+                    temp_road = this.followRoad(next_vertex, road.slice(0), player); 
                     if(temp_road.length>longest_road.length){
                         longest_road = temp_road;
                     }
