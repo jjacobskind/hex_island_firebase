@@ -132,6 +132,12 @@
 	      <td><img height="45px"src="assets/images/hoot.png"></td>
 	      <td>{{player.playerName}}</td>
 	      <td>{{player.resourceSum}}</td>
+	      <td>
+	      	<ul>
+	      		<li ng-show="player.longestRoad">LR</li>
+	      		<li ng-show="player.largestArmy">LA</li>
+	      	</ul>
+	      </td>
 	    </tr>
 	  </tbody>
 	</table>
