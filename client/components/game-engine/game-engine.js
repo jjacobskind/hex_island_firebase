@@ -84,7 +84,6 @@ GameEngine.prototype.findLongestRoad = function() {
   for(var row=0, num_rows=this.gameBoard.boardVertices.length; row<num_rows; row++){
     for(var col=0, num_cols=this.gameBoard.boardVertices[row].length; col<num_cols; col++){
       var road = this.gameBoard.followRoad([row, col]);
-      // console.log("---------------------");
       if(longest_roads.length===0 || road.length > longest_roads[0].length){
         longest_roads=[road];
       }

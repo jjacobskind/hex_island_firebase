@@ -597,10 +597,6 @@ GameBoard.prototype.followRoad = function(location, road, player) {
     var vertex = this.boardVertices[row][col];
     var longest_road = [];
 
-    // if(!!road){
-    //     console.log(road);
-    // }
-
     // If this is the starting vertex
     if(!road){
         var road=[];
