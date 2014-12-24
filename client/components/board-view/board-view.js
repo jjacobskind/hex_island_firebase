@@ -326,7 +326,10 @@ angular.module('settlersApp')
         for(var resource in players[userData[user].playerNumber].resources){
           resource_sum+=players[userData[user].playerNumber].resources[resource];
         }
-        self.players.push({playerName:userData[user].playerName, resourceSum:resource_sum});
+        self.players.push({playerName: userData[user].playerName, 
+                          resourceSum: resource_sum, 
+                          longestRoad: players[userData[user].playerNumber].hasLongestRoad,
+                          largestArmy: players[userData[user].playerNumber].hasLargestArmy });
       }
       $timeout(function(){
         $scope.$apply();     
