@@ -342,8 +342,13 @@ angular.module('settlersApp')
   });
   
   $scope.clickToOpen = function () {
-      ngDialog.open({ template: 'devCard' });
+      ngDialog.open({ template: 'devCard', scope: $scope });
   };
+
+  $scope.buyCard = function(playerID) {
+    engineFactory.getGame().buyDevelopmentCard(playerID);
+  }
+
 }) 
 .directive('board', function(boardFactory) {
     return {

@@ -154,6 +154,7 @@
 </div>
 
 <script type="text/ng-template" id="devCard">
+	<button ng-click="buyCard($root.playerData.playerID)">Buy a Development Card</button>
     <li>Knight: {{playerData.devCards.knight}}</li>
     <li>Victory Point: {{playerData.devCards.point}}</li>
     <li>Monopoly: {{playerData.devCards.monopoly}}</li>
