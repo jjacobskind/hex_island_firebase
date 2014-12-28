@@ -39,7 +39,7 @@
 
 				<ul id="menu" class="hudARight">
 					<li>
-					  <div>
+					  <div ng-click="clickToOpen(devCard)">
 					  <img src="assets/svg/devcardOpt.svg" height="25px">
 					    <span class="blog-nav-item ng-binding">0</span>
 					  </div>
@@ -152,3 +152,12 @@
 	</div>
 	<!-- end diceHolder view -->
 </div>
+
+<script type="text/ng-template" id="devCard">
+	<button ng-click="buyCard($root.playerData.playerID)">Buy a Development Card</button>
+    <li>Knight: {{playerData.devCards.knight}}</li>
+    <li>Victory Point: {{playerData.devCards.point}}</li>
+    <li>Monopoly: {{playerData.devCards.monopoly}}</li>
+    <li>Road Building: {{playerData.devCards.roadBuilding}}</li>
+    <li>Horn of Plenty: {{playerData.devCards.plenty}}</li>
+</script>

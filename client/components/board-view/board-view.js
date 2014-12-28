@@ -237,7 +237,7 @@ angular.module('settlersApp')
   };
 })
 
-.controller('BoardCtrl', function(boardFactory, engineFactory, authFactory, $scope, $rootScope, $timeout){
+.controller('BoardCtrl', function(boardFactory, engineFactory, authFactory, $scope, $rootScope, $timeout, ngDialog){
   var self = this;
   self.setMode = boardFactory.set_someAction;
   self.textContent = "";
@@ -341,6 +341,14 @@ angular.module('settlersApp')
     pullCurrentUsers();
   });
   
+  $scope.clickToOpen = function () {
+      ngDialog.open({ template: 'devCard', scope: $scope });
+  };
+
+  $scope.buyCard = function(playerID) {
+    engineFactory.getGame().buyDevelopmentCard(playerID);
+  }
+
 }) 
 .directive('board', function(boardFactory) {
     return {

@@ -300,7 +300,8 @@ GameEngine.prototype.upgradeSettlementToCity = function(playerID, location) {
   }
 };
 
-GameEngine.prototype.buyDevelopmentCard = function(player) {
+GameEngine.prototype.buyDevelopmentCard = function(playerID) {
+  var player = this.players[playerID];
   if (player.resources.wool < 1 || player.resources.grain < 1 || player.resources.ore < 1) {
     throw new Error ('Not enough resources to purchase a development card!')
   }
